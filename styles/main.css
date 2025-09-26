@@ -1,0 +1,416 @@
+/* main.css - Game Development Course Theme */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Orbitron:wght@400;700;900&display=swap');
+
+/* Game-themed CSS Variables */
+:root {
+    /* Retro Gaming Color Palette */
+    --game-bg-dark: #0f0e17;
+    --game-bg-mid: #1a1825;
+    --game-purple: #8b5cf6;
+    --game-pink: #ec4899;
+    --game-cyan: #06b6d4;
+    --game-green: #10b981;
+    --game-yellow: #fbbf24;
+    --game-red: #ef4444;
+    --game-blue: #3b82f6;
+    --game-orange: #f97316;
+    
+    /* Neon Glow Effects */
+    --neon-glow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor;
+    --text-glow: 0 0 5px currentColor;
+    
+    /* UI Colors */
+    --ui-bg: #1a1825;
+    --ui-border: #8b5cf6;
+    --ui-text: #e0def4;
+    --ui-accent: #10b981;
+    
+    /* Pixel Fonts */
+    --font-pixel: 'Press Start 2P', monospace;
+    --font-retro: 'VT323', monospace;
+    --font-tech: 'Orbitron', sans-serif;
+}
+
+/* Animated Background */
+body {
+    font-family: var(--font-tech);
+    background: var(--game-bg-dark);
+    background-image: 
+        repeating-linear-gradient(
+            0deg,
+            rgba(139, 92, 246, 0.03) 0px,
+            transparent 1px,
+            transparent 2px,
+            rgba(139, 92, 246, 0.03) 3px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            rgba(139, 92, 246, 0.03) 0px,
+            transparent 1px,
+            transparent 2px,
+            rgba(139, 92, 246, 0.03) 3px
+        );
+    background-size: 50px 50px;
+    color: var(--ui-text);
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Animated scanline effect */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(139, 92, 246, 0.02) 50%,
+        transparent 100%
+    );
+    animation: scanline 8s linear infinite;
+    pointer-events: none;
+    z-index: 1;
+}
+
+@keyframes scanline {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+}
+
+/* Main container with game border */
+.container, .main-content {
+    position: relative;
+    z-index: 2;
+    background: var(--ui-bg);
+    border: 3px solid var(--ui-border);
+    border-radius: 0;
+    padding: 30px;
+    margin: 20px auto;
+    max-width: 1200px;
+    box-shadow: 
+        0 0 20px rgba(139, 92, 246, 0.5),
+        inset 0 0 20px rgba(139, 92, 246, 0.1);
+}
+
+/* Pixel-perfect headers */
+h1 {
+    font-family: var(--font-pixel);
+    font-size: 2em;
+    color: var(--game-cyan);
+    text-shadow: var(--text-glow);
+    letter-spacing: 2px;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 4px solid var(--game-purple);
+    position: relative;
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 5px var(--game-cyan), 0 0 10px var(--game-cyan); }
+    to { text-shadow: 0 0 10px var(--game-cyan), 0 0 20px var(--game-cyan), 0 0 30px var(--game-cyan); }
+}
+
+h2 {
+    font-family: var(--font-tech);
+    font-size: 1.8em;
+    font-weight: 700;
+    color: var(--game-pink);
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+    margin: 25px 0 15px;
+}
+
+h3 {
+    font-family: var(--font-retro);
+    font-size: 1.6em;
+    color: var(--game-yellow);
+    letter-spacing: 1px;
+}
+
+/* Game card styles */
+.lecture-card, .card, .section {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);
+    border: 2px solid var(--ui-border);
+    border-radius: 0;
+    padding: 20px;
+    margin: 20px 0;
+    position: relative;
+    transition: all 0.3s ease;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.3);
+}
+
+.lecture-card::before, .card::before {
+    content: "";
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, var(--game-cyan), var(--game-purple), var(--game-pink));
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.lecture-card:hover, .card:hover {
+    transform: translate(-4px, -4px);
+    box-shadow: 8px 8px 0 rgba(0,0,0,0.5);
+}
+
+.lecture-card:hover::before, .card:hover::before {
+    opacity: 0.5;
+}
+
+/* Retro buttons */
+button, .button, .nav-button, a.button {
+    font-family: var(--font-retro);
+    font-size: 1.2em;
+    background: linear-gradient(180deg, var(--game-green) 0%, var(--game-green) 50%, #059669 50%, #059669 100%);
+    color: white;
+    border: 2px solid #059669;
+    padding: 12px 24px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    position: relative;
+    box-shadow: 
+        0 4px 0 #047857,
+        0 6px 8px rgba(0,0,0,0.3);
+    transition: all 0.1s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+button:hover, .button:hover, .nav-button:hover {
+    transform: translateY(2px);
+    box-shadow: 
+        0 2px 0 #047857,
+        0 4px 4px rgba(0,0,0,0.3);
+}
+
+button:active, .button:active {
+    transform: translateY(4px);
+    box-shadow: 
+        0 0 0 #047857,
+        0 2px 2px rgba(0,0,0,0.3);
+}
+
+/* Links with retro style */
+a {
+    color: var(--game-cyan);
+    text-decoration: none;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+a:hover {
+    color: var(--game-pink);
+    text-shadow: 0 0 5px currentColor;
+}
+
+a::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--game-pink);
+    transition: width 0.3s ease;
+}
+
+a:hover::after {
+    width: 100%;
+}
+
+/* Code blocks with terminal style */
+code, .code-block, .code-example {
+    font-family: var(--font-retro);
+    font-size: 1.2em;
+    background: #000;
+    color: var(--game-green);
+    padding: 2px 8px;
+    border: 1px solid var(--game-green);
+    box-shadow: inset 0 0 10px rgba(16, 185, 129, 0.2);
+}
+
+.code-block, .code-example {
+    display: block;
+    padding: 20px;
+    margin: 20px 0;
+    overflow-x: auto;
+    position: relative;
+}
+
+.code-block::before {
+    content: "> TERMINAL_";
+    color: var(--game-yellow);
+    font-family: var(--font-pixel);
+    font-size: 0.7em;
+    position: absolute;
+    top: 5px;
+    left: 10px;
+}
+
+/* Tables with game UI style */
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    background: var(--ui-bg);
+    border: 2px solid var(--game-purple);
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.3);
+}
+
+th {
+    font-family: var(--font-pixel);
+    font-size: 0.8em;
+    background: var(--game-purple);
+    color: white;
+    padding: 15px;
+    text-align: left;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+}
+
+td {
+    padding: 12px 15px;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+    font-family: var(--font-retro);
+    font-size: 1.2em;
+}
+
+tr:hover td {
+    background: rgba(139, 92, 246, 0.1);
+}
+
+/* Progress bars with game style */
+.progress, .progress-bar {
+    height: 30px;
+    background: #000;
+    border: 2px solid var(--game-purple);
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: var(--progress, 50%);
+    background: linear-gradient(90deg, var(--game-green), var(--game-cyan));
+    box-shadow: 0 0 10px var(--game-cyan);
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+/* Navigation with arcade style */
+nav, .navigation {
+    background: linear-gradient(180deg, #2a2836 0%, var(--ui-bg) 100%);
+    border: 3px solid var(--game-purple);
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 
+        inset 0 2px 0 rgba(255,255,255,0.1),
+        0 4px 0 rgba(0,0,0,0.3);
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+nav li {
+    position: relative;
+}
+
+nav a {
+    font-family: var(--font-retro);
+    font-size: 1.3em;
+    color: var(--game-yellow);
+    text-transform: uppercase;
+    padding: 10px 15px;
+    display: block;
+    transition: all 0.3s ease;
+}
+
+nav a:hover {
+    background: rgba(251, 191, 36, 0.1);
+    transform: scale(1.05);
+}
+
+/* Alert and notification boxes */
+.alert, .notification, .info-box {
+    font-family: var(--font-retro);
+    font-size: 1.2em;
+    padding: 15px 20px;
+    margin: 20px 0;
+    border: 2px solid;
+    position: relative;
+    animation: slideIn 0.5s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.alert-success, .success {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: var(--game-green);
+    color: var(--game-green);
+}
+
+.alert-warning, .warning {
+    background: rgba(251, 191, 36, 0.1);
+    border-color: var(--game-yellow);
+    color: var(--game-yellow);
+}
+
+.alert-error, .error {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: var(--game-red);
+    color: var(--game-red);
+}
+
+/* Achievement badges */
+.badge, .achievement {
+    display: inline-block;
+    font-family: var(--font-pixel);
+    font-size: 0.7em;
+    background: linear-gradient(135deg, var(--game-yellow), var(--game-orange));
+    color: var(--game-bg-dark);
+    padding: 5px 10px;
+    border: 2px solid var(--game-orange);
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    h1 { font-size: 1.5em; }
+    h2 { font-size: 1.3em; }
+    .container { padding: 15px; }
+    nav ul { flex-direction: column; }
+}

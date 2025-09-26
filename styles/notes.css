@@ -1,0 +1,442 @@
+/* notes.css - Game Development Course Student Notes Theme */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Orbitron:wght@400;700;900&display=swap');
+
+/* Notes-specific game variables */
+:root {
+    /* Notebook/Terminal Colors */
+    --note-bg: #0f0e17;
+    --note-paper: #1a1825;
+    --note-lines: rgba(139, 92, 246, 0.2);
+    --note-text: #e0def4;
+    --note-highlight: #fbbf24;
+    --note-accent: #10b981;
+    --note-warning: #f97316;
+    --note-error: #ef4444;
+    
+    /* Pixel fonts for notes */
+    --font-heading: 'Press Start 2P', monospace;
+    --font-content: 'VT323', monospace;
+    --font-labels: 'Orbitron', sans-serif;
+}
+
+/* Body with notebook grid pattern */
+body {
+    font-family: var(--font-content);
+    font-size: 1.2em;
+    background: var(--note-bg);
+    background-image: 
+        repeating-linear-gradient(
+            0deg,
+            var(--note-lines) 0px,
+            transparent 1px,
+            transparent 29px,
+            var(--note-lines) 30px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            rgba(139, 92, 246, 0.05) 0px,
+            transparent 1px,
+            transparent 29px,
+            rgba(139, 92, 246, 0.05) 30px
+        );
+    color: var(--note-text);
+    line-height: 30px;
+    padding: 20px;
+}
+
+/* Main container styled as game journal */
+.container, .notes-container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: var(--note-paper);
+    border: 3px solid var(--note-accent);
+    padding: 40px;
+    position: relative;
+    box-shadow: 
+        0 0 30px rgba(16, 185, 129, 0.3),
+        inset 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Page header with game title style */
+.header {
+    background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+    color: white;
+    padding: 30px;
+    margin: -40px -40px 30px -40px;
+    text-align: center;
+    border-bottom: 5px solid #fbbf24;
+    position: relative;
+}
+
+.header::before {
+    content: "QUEST LOG";
+    font-family: var(--font-heading);
+    font-size: 0.6em;
+    position: absolute;
+    top: 5px;
+    left: 10px;
+    opacity: 0.7;
+}
+
+.header h1 {
+    font-family: var(--font-heading);
+    font-size: 1.8em;
+    margin-bottom: 15px;
+    text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3);
+    animation: headerPulse 2s ease-in-out infinite;
+}
+
+@keyframes headerPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.header p {
+    font-family: var(--font-labels);
+    font-size: 1em;
+    margin: 5px 0;
+}
+
+/* Section blocks as game cards */
+.section {
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(139, 92, 246, 0.5);
+    padding: 25px;
+    margin-bottom: 30px;
+    position: relative;
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+}
+
+.section::before {
+    content: attr(data-level);
+    font-family: var(--font-heading);
+    font-size: 0.6em;
+    position: absolute;
+    top: -12px;
+    right: 10px;
+    background: var(--note-paper);
+    padding: 0 10px;
+    color: var(--note-highlight);
+}
+
+.section h2 {
+    font-family: var(--font-heading);
+    font-size: 1.2em;
+    color: #22d3ee;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px dotted rgba(34, 211, 238, 0.5);
+    text-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+}
+
+.section h3 {
+    font-family: var(--font-labels);
+    font-size: 1.2em;
+    color: var(--note-highlight);
+    margin: 20px 0 10px;
+    text-transform: uppercase;
+}
+
+/* Fill-in-the-blank fields as input areas */
+.blank, .fill-blank {
+    display: inline-block;
+    min-width: 150px;
+    border-bottom: 2px dotted var(--note-highlight);
+    color: var(--note-accent);
+    padding: 0 5px;
+    margin: 0 5px;
+    font-family: var(--font-content);
+    background: rgba(16, 185, 129, 0.1);
+    transition: all 0.3s ease;
+}
+
+.blank:hover, .fill-blank:hover {
+    background: rgba(16, 185, 129, 0.2);
+    border-bottom-color: var(--note-accent);
+}
+
+/* Code blocks styled as terminal windows */
+.code-block, .code-example {
+    font-family: var(--font-content);
+    font-size: 1.1em;
+    background: #000;
+    color: #4ade80;
+    padding: 20px;
+    margin: 20px 0;
+    border: 2px solid #4ade80;
+    position: relative;
+    box-shadow: 
+        0 0 20px rgba(74, 222, 128, 0.2),
+        inset 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.code-block::before {
+    content: "$ TERMINAL";
+    font-family: var(--font-heading);
+    font-size: 0.6em;
+    color: var(--note-highlight);
+    position: absolute;
+    top: 3px;
+    left: 10px;
+}
+
+.code-blank {
+    background: rgba(251, 191, 36, 0.2);
+    border-bottom: 2px solid var(--note-highlight);
+    padding: 0 8px;
+}
+
+/* Tables as game inventory screens */
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 20px 0;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid #7c3aed;
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3);
+}
+
+th {
+    font-family: var(--font-heading);
+    font-size: 0.8em;
+    background: linear-gradient(180deg, #7c3aed, #6d28d9);
+    color: white;
+    padding: 15px;
+    text-align: left;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+}
+
+td {
+    padding: 12px 15px;
+    border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+    font-size: 1.1em;
+}
+
+tr:nth-child(even) td {
+    background: rgba(124, 58, 237, 0.05);
+}
+
+tr:hover td {
+    background: rgba(124, 58, 237, 0.15);
+}
+
+/* Info boxes as game tooltips */
+.info-box {
+    background: rgba(34, 211, 238, 0.1);
+    border: 2px solid #22d3ee;
+    border-radius: 0;
+    padding: 20px;
+    margin: 20px 0;
+    position: relative;
+    box-shadow: 
+        0 0 15px rgba(34, 211, 238, 0.3),
+        4px 4px 0 rgba(0, 0, 0, 0.2);
+}
+
+.info-box::before {
+    content: "INFO";
+    font-family: var(--font-heading);
+    font-size: 0.6em;
+    position: absolute;
+    top: -10px;
+    left: 10px;
+    background: var(--note-paper);
+    padding: 0 8px;
+    color: #22d3ee;
+}
+
+/* Tips styled as power-ups */
+.tip, .tip-box {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1));
+    border-left: 5px solid var(--note-accent);
+    padding: 15px 20px;
+    margin: 20px 0;
+    position: relative;
+}
+
+.tip::before {
+    content: "⚡ POWER-UP TIP";
+    font-family: var(--font-heading);
+    font-size: 0.6em;
+    color: var(--note-accent);
+    display: block;
+    margin-bottom: 10px;
+}
+
+/* Warnings as danger zones */
+.warning, .warning-box {
+    background: rgba(249, 115, 22, 0.1);
+    border: 2px solid var(--note-warning);
+    padding: 15px 20px;
+    margin: 20px 0;
+    animation: warningFlash 3s ease-in-out infinite;
+}
+
+@keyframes warningFlash {
+    0%, 100% {
+        border-color: var(--note-warning);
+        box-shadow: 0 0 10px rgba(249, 115, 22, 0.2);
+    }
+    50% {
+        border-color: var(--note-error);
+        box-shadow: 0 0 20px rgba(249, 115, 22, 0.5);
+    }
+}
+
+.warning::before {
+    content: "⚠️ DANGER ZONE";
+    font-family: var(--font-heading);
+    font-size: 0.6em;
+    color: var(--note-warning);
+    display: block;
+    margin-bottom: 10px;
+}
+
+/* Homework section as quest objectives */
+.homework-box {
+    background: linear-gradient(135deg, #fbbf24 0%, #f97316 100%);
+    color: var(--note-bg);
+    padding: 25px;
+    margin: 30px 0;
+    border: 3px solid #f97316;
+    position: relative;
+    box-shadow: 
+        0 0 20px rgba(251, 191, 36, 0.4),
+        5px 5px 0 rgba(0, 0, 0, 0.3);
+}
+
+.homework-box::before {
+    content: "🎮 QUEST OBJECTIVES";
+    font-family: var(--font-heading);
+    font-size: 0.8em;
+    display: block;
+    margin-bottom: 15px;
+}
+
+/* Checklists as achievement tracking */
+ul.checklist {
+    list-style: none;
+    padding-left: 0;
+}
+
+ul.checklist li {
+    position: relative;
+    padding-left: 35px;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+}
+
+ul.checklist li::before {
+    content: "☐";
+    font-size: 1.5em;
+    position: absolute;
+    left: 0;
+    top: -5px;
+    color: var(--note-highlight);
+}
+
+ul.checklist li.completed::before {
+    content: "☑";
+    color: var(--note-accent);
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+}
+
+/* Footer as game stats */
+.footer {
+    text-align: center;
+    margin-top: 40px;
+    padding: 20px;
+    border-top: 2px dashed rgba(139, 92, 246, 0.5);
+    font-family: var(--font-labels);
+    color: var(--note-highlight);
+}
+
+.footer p {
+    margin: 10px 0;
+    font-size: 1.1em;
+}
+
+/* Print styles for actual note-taking */
+@media print {
+    body {
+        background: white;
+        color: black;
+        font-family: 'Courier New', monospace;
+    }
+    
+    .header {
+        background: none;
+        color: black;
+        border: 2px solid black;
+    }
+    
+    .blank {
+        border-bottom: 1px solid black;
+        background: none;
+    }
+}
+
+/* Achievement badges for completed sections */
+.achievement, .badge {
+    display: inline-block;
+    font-family: var(--font-heading);
+    font-size: 0.6em;
+    background: linear-gradient(135deg, #fbbf24, #f97316);
+    color: var(--note-bg);
+    padding: 5px 10px;
+    margin: 0 5px;
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+    animation: achievementBounce 2s ease-in-out infinite;
+}
+
+@keyframes achievementBounce {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    25% {
+        transform: translateY(-3px) rotate(-2deg);
+    }
+    75% {
+        transform: translateY(-3px) rotate(2deg);
+    }
+}
+
+/* Interactive elements */
+.interactive:hover {
+    cursor: pointer;
+    animation: glow 0.5s ease;
+}
+
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 0 5px currentColor;
+    }
+    50% {
+        box-shadow: 0 0 20px currentColor, 0 0 30px currentColor;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    body {
+        font-size: 1em;
+    }
+    
+    .container {
+        padding: 20px;
+    }
+    
+    .header h1 {
+        font-size: 1.3em;
+    }
+    
+    table {
+        font-size: 0.9em;
+    }
+}
