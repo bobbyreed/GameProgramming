@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session 1: Project Architecture & Canvas Basics - CSCI 3213</title>
+    
+    <!-- OCU Branded Presentation Styles with Theme Support -->
+    <link rel="stylesheet" href="../../styles/presentation.css">
+    <link rel="icon" type="image/x-icon" href="/images/favicon.png">
+    
+    <!-- Lecture-Specific Styles -->
+    <style>
+        .canvas-demo {
+            background: #1a1a2e;
+            border: 2px solid #16213e;
+            border-radius: 8px;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        .code-structure {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            border-left: 4px solid var(--ocu-cyan);
+        }
+        
+        .file-tree {
+            list-style: none;
+            padding-left: 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            line-height: 1.8;
+        }
+        
+        .file-tree li {
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .file-tree li:before {
+            content: "📁 ";
+            position: absolute;
+            left: 0;
+        }
+        
+        .file-tree li.file:before {
+            content: "📄 ";
+        }
+        
+        .coordinate-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .coordinate-example {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .exercise-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid var(--ocu-gold);
+        }
+        
+        .exercise-card h3 {
+            color: var(--ocu-gold);
+            margin-bottom: 10px;
+        }
+        
+        .interactive-demo {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .demo-controls {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .demo-button {
+            padding: 10px 20px;
+            background: var(--ocu-cyan);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        
+        .demo-button:hover {
+            background: var(--ocu-true-blue);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme toggle will be automatically added by JavaScript -->
+    
+    <div class="presentation-container">
+        <!-- Timer display -->
+        <div class="timer-display" id="timer-display">
+            <span id="timer-text">Session 1: Project Architecture & Canvas Basics
+                 <button class="home"><a href="../index.html">Home</a></button>
+            </span>
+        </div>
+
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <h1>Session 1: Project Architecture & Canvas Basics</h1>
+            <h2>Building the Foundation <span class="emoji">🎮</span></h2>
+            <p style="font-size: 1.5em; margin-top: 40px;">CSCI 3213 - Game Programming</p>
+            <p style="font-size: 1.3em;">JavaScript Game Engine Development</p>
+            <p style="margin-top: auto; font-style: italic;">Let's build something amazing from scratch!</p>
+        </div>
+
+        <!-- Slide 2: Learning Objectives -->
+        <div class="slide">
+            <h1>Today's Learning Outcomes</h1>
+            <ul style="font-size: 1.3em; line-height: 2.2;">
+                <li>🎯 Understand modular JavaScript project structure</li>
+                <li>🎯 Create and manipulate HTML5 Canvas elements</li>
+                <li>🎯 Draw basic shapes and text on canvas</li>
+                <li>🎯 Master coordinate systems in canvas</li>
+            </ul>
+            <div class="tip-box" style="margin-top: 30px;">
+                <strong>Goal:</strong> By the end of this session, you'll have a working canvas with your first rendered scene!
+            </div>
+        </div>
+
+        <!-- Slide 3: Why Modular Architecture? -->
+        <div class="slide">
+            <h1>Why Modular Architecture?</h1>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px;">
+                <div class="demo-box">
+                    <h3 style="color: #ff4444;">❌ Without Modules</h3>
+                    <ul style="text-align: left; font-size: 1.1em;">
+                        <li>1000+ lines in one file</li>
+                        <li>Hard to debug</li>
+                        <li>Team collaboration nightmare</li>
+                        <li>Reusability? What's that?</li>
+                    </ul>
+                </div>
+                <div class="demo-box" style="border-color: #44ff44;">
+                    <h3 style="color: #44ff44;">✅ With Modules</h3>
+                    <ul style="text-align: left; font-size: 1.1em;">
+                        <li>Organized, small files</li>
+                        <li>Easy to test & debug</li>
+                        <li>Multiple developers can work</li>
+                        <li>Reuse code everywhere!</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Project Structure -->
+        <div class="slide">
+            <h1>Our Project Structure</h1>
+            <div class="code-structure">
+                <ul class="file-tree">
+                    <li class="file">index.html <span style="color: #888;">// Game entry point</span></li>
+                    <li>/js/ <span style="color: #888;">// Main JavaScript root</span>
+                        <ul class="file-tree" style="padding-left: 20px;">
+                            <li class="file">game.js <span style="color: #888;">// Primary game module</span></li>
+                            <li>/core/ <span style="color: #888;">// Engine modules</span></li>
+                            <li>/players/ <span style="color: #888;">// Character modules</span></li>
+                            <li>/utils/ <span style="color: #888;">// Utility functions</span></li>
+                            <li>/world/ <span style="color: #888;">// Levels & worlds</span></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div class="tip-box">
+                <strong>Pro Tip:</strong> Keep your structure predictable - your future self will thank you!
+            </div>
+        </div>
+
+        <!-- Slide 5: Module Pattern -->
+        <div class="slide">
+            <h1>The Module Pattern</h1>
+            <div class="code-example">
+                <span class="comment">// Basic module structure</span>
+                <span class="keyword">function</span> <span class="function">MyModule</span>() {
+                    <span class="comment">// Private variables</span>
+                    <span class="keyword">var</span> secret = <span class="string">"Can't touch this!"</span>;
+                    
+                    <span class="comment">// Public interface</span>
+                    <span class="keyword">return</span> {
+                        <span class="function">publicMethod</span>: <span class="keyword">function</span>() {
+                            <span class="keyword">return</span> <span class="string">"I'm accessible!"</span>;
+                        }
+                    };
+                }
+
+                <span class="comment">// Export for use in other files</span>
+                module.exports = MyModule;
+            </div>
+            <div class="demo-box">
+                <p><strong>Key Concept:</strong> Modules help us encapsulate functionality and control what's public vs private!</p>
+            </div>
+        </div>
+
+        <!-- Slide 6: Canvas Basics -->
+        <div class="slide">
+            <h1>HTML5 Canvas: Your Game's Window</h1>
+            <div class="interactive-demo">
+                <canvas id="demoCanvas1" class="canvas-demo" width="600" height="300"></canvas>
+                <div class="demo-controls">
+                    <button class="demo-button" onclick="drawBasicShapes()">Draw Shapes</button>
+                    <button class="demo-button" onclick="clearCanvas('demoCanvas1')">Clear</button>
+                </div>
+            </div>
+            <div class="code-example">
+                <span class="comment">// Creating a canvas</span>
+                <span class="keyword">var</span> canvas = document.<span class="function">createElement</span>(<span class="string">'canvas'</span>);
+                <span class="keyword">var</span> ctx = canvas.<span class="function">getContext</span>(<span class="string">'2d'</span>);
+                canvas.width = <span class="number">800</span>;
+                canvas.height = <span class="number">600</span>;
+            </div>
+        </div>
+
+        <!-- Slide 7: Canvas Coordinate System -->
+        <div class="slide">
+            <h1>Understanding Canvas Coordinates</h1>
+            <div class="interactive-demo">
+                <canvas id="coordCanvas" class="canvas-demo" width="600" height="400"></canvas>
+            </div>
+            <div class="coordinate-grid">
+                <div class="coordinate-example">
+                    <h3>Origin (0,0)</h3>
+                    <p>Top-left corner</p>
+                </div>
+                <div class="coordinate-example">
+                    <h3>X-Axis →</h3>
+                    <p>Increases to the right</p>
+                </div>
+                <div class="coordinate-example">
+                    <h3>Y-Axis ↓</h3>
+                    <p>Increases downward</p>
+                </div>
+                <div class="coordinate-example">
+                    <h3>(width, height)</h3>
+                    <p>Bottom-right corner</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Drawing Operations -->
+        <div class="slide">
+            <h1>Basic Drawing Operations</h1>
+            <div class="code-example" style="font-size: 0.9em;">
+                <span class="comment">// Rectangle</span>
+                ctx.<span class="function">fillRect</span>(x, y, width, height);
+                ctx.<span class="function">strokeRect</span>(x, y, width, height);
+
+                <span class="comment">// Circle</span>
+                ctx.<span class="function">beginPath</span>();
+                ctx.<span class="function">arc</span>(x, y, radius, <span class="number">0</span>, Math.PI * <span class="number">2</span>);
+                ctx.<span class="function">fill</span>();
+
+                <span class="comment">// Text</span>
+                ctx.font = <span class="string">'32px Arial'</span>;
+                ctx.fillStyle = <span class="string">'#ffffff'</span>;
+                ctx.<span class="function">fillText</span>(<span class="string">'Hello Game!'</span>, x, y);
+
+                <span class="comment">// Line</span>
+                ctx.<span class="function">beginPath</span>();
+                ctx.<span class="function">moveTo</span>(x1, y1);
+                ctx.<span class="function">lineTo</span>(x2, y2);
+                ctx.<span class="function">stroke</span>();
+            </div>
+        </div>
+
+        <!-- Slide 9: Helper Functions -->
+        <div class="slide">
+            <h1>JavaScript Helper Notes</h1>
+            <div class="code-example">
+                <span class="comment">// Function declaration basics</span>
+                <span class="keyword">function</span> <span class="function">myFunction</span>(parameter) {
+                    <span class="keyword">return</span> parameter * <span class="number">2</span>;
+                }
+
+                <span class="comment">// Object literals</span>
+                <span class="keyword">var</span> myObject = {
+                    property: <span class="string">"value"</span>,
+                    <span class="function">method</span>: <span class="keyword">function</span>() {
+                        console.<span class="function">log</span>(<span class="keyword">this</span>.property);
+                    }
+                };
+
+                <span class="comment">// Accessing DOM elements</span>
+                <span class="keyword">var</span> element = document.<span class="function">getElementById</span>(<span class="string">'myId'</span>);
+                element.style.background = <span class="string">'blue'</span>;
+            </div>
+        </div>
+
+        <!-- Slide 10: Creating Our First Game Module -->
+        <div class="slide">
+            <h1>Building Our Game Module</h1>
+            <div class="code-example" style="font-size: 0.85em;">
+                <span class="comment">// /js/game.js</span>
+                <span class="keyword">var</span> $container = document.<span class="function">getElementById</span>(<span class="string">'container'</span>);
+
+                <span class="keyword">function</span> <span class="function">Game</span>(w, h) {
+                    <span class="comment">// Create our viewport</span>
+                    <span class="keyword">this</span>.viewport = document.<span class="function">createElement</span>(<span class="string">'canvas'</span>);
+                    <span class="keyword">this</span>.viewport.width = w;
+                    <span class="keyword">this</span>.viewport.height = h;
+                    
+                    <span class="comment">// Get the drawing context</span>
+                    <span class="keyword">this</span>.context = <span class="keyword">this</span>.viewport.<span class="function">getContext</span>(<span class="string">'2d'</span>);
+                    
+                    <span class="comment">// Add to page</span>
+                    $container.<span class="function">appendChild</span>(<span class="keyword">this</span>.viewport);
+                    
+                    <span class="keyword">return</span> <span class="keyword">this</span>;
+                }
+
+                <span class="comment">// Create instance</span>
+                window.game = <span class="keyword">new</span> <span class="function">Game</span>(<span class="number">800</span>, <span class="number">600</span>);
+            </div>
+        </div>
+
+        <!-- Slide 11: In-Class Exercise 1 -->
+        <div class="slide">
+            <h1>Exercise 1: Canvas Playground 🎨</h1>
+            <div class="exercise-card">
+                <h3>Create a Simple Scene (15 minutes)</h3>
+                <p>Using rectangles, circles, and lines, draw:</p>
+                <ul style="font-size: 1.2em; line-height: 1.8;">
+                    <li>🏠 A house (rectangle + triangle roof)</li>
+                    <li>🌳 A tree (rectangle trunk + circle leaves)</li>
+                    <li>☀️ A sun (yellow circle with line rays)</li>
+                </ul>
+                <div class="tip-box" style="margin-top: 20px;">
+                    <strong>Starter Code:</strong>
+                    <pre style="text-align: left; font-size: 0.9em;">
+var canvas = document.getElementById('myCanvas');
+var ctx = canvas.getContext('2d');
+
+// House
+ctx.fillStyle = '#8B4513';
+ctx.fillRect(100, 200, 150, 100);
+// Add more...</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: In-Class Exercise 2 -->
+        <div class="slide">
+            <h1>Exercise 2: Text Experimentation 📝</h1>
+            <div class="exercise-card">
+                <h3>Create a Title Screen (10 minutes)</h3>
+                <p>Design a game title screen with:</p>
+                <ul style="font-size: 1.2em; line-height: 1.8;">
+                    <li>Game title in large font</li>
+                    <li>"Press ENTER to Start" in smaller font</li>
+                    <li>Different colors and fonts</li>
+                    <li>Centered text alignment</li>
+                </ul>
+                <div class="demo-box" style="margin-top: 20px;">
+                    <p><strong>Hint:</strong> Use <code>ctx.measureText(text).width</code> to center text!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: In-Class Exercise 3 -->
+        <div class="slide">
+            <h1>Exercise 3: Coordinate Challenge 🎯</h1>
+            <div class="exercise-card">
+                <h3>Recreate This Drawing (15 minutes)</h3>
+                <div class="interactive-demo">
+                    <canvas id="challengeCanvas" class="canvas-demo" width="600" height="300"></canvas>
+                </div>
+                <p style="margin-top: 20px;">Given the drawing above, calculate and code the exact coordinates!</p>
+                <div class="tip-box">
+                    <strong>Challenge:</strong> Use relative positioning - if the canvas width changes, your drawing should scale!
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Dynamic Canvas Generation -->
+        <div class="slide">
+            <h1>Pro Tip: Dynamic Canvas Creation</h1>
+            <div class="code-example" style="font-size: 0.85em;">
+                <span class="comment">// utils/utils.canvas.js</span>
+                module.exports = {
+                    <span class="function">generateCanvas</span>: <span class="keyword">function</span>(w, h) {
+                        <span class="keyword">var</span> canvas = document.<span class="function">createElement</span>(<span class="string">'canvas'</span>);
+                        canvas.width = w;
+                        canvas.height = h;
+                        
+                        <span class="comment">// Handle high-DPI displays</span>
+                        <span class="keyword">var</span> ctx = canvas.<span class="function">getContext</span>(<span class="string">'2d'</span>);
+                        <span class="keyword">var</span> ratio = window.devicePixelRatio || <span class="number">1</span>;
+                        
+                        canvas.width = w * ratio;
+                        canvas.height = h * ratio;
+                        canvas.style.width = w + <span class="string">'px'</span>;
+                        canvas.style.height = h + <span class="string">'px'</span>;
+                        
+                        ctx.<span class="function">scale</span>(ratio, ratio);
+                        <span class="keyword">return</span> canvas;
+                    }
+                };
+            </div>
+            <p style="margin-top: 20px; font-size: 1.1em;">This ensures crisp graphics on all devices!</p>
+        </div>
+
+        <!-- Slide 15: Common Pitfalls -->
+        <div class="slide">
+            <h1>⚠️ Common Canvas Pitfalls</h1>
+            <div style="font-size: 1.2em; line-height: 2;">
+                <div class="demo-box" style="text-align: left; margin: 20px 0;">
+                    <h3 style="color: #ff4444;">1. Forgetting to clear the canvas</h3>
+                    <p>Always use <code>ctx.clearRect(0, 0, width, height)</code> before redrawing!</p>
+                </div>
+                <div class="demo-box" style="text-align: left; margin: 20px 0;">
+                    <h3 style="color: #ff4444;">2. Wrong coordinate math</h3>
+                    <p>Remember: Y increases downward, not upward!</p>
+                </div>
+                <div class="demo-box" style="text-align: left; margin: 20px 0;">
+                    <h3 style="color: #ff4444;">3. Not saving/restoring context</h3>
+                    <p>Use <code>ctx.save()</code> and <code>ctx.restore()</code> for transformations!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16: Summary & Next Steps -->
+        <div class="slide">
+            <h1>Session Complete! <span class="emoji">🏆</span></h1>
+            <h2>You've Learned:</h2>
+            <ul style="font-size: 1.2em; line-height: 2;">
+                <li>✅ Modular project architecture benefits</li>
+                <li>✅ Canvas creation and manipulation</li>
+                <li>✅ Coordinate system mastery</li>
+                <li>✅ Basic drawing operations</li>
+                <li>✅ Module pattern implementation</li>
+            </ul>
+            
+            <div class="demo-box" style="margin-top: 30px;">
+                <p><strong>Homework:</strong> Create a canvas scene with at least 5 different objects using all shape types!</p>
+                <p><strong>Next Session:</strong> High-DPI Canvas & Utility Modules</p>
+            </div>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="navigation">
+            <button id="prevBtn">Previous</button>
+            <span class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">16</span>
+            </span>
+            <button id="nextBtn">Next</button>
+        </div>
+    </div>
+
+    <!-- Shared Presentation JavaScript -->
+    <script src="../../js/presentation.js"></script>
+
+    <!-- Lecture-Specific JavaScript -->
+    <script>
+        // Initialize coordinate system demo
+        function initCoordinateDemo() {
+            var canvas = document.getElementById('coordCanvas');
+            if (!canvas) return;
+            
+            var ctx = canvas.getContext('2d');
+            
+            // Draw grid
+            ctx.strokeStyle = '#444';
+            ctx.lineWidth = 1;
+            
+            // Grid lines
+            for (var i = 0; i <= 600; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, 400);
+                ctx.stroke();
+            }
+            
+            for (var j = 0; j <= 400; j += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, j);
+                ctx.lineTo(600, j);
+                ctx.stroke();
+            }
+            
+            // Draw axes
+            ctx.strokeStyle = '#00ff00';
+            ctx.lineWidth = 3;
+            
+            // X-axis
+            ctx.beginPath();
+            ctx.moveTo(0, 2);
+            ctx.lineTo(600, 2);
+            ctx.stroke();
+            
+            // Y-axis
+            ctx.beginPath();
+            ctx.moveTo(2, 0);
+            ctx.lineTo(2, 400);
+            ctx.stroke();
+            
+            // Labels
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 16px Arial';
+            ctx.fillText('(0,0)', 10, 25);
+            ctx.fillText('X →', 570, 25);
+            ctx.fillText('Y ↓', 10, 390);
+            ctx.fillText('(600,400)', 520, 390);
+            
+            // Draw some points
+            drawPoint(ctx, 300, 200, '(300,200)');
+            drawPoint(ctx, 150, 100, '(150,100)');
+            drawPoint(ctx, 450, 300, '(450,300)');
+        }
+        
+        function drawPoint(ctx, x, y, label) {
+            ctx.fillStyle = '#ff0';
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = '#fff';
+            ctx.font = '14px Arial';
+            ctx.fillText(label, x + 10, y - 10);
+        }
+        
+        // Draw basic shapes demo
+        function drawBasicShapes() {
+            var canvas = document.getElementById('demoCanvas1');
+            var ctx = canvas.getContext('2d');
+            
+            // Clear first
+            ctx.clearRect(0, 0, 600, 300);
+            
+            // Rectangle
+            ctx.fillStyle = '#ff6b6b';
+            ctx.fillRect(50, 50, 100, 80);
+            
+            // Circle
+            ctx.fillStyle = '#4ecdc4';
+            ctx.beginPath();
+            ctx.arc(250, 90, 40, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Triangle
+            ctx.fillStyle = '#ffe66d';
+            ctx.beginPath();
+            ctx.moveTo(350, 130);
+            ctx.lineTo(400, 50);
+            ctx.lineTo(450, 130);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Text
+            ctx.fillStyle = '#fff';
+            ctx.font = '24px Arial';
+            ctx.fillText('Hello Canvas!', 200, 200);
+            
+            // Line
+            ctx.strokeStyle = '#a8dadc';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(50, 250);
+            ctx.lineTo(550, 250);
+            ctx.stroke();
+        }
+        
+        function clearCanvas(canvasId) {
+            var canvas = document.getElementById(canvasId);
+            var ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        
+        // Initialize challenge drawing
+        function initChallengeDrawing() {
+            var canvas = document.getElementById('challengeCanvas');
+            if (!canvas) return;
+            
+            var ctx = canvas.getContext('2d');
+            
+            // Mystery drawing for students to recreate
+            ctx.fillStyle = '#3498db';
+            ctx.fillRect(100, 50, 150, 100);
+            
+            ctx.fillStyle = '#e74c3c';
+            ctx.beginPath();
+            ctx.arc(400, 100, 50, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.strokeStyle = '#2ecc71';
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            ctx.moveTo(100, 200);
+            ctx.lineTo(250, 200);
+            ctx.lineTo(175, 250);
+            ctx.closePath();
+            ctx.stroke();
+            
+            ctx.fillStyle = '#f39c12';
+            ctx.font = 'bold 36px Arial';
+            ctx.fillText('GAME', 380, 250);
+        }
+        
+        // Listen for slide changes
+        document.addEventListener('slidechange', (e) => {
+            // Initialize coordinate demo on slide 7
+            if (e.detail.currentSlide === 6) {
+                setTimeout(initCoordinateDemo, 100);
+            }
+            
+            // Initialize challenge on slide 13
+            if (e.detail.currentSlide === 12) {
+                setTimeout(initChallengeDrawing, 100);
+            }
+        });
+        
+        // Initial setup
+        window.addEventListener('load', () => {
+            // Check if we're on the coordinate slide initially
+            var currentSlide = document.querySelector('.slide.active');
+            var slides = Array.from(document.querySelectorAll('.slide'));
+            var currentIndex = slides.indexOf(currentSlide);
+            
+            if (currentIndex === 6) {
+                initCoordinateDemo();
+            }
+            if (currentIndex === 12) {
+                initChallengeDrawing();
+            }
+        });
+    </script>
+</body>
+</html>

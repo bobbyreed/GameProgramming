@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session 3: Game Object Structure - CSCI 3213</title>
+    
+    <!-- OCU Branded Presentation Styles with Theme Support -->
+    <link rel="stylesheet" href="../../styles/presentation.css">
+    <link rel="icon" type="image/x-icon" href="/images/favicon.png">
+    
+    <!-- Lecture-Specific Styles -->
+    <style>
+        .game-demo {
+            background: #1a1a2e;
+            color: #0f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            border: 2px solid #16213e;
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .comparison-card {
+            background: var(--card-bg, #f8f8f8);
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid var(--border-color, #ddd);
+        }
+        
+        .interactive-demo {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            border-radius: 10px;
+            color: white;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .exercise-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .concept-highlight {
+            background: linear-gradient(120deg, #fccb90 0%, #d57eeb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme toggle will be automatically added by JavaScript -->
+    
+    <div class="presentation-container">
+        <!-- Timer display for activities -->
+        <div class="timer-display" id="timer-display">
+            <span id="timer-text">Session 3: Game Object Structure
+                 <button class="home"><a href="../index.html">Home</a></button>
+            </span>
+        </div>
+
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <h1>Game Object Structure</h1>
+            <h2>Building Interactive Entities <span class="emoji">🎮</span></h2>
+            <p style="font-size: 1.5em; margin-top: 40px;">CSCI 3213 - Game Programming</p>
+            <p style="font-size: 1.3em;">Spring '26 - Week 2, Session 3</p>
+            <p style="margin-top: auto; font-style: italic;">From functions to living game objects!</p>
+        </div>
+
+        <!-- Slide 2: Learning Objectives -->
+        <div class="slide">
+            <h1>Today's Quest Objectives</h1>
+            <ul style="font-size: 1.4em; line-height: 2;">
+                <li>🎯 Design game objects using constructor functions</li>
+                <li>🎯 Implement state management patterns</li>
+                <li>🎯 Use dependency injection effectively</li>
+                <li>🎯 Organize game constants and configuration</li>
+            </ul>
+            <div class="tip-box">
+                <strong>Focus:</strong> We're building the foundation for every entity in your game!
+            </div>
+        </div>
+
+        <!-- Slide 3: The Big Picture -->
+        <div class="slide">
+            <h1>The Entity Architecture</h1>
+            <p>In game development, everything interactive is an <strong>entity</strong>:</p>
+            
+            <div class="demo-box">
+                <h3>Common Game Entities:</h3>
+                <ul>
+                    <li>👤 Players</li>
+                    <li>👾 Enemies</li>
+                    <li>💎 Collectibles</li>
+                    <li>🚧 Obstacles</li>
+                    <li>💥 Projectiles</li>
+                </ul>
+            </div>
+            
+            <p style="font-size: 1.2em; margin-top: 30px;">Each entity needs: <strong>State</strong>, <strong>Update Logic</strong>, and <strong>Render Method</strong></p>
+        </div>
+
+        <!-- Slide 4: Constructor Functions -->
+        <div class="slide">
+            <h1>Constructor Functions</h1>
+            <p>JavaScript's way of creating object templates:</p>
+
+            <div class="code-example">
+                <span class="comment">// Constructor function (capital letter convention)</span>
+                <span class="keyword">function</span> <span class="function">GameObject</span>(x, y) {
+                    <span class="keyword">this</span>.x = x;
+                    <span class="keyword">this</span>.y = y;
+                    <span class="keyword">this</span>.active = <span class="keyword">true</span>;
+                }
+
+                <span class="comment">// Creating instances with 'new'</span>
+                <span class="keyword">var</span> player = <span class="keyword">new</span> GameObject(100, 200);
+                <span class="keyword">var</span> enemy = <span class="keyword">new</span> GameObject(400, 150);
+            </div>
+
+            <div class="warning-box">
+                <strong>Important:</strong> Always use 'new' with constructor functions! Forgetting it causes 'this' to reference the global object.
+            </div>
+        </div>
+
+        <!-- Slide 5: Understanding 'this' -->
+        <div class="slide">
+            <h1>The Mysterious 'this' Keyword</h1>
+            
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <h3>✅ With 'new'</h3>
+                    <div class="code-example">
+                        <span class="keyword">function</span> Player(name) {
+                            <span class="keyword">this</span>.name = name;
+                        }
+                        
+                        <span class="keyword">var</span> p1 = <span class="keyword">new</span> Player("Hero");
+                        <span class="comment">// this = new object</span>
+                        <span class="comment">// p1.name = "Hero"</span>
+                    </div>
+                </div>
+                
+                <div class="comparison-card">
+                    <h3>❌ Without 'new'</h3>
+                    <div class="code-example">
+                        <span class="keyword">function</span> Player(name) {
+                            <span class="keyword">this</span>.name = name;
+                        }
+                        
+                        <span class="keyword">var</span> p2 = Player("Oops");
+                        <span class="comment">// this = window</span>
+                        <span class="comment">// window.name = "Oops" 😱</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <strong>Pro Tip:</strong> Save 'this' reference: <code>var self = this;</code> or <code>var that = this;</code>
+            </div>
+        </div>
+
+        <!-- Slide 6: Building a Complete Entity -->
+        <div class="slide">
+            <h1>Complete Entity Structure</h1>
+            <p>Following the Bengston pattern:</p>
+
+            <div class="code-example">
+                <span class="keyword">function</span> <span class="function">Player</span>(scope, x, y) {
+                    <span class="keyword">var</span> player = <span class="keyword">this</span>;
+                    
+                    <span class="comment">// State management</span>
+                    player.state = {
+                        position: { x: x, y: y },
+                        health: 100,
+                        speed: 2
+                    };
+                    
+                    <span class="comment">// Update method (game logic)</span>
+                    player.update = <span class="keyword">function</span>() {
+                        <span class="comment">// Move, check collisions, etc.</span>
+                    };
+                    
+                    <span class="comment">// Render method (drawing)</span>
+                    player.render = <span class="keyword">function</span>() {
+                        scope.context.fillRect(
+                            player.state.position.x,
+                            player.state.position.y,
+                            32, 32
+                        );
+                    };
+                    
+                    <span class="keyword">return</span> player;
+                }
+            </div>
+        </div>
+
+        <!-- Slide 7: State Management -->
+        <div class="slide">
+            <h1>State Management Pattern</h1>
+            <p>Centralizing entity data for clean code:</p>
+
+            <div class="code-example">
+                <span class="keyword">function</span> <span class="function">Enemy</span>(x, y, type) {
+                    <span class="keyword">this</span>.state = {
+                        <span class="comment">// Position data</span>
+                        position: { x: x, y: y },
+                        velocity: { x: 0, y: 0 },
+                        
+                        <span class="comment">// Game data</span>
+                        health: type === 'boss' ? 500 : 100,
+                        damage: type === 'boss' ? 50 : 10,
+                        
+                        <span class="comment">// Visual data</span>
+                        color: type === 'boss' ? '#ff0000' : '#ff9900',
+                        size: type === 'boss' ? 64 : 32
+                    };
+                }
+            </div>
+
+            <div class="tip-box">
+                <strong>Benefits:</strong> Easy serialization, clear data flow, simple debugging
+            </div>
+        </div>
+
+        <!-- Slide 8: Dependency Injection -->
+        <div class="slide">
+            <h1>Dependency Injection</h1>
+            <p>Passing dependencies instead of hard-coding them:</p>
+
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <h3>❌ Hard-coded</h3>
+                    <div class="code-example">
+                        <span class="keyword">function</span> Enemy() {
+                            <span class="comment">// Bad: directly accessing global</span>
+                            <span class="keyword">var</span> ctx = window.game.context;
+                            ctx.fillRect(0, 0, 32, 32);
+                        }
+                    </div>
+                </div>
+                
+                <div class="comparison-card">
+                    <h3>✅ Injected</h3>
+                    <div class="code-example">
+                        <span class="keyword">function</span> Enemy(scope) {
+                            <span class="comment">// Good: using passed scope</span>
+                            <span class="keyword">var</span> ctx = scope.context;
+                            ctx.fillRect(0, 0, 32, 32);
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <p style="margin-top: 20px;">Makes testing easier and reduces coupling!</p>
+        </div>
+
+        <!-- Slide 9: Game Configuration -->
+        <div class="slide">
+            <h1>Configuration Objects</h1>
+            <p>Centralize your game settings:</p>
+
+            <div class="code-example">
+                <span class="keyword">var</span> GameConfig = {
+                    <span class="comment">// Display settings</span>
+                    canvas: {
+                        width: 800,
+                        height: 600,
+                        background: '#1a1a2e'
+                    },
+                    
+                    <span class="comment">// Game rules</span>
+                    player: {
+                        startHealth: 100,
+                        speed: 3,
+                        color: '#00ff00'
+                    },
+                    
+                    <span class="comment">// Physics</span>
+                    physics: {
+                        gravity: 0.8,
+                        friction: 0.9
+                    }
+                };
+                
+                <span class="comment">// Usage</span>
+                <span class="keyword">var</span> player = <span class="keyword">new</span> Player(
+                    100, 100, 
+                    GameConfig.player.startHealth
+                );
+            </div>
+        </div>
+
+        <!-- Slide 10: Object Methods -->
+        <div class="slide">
+            <h1>Adding Methods to Objects</h1>
+            
+            <div class="code-example">
+                <span class="keyword">function</span> <span class="function">GameObject</span>(x, y) {
+                    <span class="keyword">var</span> self = <span class="keyword">this</span>;
+                    
+                    self.x = x;
+                    self.y = y;
+                    
+                    <span class="comment">// Method defined in constructor</span>
+                    self.move = <span class="keyword">function</span>(dx, dy) {
+                        self.x += dx;
+                        self.y += dy;
+                    };
+                }
+
+                <span class="comment">// Method on prototype (shared across instances)</span>
+                GameObject.prototype.distanceTo = <span class="keyword">function</span>(other) {
+                    <span class="keyword">var</span> dx = <span class="keyword">this</span>.x - other.x;
+                    <span class="keyword">var</span> dy = <span class="keyword">this</span>.y - other.y;
+                    <span class="keyword">return</span> Math.sqrt(dx * dx + dy * dy);
+                };
+            </div>
+
+            <div class="tip-box">
+                <strong>Memory Tip:</strong> Prototype methods save memory (one copy for all instances)
+            </div>
+        </div>
+
+        <!-- Slide 11: Exercise 1 Introduction -->
+        <div class="slide">
+            <h1>Exercise 1: Game Config Creator</h1>
+            <h2 style="color: #4caf50;">🛠️ 15 minutes</h2>
+            
+            <div class="exercise-box">
+                <h3>Your Task:</h3>
+                <p>Create a comprehensive configuration object for a space shooter game</p>
+                
+                <h4>Requirements:</h4>
+                <ul>
+                    <li>Canvas dimensions and colors</li>
+                    <li>Player ship settings (speed, health, fire rate)</li>
+                    <li>Enemy types with different properties</li>
+                    <li>Powerup configurations</li>
+                    <li>Game difficulty settings</li>
+                </ul>
+                
+                <h4>Starter Structure:</h4>
+                <div class="code-example">
+                    <span class="keyword">var</span> SpaceShooterConfig = {
+                        canvas: { <span class="comment">/* your settings */</span> },
+                        player: { <span class="comment">/* your settings */</span> },
+                        enemies: { <span class="comment">/* your settings */</span> }
+                    };
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Exercise 2 Introduction -->
+        <div class="slide">
+            <h1>Exercise 2: State Manager</h1>
+            <h2 style="color: #4caf50;">🎮 15 minutes</h2>
+            
+            <div class="exercise-box">
+                <h3>Your Task:</h3>
+                <p>Build a GameState object that tracks game mode and score</p>
+                
+                <h4>Requirements:</h4>
+                <ul>
+                    <li>Track current game mode (menu, playing, paused, gameOver)</li>
+                    <li>Manage score with add/subtract methods</li>
+                    <li>Track high score</li>
+                    <li>Method to change game state with validation</li>
+                </ul>
+                
+                <h4>Template:</h4>
+                <div class="code-example">
+                    <span class="keyword">function</span> <span class="function">GameState</span>() {
+                        <span class="keyword">this</span>.mode = 'menu';
+                        <span class="keyword">this</span>.score = 0;
+                        <span class="keyword">this</span>.highScore = 0;
+                        
+                        <span class="keyword">this</span>.changeMode = <span class="keyword">function</span>(newMode) {
+                            <span class="comment">// Validate and change mode</span>
+                        };
+                        
+                        <span class="comment">// Add more methods...</span>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Exercise 3 Introduction -->
+        <div class="slide">
+            <h1>Exercise 3: Constructor Challenge</h1>
+            <h2 style="color: #4caf50;">🏗️ 20 minutes</h2>
+            
+            <div class="exercise-box">
+                <h3>Your Task:</h3>
+                <p>Create three different game object constructors with unique properties</p>
+                
+                <h4>Build These Constructors:</h4>
+                
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px;">
+                    <div style="background: #fff3e0; padding: 10px; border-radius: 5px;">
+                        <strong>Enemy:</strong>
+                        <ul style="font-size: 0.9em;">
+                            <li>Position (x, y)</li>
+                            <li>Health</li>
+                            <li>Speed</li>
+                            <li>Attack pattern</li>
+                            <li>update() method</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="background: #e3f2fd; padding: 10px; border-radius: 5px;">
+                        <strong>Powerup:</strong>
+                        <ul style="font-size: 0.9em;">
+                            <li>Position (x, y)</li>
+                            <li>Type</li>
+                            <li>Duration</li>
+                            <li>Effect strength</li>
+                            <li>apply() method</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="background: #fce4ec; padding: 10px; border-radius: 5px;">
+                        <strong>Obstacle:</strong>
+                        <ul style="font-size: 0.9em;">
+                            <li>Position (x, y)</li>
+                            <li>Size</li>
+                            <li>Destructible?</li>
+                            <li>Damage amount</li>
+                            <li>checkCollision() method</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Common Patterns -->
+        <div class="slide">
+            <h1>Common Game Object Patterns</h1>
+            
+            <div class="code-example">
+                <span class="comment">// Pattern 1: Self-reference preservation</span>
+                <span class="keyword">function</span> <span class="function">Entity</span>() {
+                    <span class="keyword">var</span> self = <span class="keyword">this</span>;  <span class="comment">// Preserve 'this'</span>
+                    
+                    setTimeout(<span class="keyword">function</span>() {
+                        self.update();  <span class="comment">// 'self' still refers to entity</span>
+                    }, 1000);
+                }
+
+                <span class="comment">// Pattern 2: Chainable methods</span>
+                Entity.prototype.setPosition = <span class="keyword">function</span>(x, y) {
+                    <span class="keyword">this</span>.x = x;
+                    <span class="keyword">this</span>.y = y;
+                    <span class="keyword">return</span> <span class="keyword">this</span>;  <span class="comment">// Enable chaining</span>
+                };
+
+                <span class="comment">// Usage: entity.setPosition(10, 20).setHealth(100);</span>
+
+                <span class="comment">// Pattern 3: Factory function</span>
+                <span class="keyword">function</span> <span class="function">createEnemy</span>(type) {
+                    <span class="keyword">switch</span>(type) {
+                        <span class="keyword">case</span> 'zombie': <span class="keyword">return</span> <span class="keyword">new</span> Zombie();
+                        <span class="keyword">case</span> 'boss': <span class="keyword">return</span> <span class="keyword">new</span> Boss();
+                        <span class="keyword">default</span>: <span class="keyword">return</span> <span class="keyword">new</span> BasicEnemy();
+                    }
+                }
+            </div>
+        </div>
+
+        <!-- Slide 15: Module Organization -->
+        <div class="slide">
+            <h1>Organizing Your Game Modules</h1>
+            
+            <div class="demo-box">
+                <h3>Recommended File Structure:</h3>
+                <pre style="text-align: left; font-size: 1.1em;">
+/js
+  /core
+    game.js
+    game.loop.js
+    game.update.js
+    game.render.js
+  /entities
+    player.js
+    enemy.js
+    powerup.js
+  /utils
+    collision.js
+    input.js
+    helpers.js
+  /config
+    settings.js
+    constants.js
+                </pre>
+            </div>
+
+            <div class="tip-box">
+                <strong>Remember:</strong> Each module should have a single, clear responsibility!
+            </div>
+        </div>
+
+        <!-- Slide 16: Debugging Tips -->
+        <div class="slide">
+            <h1>Debugging Object Issues</h1>
+            
+            <div class="code-example">
+                <span class="comment">// Debug technique 1: Console logging state</span>
+                GameObject.prototype.debug = <span class="keyword">function</span>() {
+                    console.log('GameObject State:', <span class="keyword">this</span>.state);
+                    console.log('Position:', <span class="keyword">this</span>.x, <span class="keyword">this</span>.y);
+                };
+
+                <span class="comment">// Debug technique 2: Visual debugging</span>
+                GameObject.prototype.renderDebug = <span class="keyword">function</span>(ctx) {
+                    ctx.strokeStyle = 'red';
+                    ctx.strokeRect(<span class="keyword">this</span>.x - 1, <span class="keyword">this</span>.y - 1, 
+                                   <span class="keyword">this</span>.width + 2, <span class="keyword">this</span>.height + 2);
+                    
+                    <span class="comment">// Show position text</span>
+                    ctx.fillText(`(${<span class="keyword">this</span>.x}, ${<span class="keyword">this</span>.y})`, 
+                                 <span class="keyword">this</span>.x, <span class="keyword">this</span>.y - 5);
+                };
+
+                <span class="comment">// Debug technique 3: Type checking</span>
+                <span class="keyword">if</span> (!(entity <span class="keyword">instanceof</span> GameObject)) {
+                    console.error('Not a valid GameObject!');
+                }
+            </div>
+        </div>
+
+        <!-- Slide 17: Real-World Example -->
+        <div class="slide">
+            <h1>Putting It All Together</h1>
+            
+            <div class="code-example">
+                <span class="comment">// Complete enemy with AI behavior</span>
+                <span class="keyword">function</span> <span class="function">SmartEnemy</span>(game, x, y) {
+                    <span class="keyword">var</span> enemy = <span class="keyword">this</span>;
+                    
+                    enemy.state = {
+                        position: { x: x, y: y },
+                        target: null,
+                        health: 100,
+                        speed: 1.5,
+                        mode: 'patrol'  <span class="comment">// patrol, chase, attack</span>
+                    };
+                    
+                    enemy.update = <span class="keyword">function</span>() {
+                        <span class="comment">// Find nearest player</span>
+                        <span class="keyword">var</span> player = game.findNearestPlayer(enemy);
+                        <span class="keyword">var</span> distance = enemy.distanceTo(player);
+                        
+                        <span class="comment">// AI behavior based on distance</span>
+                        <span class="keyword">if</span> (distance < 50) {
+                            enemy.state.mode = 'attack';
+                            enemy.attack(player);
+                        } <span class="keyword">else if</span> (distance < 200) {
+                            enemy.state.mode = 'chase';
+                            enemy.moveToward(player);
+                        } <span class="keyword">else</span> {
+                            enemy.state.mode = 'patrol';
+                            enemy.patrol();
+                        }
+                    };
+                    
+                    enemy.render = <span class="keyword">function</span>() {
+                        game.context.fillStyle = enemy.state.mode === 'attack' ? 
+                                                 '#ff0000' : '#ff9900';
+                        game.context.fillRect(
+                            enemy.state.position.x,
+                            enemy.state.position.y,
+                            32, 32
+                        );
+                    };
+                }
+            </div>
+        </div>
+
+        <!-- Slide 18: Best Practices -->
+        <div class="slide">
+            <h1>Best Practices Checklist</h1>
+            
+            <div style="font-size: 1.3em; line-height: 2;">
+                <p>✅ <strong>Use constructor functions</strong> for creating multiple similar objects</p>
+                <p>✅ <strong>Always use 'new'</strong> when calling constructors</p>
+                <p>✅ <strong>Preserve 'this' reference</strong> with var self = this</p>
+                <p>✅ <strong>Organize state</strong> in a single state object</p>
+                <p>✅ <strong>Inject dependencies</strong> don't hard-code them</p>
+                <p>✅ <strong>Use prototypes</strong> for shared methods</p>
+                <p>✅ <strong>Keep configuration separate</strong> from logic</p>
+                <p>✅ <strong>Name constructors</strong> with capital letters</p>
+            </div>
+        </div>
+
+        <!-- Slide 19: Next Steps -->
+        <div class="slide">
+            <h1>What's Next?</h1>
+            
+            <div class="demo-box">
+                <h2>You Now Can:</h2>
+                <ul style="font-size: 1.2em; line-height: 1.8;">
+                    <li>✨ Create any game entity using constructors</li>
+                    <li>✨ Manage complex game state effectively</li>
+                    <li>✨ Build modular, reusable game components</li>
+                    <li>✨ Organize your code professionally</li>
+                </ul>
+            </div>
+            
+            <div class="interactive-demo">
+                <h3>Coming Up Next Session:</h3>
+                <p style="font-size: 1.3em;">🎯 The Game Loop & Animation</p>
+                <p>We'll make these objects come alive!</p>
+            </div>
+        </div>
+
+        <!-- Slide 20: Homework & Resources -->
+        <div class="slide">
+            <h1>Session Complete! <span class="emoji">🏆</span></h1>
+            
+            <div class="exercise-box">
+                <h3>Homework Challenge:</h3>
+                <p>Create a simple "Entity Manager" that can:</p>
+                <ul>
+                    <li>Store multiple game entities in an array</li>
+                    <li>Add and remove entities</li>
+                    <li>Call update() on all entities</li>
+                    <li>Call render() on all entities</li>
+                    <li>Find entities by type or ID</li>
+                </ul>
+            </div>
+            
+            <div class="demo-box">
+                <p><strong>Resources:</strong></p>
+                <ul>
+                    <li>📖 MDN: Object-oriented JavaScript</li>
+                    <li>📖 JavaScript: The Good Parts (Chapter 5)</li>
+                    <li>📖 Bengston Engine Design Guide</li>
+                </ul>
+            </div>
+            
+            <p style="font-size: 1.3em; margin-top: 30px; text-align: center;">
+                <strong>Next Class:</strong> Thursday - The Game Loop
+            </p>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="navigation">
+            <button id="prevBtn">Previous</button>
+            <span class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">20</span>
+            </span>
+            <button id="nextBtn">Next</button>
+        </div>
+    </div>
+
+    <!-- Shared Presentation JavaScript -->
+    <script src="../../js/presentation.js"></script>
+
+    <!-- Lecture-Specific JavaScript -->
+    <script>
+        // Track slide changes for interactive elements
+        document.addEventListener('slidechange', (e) => {
+            console.log(`Slide ${e.detail.currentSlide + 1} of ${e.detail.totalSlides}`);
+            
+            // Start timer for exercises
+            if (e.detail.currentSlide === 10) { // Exercise 1
+                console.log('Starting Exercise 1 Timer - 15 minutes');
+            } else if (e.detail.currentSlide === 11) { // Exercise 2
+                console.log('Starting Exercise 2 Timer - 15 minutes');
+            } else if (e.detail.currentSlide === 12) { // Exercise 3
+                console.log('Starting Exercise 3 Timer - 20 minutes');
+            }
+        });
+
+        // Example interactive demo for constructor visualization
+        function demonstrateConstructor() {
+            console.log('=== Constructor Demo ===');
+            
+            function GameObject(x, y) {
+                this.x = x;
+                this.y = y;
+                console.log(`Created GameObject at (${x}, ${y})`);
+            }
+            
+            var obj1 = new GameObject(10, 20);
+            var obj2 = new GameObject(30, 40);
+            
+            console.log('obj1:', obj1);
+            console.log('obj2:', obj2);
+            console.log('Are they the same?', obj1 === obj2);
+        }
+
+        // Run demo when page loads (for instructor reference)
+        if (window.location.hash === '#demo') {
+            demonstrateConstructor();
+        }
+    </script>
+</body>
+</html>

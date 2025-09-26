@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frame Rate Control - CSCI 3213</title>
+    
+    <!-- OCU Branded Presentation Styles with Theme Support -->
+    <link rel="stylesheet" href="../../styles/presentation.css">
+    <link rel="icon" type="image/x-icon" href="/images/favicon.png">
+    
+    <!-- Lecture-Specific Styles -->
+    <style>
+        .timing-demo {
+            background: #1a1a2e;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            border: 2px solid #16213e;
+        }
+        
+        .fps-display {
+            font-size: 2em;
+            color: #0f0;
+            text-align: center;
+            padding: 20px;
+            background: #000;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .comparison-item {
+            background: var(--card-bg, #f8f8f8);
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid var(--border-color, #ddd);
+        }
+        
+        .performance-metric {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 4px;
+            margin: 5px;
+        }
+        
+        .interactive-demo {
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .control-buttons {
+            margin-top: 20px;
+        }
+        
+        .control-buttons button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            font-size: 1.1em;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .control-buttons button:hover {
+            background: #2980b9;
+        }
+        
+        .control-buttons button.active {
+            background: #27ae60;
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme toggle will be automatically added by JavaScript -->
+    
+    <div class="presentation-container">
+        <!-- Timer display -->
+        <div class="timer-display" id="timer-display">
+            <span id="timer-text">Frame Rate Control
+                 <button class="home"><a href="../index.html">Home</a></button>
+            </span>
+        </div>
+
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <h1>Frame Rate Control</h1>
+            <h2>Mastering Time in Game Development <span class="emoji">⏱️</span></h2>
+            <p style="font-size: 1.5em; margin-top: 40px;">CSCI 3213 - Game Programming</p>
+            <p style="font-size: 1.3em;">Spring '26 - Session 5</p>
+            <p style="margin-top: auto; font-style: italic;">Consistent gameplay across all devices!</p>
+        </div>
+
+        <!-- Slide 2: Learning Objectives -->
+        <div class="slide">
+            <h1>Today's Quest Objectives</h1>
+            <ul style="font-size: 1.4em; line-height: 2;">
+                <li>🎯 Implement FPS throttling mechanisms</li>
+                <li>🎯 Understand elapsed time calculations</li>
+                <li>🎯 Control animation speed independent of frame rate</li>
+                <li>🎯 Handle timing inconsistencies</li>
+            </ul>
+            
+            <div class="tip-box">
+                <strong>Why this matters:</strong> Without frame rate control, your game runs differently on every device!
+            </div>
+        </div>
+
+        <!-- Slide 3: The Problem -->
+        <div class="slide">
+            <h1>The Frame Rate Problem</h1>
+            
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <h3 style="color: red;">❌ Without Frame Rate Control</h3>
+                    <ul>
+                        <li>Gaming PC: Character moves super fast</li>
+                        <li>Old laptop: Character crawls slowly</li>
+                        <li>Mobile: Unpredictable speeds</li>
+                    </ul>
+                </div>
+                <div class="comparison-item">
+                    <h3 style="color: green;">✅ With Frame Rate Control</h3>
+                    <ul>
+                        <li>All devices: Consistent speed</li>
+                        <li>Smooth animations everywhere</li>
+                        <li>Fair gameplay for all players</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="demo-box">
+                <p><strong>Real Example:</strong> A character should move 300 pixels per second, regardless of whether the game runs at 30 FPS or 144 FPS!</p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Understanding Delta Time -->
+        <div class="slide">
+            <h1>Delta Time: The Secret Sauce</h1>
+            
+            <div class="code-example">
+                <span class="comment">// Delta time = time between frames</span>
+                <span class="keyword">let</span> lastTime = 0;
+                
+                <span class="keyword">function</span> <span class="function">gameLoop</span>(currentTime) {
+                    <span class="comment">// Calculate delta (in seconds)</span>
+                    <span class="keyword">const</span> deltaTime = (currentTime - lastTime) / 1000;
+                    lastTime = currentTime;
+                    
+                    <span class="comment">// Use delta for consistent movement</span>
+                    player.x += player.speed * deltaTime;
+                    
+                    requestAnimationFrame(gameLoop);
+                }
+            </div>
+            
+            <div class="timing-demo">
+                <p><strong>Example calculation:</strong></p>
+                <p>Speed: 200 pixels/second</p>
+                <p>@ 60 FPS: deltaTime ≈ 0.0167s → moves 3.33 pixels/frame</p>
+                <p>@ 30 FPS: deltaTime ≈ 0.0333s → moves 6.67 pixels/frame</p>
+                <p><span style="color: #0f0;">Result: Same total distance per second! ✨</span></p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Getting Timestamps -->
+        <div class="slide">
+            <h1>JavaScript Timing APIs</h1>
+            
+            <div class="code-example">
+                <span class="comment">// Method 1: Date.now() - milliseconds since epoch</span>
+                <span class="keyword">const</span> timestamp1 = Date.now();
+                console.log(timestamp1); <span class="comment">// e.g., 1635789012345</span>
+                
+                <span class="comment">// Method 2: performance.now() - high precision</span>
+                <span class="keyword">const</span> timestamp2 = performance.now();
+                console.log(timestamp2); <span class="comment">// e.g., 12345.678 (ms since page load)</span>
+                
+                <span class="comment">// Which to use?</span>
+                <span class="comment">// performance.now() → Better for animations (sub-millisecond precision)</span>
+                <span class="comment">// Date.now() → Good enough for most games</span>
+            </div>
+            
+            <div class="tip-box">
+                <strong>Pro Tip:</strong> performance.now() is more accurate and not affected by system clock changes!
+            </div>
+        </div>
+
+        <!-- Slide 6: FPS Throttling Pattern -->
+        <div class="slide">
+            <h1>Throttling to Target FPS</h1>
+            
+            <div class="code-example">
+                <span class="keyword">const</span> targetFPS = 60;
+                <span class="keyword">const</span> frameInterval = 1000 / targetFPS; <span class="comment">// ~16.67ms</span>
+                <span class="keyword">let</span> previousTime = performance.now();
+                
+                <span class="keyword">function</span> <span class="function">throttledLoop</span>(currentTime) {
+                    requestAnimationFrame(throttledLoop);
+                    
+                    <span class="keyword">const</span> elapsed = currentTime - previousTime;
+                    
+                    <span class="comment">// Only update if enough time has passed</span>
+                    <span class="keyword">if</span> (elapsed > frameInterval) {
+                        <span class="comment">// Adjust for any overshoot</span>
+                        previousTime = currentTime - (elapsed % frameInterval);
+                        
+                        <span class="comment">// Your game logic here</span>
+                        update();
+                        render();
+                    }
+                }
+            </div>
+            
+            <div class="demo-box">
+                <p>This pattern ensures your game never runs faster than the target FPS, even on high-refresh displays!</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: Frame Rate Calculation -->
+        <div class="slide">
+            <h1>Measuring Current FPS</h1>
+            
+            <div class="code-example">
+                <span class="comment">// Simple FPS counter</span>
+                <span class="keyword">let</span> frameCount = 0;
+                <span class="keyword">let</span> fps = 0;
+                <span class="keyword">let</span> fpsInterval = 1000; <span class="comment">// Update every second</span>
+                <span class="keyword">let</span> fpsLastTime = performance.now();
+                
+                <span class="keyword">function</span> <span class="function">updateFPS</span>(currentTime) {
+                    frameCount++;
+                    
+                    <span class="keyword">const</span> fpsElapsed = currentTime - fpsLastTime;
+                    
+                    <span class="keyword">if</span> (fpsElapsed >= fpsInterval) {
+                        fps = Math.round((frameCount * 1000) / fpsElapsed);
+                        frameCount = 0;
+                        fpsLastTime = currentTime;
+                        
+                        <span class="comment">// Display the FPS</span>
+                        document.getElementById('fps').textContent = fps + ' FPS';
+                    }
+                }
+            </div>
+            
+            <div class="fps-display">
+                <span id="live-fps">60 FPS</span>
+            </div>
+        </div>
+
+        <!-- Slide 8: Advanced - Alternating Cycles -->
+        <div class="slide">
+            <h1>Bengston's Alternating FPS Calculation</h1>
+            
+            <p style="font-size: 1.2em; margin-bottom: 20px;">For more accurate FPS readings, use two alternating calculation cycles:</p>
+            
+            <div class="code-example">
+                <span class="comment">// Two cycles running in parallel</span>
+                <span class="keyword">const</span> cycles = {
+                    new: { frameCount: 0, startTime: now, sinceStart: 0 },
+                    old: { frameCount: 0, startTime: now, sinceStart: 0 }
+                };
+                <span class="keyword">let</span> resetState = 'new';
+                <span class="keyword">const</span> resetInterval = 5; <span class="comment">// seconds</span>
+                
+                <span class="comment">// Increment both cycles</span>
+                <span class="keyword">for</span> (<span class="keyword">let</span> calc <span class="keyword">in</span> cycles) {
+                    cycles[calc].frameCount++;
+                    cycles[calc].sinceStart = now - cycles[calc].startTime;
+                }
+                
+                <span class="comment">// Use active cycle for FPS calculation</span>
+                <span class="keyword">const</span> activeCycle = cycles[resetState];
+                <span class="keyword">const</span> fps = Math.round(1000 / (activeCycle.sinceStart / activeCycle.frameCount));
+            </div>
+            
+            <div class="tip-box">
+                <strong>Why?</strong> Prevents accuracy degradation over time and maintains consistent performance!
+            </div>
+        </div>
+
+        <!-- Slide 9: Frame-Independent Movement -->
+        <div class="slide">
+            <h1>Frame-Independent Game Logic</h1>
+            
+            <div class="code-example">
+                <span class="keyword">class</span> <span class="function">GameObject</span> {
+                    <span class="keyword">constructor</span>() {
+                        <span class="keyword">this</span>.x = 0;
+                        <span class="keyword">this</span>.y = 0;
+                        <span class="keyword">this</span>.speed = 200; <span class="comment">// pixels per second</span>
+                        <span class="keyword">this</span>.rotation = 0;
+                        <span class="keyword">this</span>.rotationSpeed = Math.PI; <span class="comment">// radians per second</span>
+                    }
+                    
+                    <span class="function">update</span>(deltaTime) {
+                        <span class="comment">// Movement: speed * time = distance</span>
+                        <span class="keyword">this</span>.x += <span class="keyword">this</span>.speed * deltaTime;
+                        
+                        <span class="comment">// Rotation: angular speed * time = angle</span>
+                        <span class="keyword">this</span>.rotation += <span class="keyword">this</span>.rotationSpeed * deltaTime;
+                        
+                        <span class="comment">// Animation: frame advancement based on time</span>
+                        <span class="keyword">this</span>.animationFrame += <span class="keyword">this</span>.animationSpeed * deltaTime;
+                    }
+                }
+            </div>
+            
+            <div class="demo-box">
+                <p><strong>Remember:</strong> Always multiply speeds by deltaTime for frame-independent behavior!</p>
+            </div>
+        </div>
+
+        <!-- Slide 10: Exercise 1 - FPS Limiter -->
+        <div class="slide">
+            <h1>Exercise 1: FPS Limiter <span class="emoji">💻</span></h1>
+            
+            <div class="activity-box">
+                <h3>Challenge: Build a toggleable FPS limiter</h3>
+                <ul>
+                    <li>Create two modes: 30 FPS and 60 FPS</li>
+                    <li>Add a button to toggle between them</li>
+                    <li>Display current FPS on screen</li>
+                    <li>Show a bouncing ball to test the difference</li>
+                </ul>
+                
+                <div class="code-example">
+                    <span class="comment">// Starter structure</span>
+                    <span class="keyword">let</span> targetFPS = 60;
+                    
+                    <span class="keyword">function</span> <span class="function">toggleFPS</span>() {
+                        targetFPS = targetFPS === 60 ? 30 : 60;
+                        <span class="comment">// Update your frameInterval here</span>
+                    }
+                    
+                    <span class="comment">// Your implementation...</span>
+                </div>
+            </div>
+            
+            <div class="tip-box">
+                <strong>Hint:</strong> Remember to recalculate frameInterval when FPS changes!
+            </div>
+        </div>
+
+        <!-- Slide 11: Exercise 2 - Speed Consistency -->
+        <div class="slide">
+            <h1>Exercise 2: Speed Consistency <span class="emoji">🏃</span></h1>
+            
+            <div class="activity-box">
+                <h3>Challenge: Consistent movement across frame rates</h3>
+                <ul>
+                    <li>Create a square that moves across the screen</li>
+                    <li>It should take exactly 3 seconds to cross (regardless of FPS)</li>
+                    <li>Add FPS throttle buttons: 15, 30, 60, 120 FPS</li>
+                    <li>Movement speed should remain constant</li>
+                </ul>
+                
+                <div class="code-example">
+                    <span class="comment">// Calculate required speed</span>
+                    <span class="keyword">const</span> canvasWidth = 800;
+                    <span class="keyword">const</span> travelTime = 3; <span class="comment">// seconds</span>
+                    <span class="keyword">const</span> speed = canvasWidth / travelTime; <span class="comment">// pixels per second</span>
+                    
+                    <span class="comment">// In your update function:</span>
+                    <span class="comment">// object.x += speed * deltaTime;</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Exercise 3 - Slow Motion -->
+        <div class="slide">
+            <h1>Exercise 3: Slow Motion Mode <span class="emoji">🐌</span></h1>
+            
+            <div class="activity-box">
+                <h3>Challenge: Implement time manipulation</h3>
+                <ul>
+                    <li>Create a game with moving objects</li>
+                    <li>Add a "Slow Motion" button</li>
+                    <li>When active, game runs at 50% speed</li>
+                    <li>Maintain smooth animations (no stuttering)</li>
+                </ul>
+                
+                <div class="code-example">
+                    <span class="keyword">let</span> timeScale = 1.0; <span class="comment">// Normal speed</span>
+                    
+                    <span class="keyword">function</span> <span class="function">toggleSlowMotion</span>() {
+                        timeScale = timeScale === 1.0 ? 0.5 : 1.0;
+                    }
+                    
+                    <span class="keyword">function</span> <span class="function">update</span>(deltaTime) {
+                        <span class="comment">// Apply time scale to delta</span>
+                        <span class="keyword">const</span> scaledDelta = deltaTime * timeScale;
+                        
+                        <span class="comment">// Use scaledDelta for all updates</span>
+                        gameObjects.forEach(obj => obj.update(scaledDelta));
+                    }
+                </div>
+            </div>
+            
+            <div class="demo-box">
+                <p><strong>Bonus:</strong> Add a visual effect when slow motion is active (blur, color shift, etc.)</p>
+            </div>
+        </div>
+
+        <!-- Slide 13: Common Pitfalls -->
+        <div class="slide">
+            <h1>Common Frame Rate Pitfalls</h1>
+            
+            <div style="font-size: 1.3em; line-height: 2;">
+                <h3 style="color: red;">❌ Avoid These Mistakes:</h3>
+                <ul>
+                    <li><strong>Forgetting deltaTime:</strong> player.x += 5; // Wrong!</li>
+                    <li><strong>Accumulating errors:</strong> Not resetting timer variables</li>
+                    <li><strong>Assuming 60 FPS:</strong> Hard-coding frame-based values</li>
+                    <li><strong>Using setTimeout/setInterval:</strong> Not precise enough for games</li>
+                </ul>
+                
+                <h3 style="color: green; margin-top: 30px;">✅ Best Practices:</h3>
+                <ul>
+                    <li><strong>Always use deltaTime:</strong> player.x += speed * deltaTime;</li>
+                    <li><strong>Cap your deltaTime:</strong> Prevent huge jumps during lag</li>
+                    <li><strong>Test on various devices:</strong> Don't assume performance</li>
+                    <li><strong>Monitor performance:</strong> Show FPS during development</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 14: Real-World Application -->
+        <div class="slide">
+            <h1>Real Game Implementation</h1>
+            
+            <div class="code-example">
+                <span class="comment">// Complete game loop with all concepts</span>
+                <span class="keyword">class</span> <span class="function">GameEngine</span> {
+                    <span class="keyword">constructor</span>(targetFPS = 60) {
+                        <span class="keyword">this</span>.targetFPS = targetFPS;
+                        <span class="keyword">this</span>.frameInterval = 1000 / targetFPS;
+                        <span class="keyword">this</span>.lastTime = 0;
+                        <span class="keyword">this</span>.accumulator = 0;
+                        <span class="keyword">this</span>.timeScale = 1.0;
+                    }
+                    
+                    <span class="function">run</span>(currentTime) {
+                        requestAnimationFrame((t) => <span class="keyword">this</span>.run(t));
+                        
+                        <span class="keyword">const</span> deltaTime = Math.min((currentTime - <span class="keyword">this</span>.lastTime) / 1000, 0.1);
+                        <span class="keyword">this</span>.lastTime = currentTime;
+                        
+                        <span class="keyword">this</span>.accumulator += deltaTime * <span class="keyword">this</span>.timeScale;
+                        
+                        <span class="keyword">while</span> (<span class="keyword">this</span>.accumulator >= <span class="keyword">this</span>.frameInterval / 1000) {
+                            <span class="keyword">this</span>.update(<span class="keyword">this</span>.frameInterval / 1000);
+                            <span class="keyword">this</span>.accumulator -= <span class="keyword">this</span>.frameInterval / 1000;
+                        }
+                        
+                        <span class="keyword">this</span>.render();
+                    }
+                }
+            </div>
+        </div>
+
+        <!-- Slide 15: Summary -->
+        <div class="slide">
+            <h1>Level Complete! <span class="emoji">🏆</span></h1>
+            <h2>Skills Unlocked:</h2>
+            <ul style="font-size: 1.3em; line-height: 2;">
+                <li>✅ Implement FPS throttling for consistent performance</li>
+                <li>✅ Calculate and use delta time effectively</li>
+                <li>✅ Create frame-independent animations</li>
+                <li>✅ Handle timing with performance.now()</li>
+                <li>✅ Build time manipulation features</li>
+            </ul>
+            
+            <div class="demo-box">
+                <p><strong>Next Session:</strong> Input Handling and Controls</p>
+                <p><strong>Homework:</strong> Complete all three exercises and experiment with different FPS targets</p>
+            </div>
+            
+            <div class="tip-box" style="margin-top: 30px;">
+                <strong>Remember:</strong> Good frame rate control is invisible to players but essential for quality!
+            </div>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="navigation">
+            <button id="prevBtn">Previous</button>
+            <span class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">15</span>
+            </span>
+            <button id="nextBtn">Next</button>
+        </div>
+    </div>
+
+    <!-- Shared Presentation JavaScript -->
+    <script src="../../js/presentation.js"></script>
+
+    <!-- Lecture-Specific JavaScript -->
+    <script>
+        // Live FPS counter for demonstration
+        let fps = 0;
+        let frameCount = 0;
+        let lastFpsUpdate = performance.now();
+        
+        function updateFPSDisplay() {
+            frameCount++;
+            const now = performance.now();
+            const elapsed = now - lastFpsUpdate;
+            
+            if (elapsed >= 1000) {
+                fps = Math.round((frameCount * 1000) / elapsed);
+                frameCount = 0;
+                lastFpsUpdate = now;
+                
+                const fpsElement = document.getElementById('live-fps');
+                if (fpsElement) {
+                    fpsElement.textContent = fps + ' FPS';
+                }
+            }
+            
+            requestAnimationFrame(updateFPSDisplay);
+        }
+        
+        // Start FPS counter
+        updateFPSDisplay();
+        
+        // Listen for slide changes
+        document.addEventListener('slidechange', (e) => {
+            console.log(`Slide ${e.detail.currentSlide + 1}: Frame Rate Control`);
+            
+            // Could trigger specific demos on certain slides
+            if (e.detail.currentSlide === 6) {
+                console.log('Ready for FPS throttling demo!');
+            }
+        });
+        
+        // Example of time scale for slow motion demonstration
+        let timeScale = 1.0;
+        
+        function toggleSlowMotion() {
+            timeScale = timeScale === 1.0 ? 0.5 : 1.0;
+            console.log('Time scale:', timeScale);
+        }
+    </script>
+</body>
+</html>
