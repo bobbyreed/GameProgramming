@@ -1,9 +1,9 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lecture Title - CSCI 5403</title>
+    <title>Lecture Title - CSCI 3213</title>
     
     <!-- OCU Branded Presentation Styles with Theme Support -->
     <link rel="stylesheet" href="../styles/presentation.css">
@@ -12,6 +12,40 @@
     <!-- Lecture-Specific Styles (if needed) -->
     <style>
         /* Add any lecture-specific styles here */
+        .game-demo {
+            background: #1a1a2e;
+            color: #0f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            border: 2px solid #16213e;
+        }
+        
+        .engine-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .engine-card {
+            background: var(--card-bg, #f8f8f8);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid var(--border-color, #ddd);
+        }
+        
+        .resource-link {
+            color: #00a8ff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .resource-link:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -20,90 +54,217 @@
     <div class="presentation-container">
         <!-- Optional timer display for activities -->
         <div class="timer-display" id="timer-display">
-            <span id="timer-text">Lecture Template
+            <span id="timer-text">Game Programming Template
                  <button class="home"><a href="../index.html">Home</a></button>
             </span>
         </div>
 
         <!-- Slide 1: Title -->
         <div class="slide active">
-            <h1>Lecture Main Title</h1>
-            <h2>Subtitle <span class="emoji">📚</span></h2>
-            <p style="font-size: 1.5em; margin-top: 40px;">CSCI 5403 - Software Engineering</p>
-            <p style="font-size: 1.3em;">Week X, Class Y</p>
-            <p style="margin-top: auto; font-style: italic;">Inspiring tagline here!</p>
+            <h1>Game Engine Architecture</h1>
+            <h2>Building Interactive Worlds <span class="emoji">🎮</span></h2>
+            <p style="font-size: 1.5em; margin-top: 40px;">CSCI 3213 - Game Programming</p>
+            <p style="font-size: 1.3em;">Spring '26 - Week X, Class Y</p>
+            <p style="margin-top: auto; font-style: italic;">Let's create something amazing!</p>
         </div>
 
         <!-- Slide 2: Learning Objectives -->
         <div class="slide">
-            <h1>Today's Learning Objectives</h1>
+            <h1>Today's Quest Objectives</h1>
             <ul style="font-size: 1.4em; line-height: 2;">
-                <li>🎯 First learning objective</li>
-                <li>🎯 Second learning objective</li>
-                <li>🎯 Third learning objective</li>
+                <li>🎯 Understand core game loop architecture</li>
+                <li>🎯 Implement basic physics and collision detection</li>
+                <li>🎯 Create interactive game objects and systems</li>
+                <li>🎯 Apply design patterns to game development</li>
             </ul>
         </div>
 
-        <!-- Slide 3: Content Example -->
+        <!-- Slide 3: Game Loop Fundamentals -->
         <div class="slide">
-            <h1>Content Title</h1>
-            <p>Regular paragraph text goes here.</p>
+            <h1>The Game Loop</h1>
+            <p>Every game revolves around a continuous cycle:</p>
 
             <!-- Code Example -->
             <div class="code-example">
-                <span class="tag">&lt;div&gt;</span>
-                <span class="content">Content</span>
-                <span class="tag">&lt;/div&gt;</span>
+                <span class="keyword">function</span> <span class="function">gameLoop</span>() {
+                    <span class="comment">// Process Input</span>
+                    handleInput();
+                    
+                    <span class="comment">// Update Game State</span>
+                    update(deltaTime);
+                    
+                    <span class="comment">// Render Frame</span>
+                    render();
+                    
+                    requestAnimationFrame(gameLoop);
+                }
             </div>
 
             <!-- Tip Box -->
             <div class="tip-box">
-                <strong>Pro Tip:</strong> Helpful information here.
+                <strong>Pro Tip:</strong> Always use deltaTime to ensure consistent gameplay across different frame rates!
             </div>
         </div>
 
-        <!-- Slide 4: Activity -->
+        <!-- Slide 4: Engine Comparison -->
         <div class="slide">
-            <h1>Practice Activity <span class="emoji">💻</span></h1>
+            <h1>Game Engines We'll Explore</h1>
+            <div class="engine-comparison">
+                <div class="engine-card">
+                    <h3>🟦 Unity</h3>
+                    <p>Industry-standard 3D/2D engine</p>
+                    <p><small>C# scripting</small></p>
+                </div>
+                <div class="engine-card">
+                    <h3>🔵 Godot</h3>
+                    <p>Open-source powerhouse</p>
+                    <p><small>GDScript/C#</small></p>
+                </div>
+                <div class="engine-card">
+                    <h3>🟨 JavaScript</h3>
+                    <p>Web-based game development</p>
+                    <p><small>Canvas/WebGL</small></p>
+                </div>
+            </div>
+            
+            <div class="demo-box">
+                <p><strong>Course Resources:</strong></p>
+                <ul style="text-align: left;">
+                    <li><a href="https://bengsfort.github.io/articles/making-a-js-game-part-1-game-engine/" class="resource-link">Bengston JS Engine Guide</a></li>
+                    <li><a href="https://learn.unity.com/pathway/unity-essentials" class="resource-link">Unity Essentials</a></li>
+                    <li><a href="https://docs.godotengine.org/en/stable/index.html" class="resource-link">Godot Documentation</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 5: Hands-On Activity -->
+        <div class="slide">
+            <h1>Code Challenge <span class="emoji">💻</span></h1>
             <div class="activity-box">
-                <h3>10-Minute Challenge</h3>
-                <p>Activity description:</p>
+                <h3>15-Minute Game Mechanic</h3>
+                <p>Build a simple player controller:</p>
                 <ol>
-                    <li>First step</li>
-                    <li>Second step</li>
-                    <li>Third step</li>
+                    <li>Create a player object with position (x, y)</li>
+                    <li>Implement keyboard input handling (WASD/Arrow keys)</li>
+                    <li>Add velocity-based movement with acceleration</li>
+                    <li>Implement boundary checking to keep player on screen</li>
+                    <li>Bonus: Add a simple jump mechanic with gravity!</li>
                 </ol>
             </div>
             <!-- Timer button with data attribute -->
-            <button data-timer="10">Start 10-Minute Timer</button>
+            <button data-timer="15">Start 15-Minute Timer</button>
         </div>
 
-        <!-- Slide 5: Comparison -->
+        <!-- Slide 6: Game Design Patterns -->
         <div class="slide">
-            <h1>Comparing Approaches</h1>
+            <h1>Common Game Programming Patterns</h1>
             <div class="comparison-table">
                 <div class="comparison-card good">
-                    <h3>✅ Good Practice</h3>
-                    <p>Description of good practice</p>
+                    <h3>✅ Good Practices</h3>
+                    <ul style="text-align: left;">
+                        <li>Component-based architecture</li>
+                        <li>Object pooling for performance</li>
+                        <li>Event-driven systems</li>
+                        <li>Separation of concerns</li>
+                    </ul>
                 </div>
                 <div class="comparison-card bad">
-                    <h3>❌ Bad Practice</h3>
-                    <p>Description of bad practice</p>
+                    <h3>❌ Common Pitfalls</h3>
+                    <ul style="text-align: left;">
+                        <li>Creating objects every frame</li>
+                        <li>Tight coupling between systems</li>
+                        <li>Ignoring frame-rate independence</li>
+                        <li>No optimization planning</li>
+                    </ul>
                 </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Physics Example -->
+        <div class="slide">
+            <h1>Basic Physics Implementation</h1>
+            <div class="code-example">
+                <span class="keyword">class</span> <span class="function">GameObject</span> {
+                    <span class="keyword">constructor</span>() {
+                        <span class="keyword">this</span>.position = { x: 0, y: 0 };
+                        <span class="keyword">this</span>.velocity = { x: 0, y: 0 };
+                        <span class="keyword">this</span>.acceleration = { x: 0, y: 0 };
+                    }
+                    
+                    <span class="function">update</span>(deltaTime) {
+                        <span class="comment">// Apply physics</span>
+                        <span class="keyword">this</span>.velocity.x += <span class="keyword">this</span>.acceleration.x * deltaTime;
+                        <span class="keyword">this</span>.velocity.y += <span class="keyword">this</span>.acceleration.y * deltaTime;
+                        
+                        <span class="keyword">this</span>.position.x += <span class="keyword">this</span>.velocity.x * deltaTime;
+                        <span class="keyword">this</span>.position.y += <span class="keyword">this</span>.velocity.y * deltaTime;
+                    }
+                }
+            </div>
+            
+            <div class="tip-box">
+                <strong>Remember:</strong> This is Euler integration - simple but effective for most games!
+            </div>
+        </div>
+
+        <!-- Slide 8: Unity Quick Start -->
+        <div class="slide">
+            <h1>Unity GameObject Example</h1>
+            <div class="code-example">
+                <span class="keyword">using</span> UnityEngine;
+                
+                <span class="keyword">public class</span> <span class="function">PlayerController</span> : MonoBehaviour
+                {
+                    <span class="keyword">public float</span> speed = 5.0f;
+                    
+                    <span class="keyword">void</span> <span class="function">Update</span>()
+                    {
+                        <span class="keyword">float</span> h = Input.GetAxis(<span class="string">"Horizontal"</span>);
+                        <span class="keyword">float</span> v = Input.GetAxis(<span class="string">"Vertical"</span>);
+                        
+                        Vector3 movement = <span class="keyword">new</span> Vector3(h, 0, v);
+                        transform.Translate(movement * speed * Time.deltaTime);
+                    }
+                }
+            </div>
+            
+            <div class="demo-box">
+                <p>📚 Reference: <a href="https://learn.unity.com/pathway/junior-programmer" class="resource-link">Unity Junior Programmer Path</a></p>
+            </div>
+        </div>
+
+        <!-- Slide 9: Interactive Demo Placeholder -->
+        <div class="slide">
+            <h1>Live Demo: Collision Detection</h1>
+            <div class="game-demo">
+                <p style="text-align: center; font-size: 1.5em;">🎮 Game Demo Area 🎮</p>
+                <p style="text-align: center;">[ Interactive Canvas Element Would Go Here ]</p>
+                <br>
+                <p>Key Concepts:</p>
+                <ul>
+                    <li>• AABB (Axis-Aligned Bounding Box)</li>
+                    <li>• Circle collision detection</li>
+                    <li>• Spatial partitioning for optimization</li>
+                    <li>• Response and resolution strategies</li>
+                </ul>
             </div>
         </div>
 
         <!-- Final Slide: Summary -->
         <div class="slide">
-            <h1>Today's Takeaways <span class="emoji">🎓</span></h1>
-            <h2>You Can Now:</h2>
+            <h1>Level Complete! <span class="emoji">🏆</span></h1>
+            <h2>Skills Unlocked:</h2>
             <ul>
-                <li>✅ First accomplishment</li>
-                <li>✅ Second accomplishment</li>
-                <li>✅ Third accomplishment</li>
+                <li>✅ Understand game loop architecture</li>
+                <li>✅ Implement basic physics systems</li>
+                <li>✅ Create interactive game objects</li>
+                <li>✅ Apply game design patterns</li>
+                <li>✅ Work with multiple game engines</li>
             </ul>
+            
             <div class="demo-box">
-                <p><strong>Next Class:</strong> Preview of next topic</p>
+                <p><strong>Next Quest:</strong> Advanced collision systems and sprite animation</p>
+                <p><strong>Homework:</strong> Complete one tutorial from each course resource</p>
             </div>
         </div>
 
@@ -111,7 +272,7 @@
         <div class="navigation">
             <button id="prevBtn">Previous</button>
             <span class="slide-counter">
-                <span id="currentSlide">1</span> / <span id="totalSlides">6</span>
+                <span id="currentSlide">1</span> / <span id="totalSlides">10</span>
             </span>
             <button id="nextBtn">Next</button>
         </div>
@@ -126,11 +287,27 @@
         // You can listen for slide change events:
         document.addEventListener('slidechange', (e) => {
             console.log(`Slide ${e.detail.currentSlide + 1} of ${e.detail.totalSlides}`);
+            
+            // Example: Trigger animations or demos on specific slides
+            if (e.detail.currentSlide === 8) {
+                // Could initialize an interactive game demo here
+                console.log('Ready to start collision detection demo!');
+            }
         });
 
+        // Example: Simple game loop for demonstration
+        let gameRunning = false;
+        
+        function startGameDemo() {
+            if (!gameRunning) {
+                gameRunning = true;
+                console.log('Game demo started!');
+                // Actual game code would go here
+            }
+        }
+        
         // You can also programmatically control slides:
         // window.presentation.goToSlide(3); // Go to slide 4 (0-indexed)
     </script>
 </body>
-
 </html>
