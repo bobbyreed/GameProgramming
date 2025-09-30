@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session 8: Input Handling - CSCI 3213</title>
+    
+    <!-- OCU Branded Presentation Styles with Theme Support -->
+    <link rel="stylesheet" href="../../styles/presentation.css">
+    <link rel="icon" type="image/x-icon" href="/images/favicon.png">
+    
+    <!-- Lecture-Specific Styles -->
+    <style>
+        .key-display {
+            display: inline-block;
+            background: var(--bg-secondary, #2c2c2c);
+            color: var(--text-primary, #fff);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 1.2em;
+            border: 3px solid var(--ocu-cyan, #00a8ff);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            margin: 10px;
+        }
+        
+        .key-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 30px auto;
+            max-width: 600px;
+        }
+        
+        .key-box {
+            background: var(--card-bg, #f8f8f8);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid var(--border-color, #ddd);
+            transition: all 0.3s;
+        }
+        
+        .key-box:hover {
+            transform: translateY(-5px);
+            border-color: var(--ocu-cyan);
+            box-shadow: 0 5px 15px rgba(0, 168, 255, 0.3);
+        }
+        
+        .pattern-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .approach-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid var(--ocu-cyan);
+        }
+        
+        .approach-card.good {
+            border-left-color: var(--ocu-green, #00743F);
+        }
+        
+        .approach-card.bad {
+            border-left-color: #e74c3c;
+        }
+        
+        .demo-zone {
+            background: var(--bg-secondary, #1a1a2e);
+            padding: 30px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border: 3px solid var(--ocu-cyan);
+        }
+        
+        .exercise-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 15px 0;
+        }
+        
+        .exercise-card h3 {
+            margin-top: 0;
+            font-size: 1.8em;
+        }
+        
+        .timing-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme toggle will be automatically added by JavaScript -->
+    
+    <div class="presentation-container">
+        <!-- Optional timer display for activities -->
+        <div class="timer-display" id="timer-display">
+            <span id="timer-text">Session 8: Input Handling
+                <button class="home"><a href="../index.html">Home</a></button>
+            </span>
+        </div>
+
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <h1>Input Handling</h1>
+            <h2>Making Games Responsive <span class="emoji">🎮</span></h2>
+            <p style="font-size: 1.5em; margin-top: 40px;">CSCI 3213 - Game Programming</p>
+            <p style="font-size: 1.3em;">Spring '26 - Week 8</p>
+            <div style="margin-top: 60px;">
+                <div class="key-display">W A S D</div>
+                <div class="key-display">← ↑ ↓ →</div>
+            </div>
+            <p style="margin-top: auto; font-style: italic;">Press any key to continue...</p>
+        </div>
+
+        <!-- Slide 2: Learning Objectives -->
+        <div class="slide">
+            <h1>Today's Quest Objectives</h1>
+            <ul style="font-size: 1.4em; line-height: 2;">
+                <li>🎯 Capture and process keyboard input</li>
+                <li>🎯 Implement key state tracking systems</li>
+                <li>🎯 Create responsive game controls</li>
+                <li>🎯 Handle multiple simultaneous inputs</li>
+            </ul>
+            
+            <div class="tip-box" style="margin-top: 40px;">
+                <strong>Why This Matters:</strong> Input handling is the bridge between player intention and game action. Master this, and your games will feel responsive and alive!
+            </div>
+        </div>
+
+        <!-- Slide 3: What is Input Handling? -->
+        <div class="slide">
+            <h1>What is Input Handling?</h1>
+            <p style="font-size: 1.3em;">Input handling is how your game listens to and responds to player actions.</p>
+            
+            <div class="demo-zone">
+                <h3 style="color: var(--ocu-cyan);">The Input Chain</h3>
+                <div style="font-size: 1.2em; margin: 20px 0; line-height: 2;">
+                    <p>1. Player presses key → <span style="color: var(--ocu-cyan);">Browser fires event</span></p>
+                    <p>2. Event listener catches it → <span style="color: var(--ocu-gold);">Your code responds</span></p>
+                    <p>3. Game state updates → <span style="color: var(--ocu-green);">Character moves!</span></p>
+                </div>
+            </div>
+            
+            <div class="demo-box" style="margin-top: 20px;">
+                <p><strong>Real World Examples:</strong></p>
+                <ul style="text-align: left;">
+                    <li>WASD for movement in most PC games</li>
+                    <li>Space bar for jumping</li>
+                    <li>Mouse for aiming and shooting</li>
+                    <li>Combo keys for special moves</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 4: Event Listeners -->
+        <div class="slide">
+            <h1>Event Listeners: Your Game's Ears</h1>
+            <p>Event listeners let your game "hear" when keys are pressed.</p>
+            
+            <div class="code-example">
+                <span class="comment">// Basic event listener</span>
+                document.<span class="function">addEventListener</span>(<span class="string">'keydown'</span>, <span class="keyword">function</span>(event) {
+                    console.log(<span class="string">'Key pressed:'</span>, event.keyCode);
+                });
+                
+                <span class="comment">// Listening for key release</span>
+                document.<span class="function">addEventListener</span>(<span class="string">'keyup'</span>, <span class="keyword">function</span>(event) {
+                    console.log(<span class="string">'Key released:'</span>, event.keyCode);
+                });
+            </div>
+            
+            <div class="tip-box">
+                <strong>Pro Tip:</strong> Always pair keydown with keyup! This tells you when a key starts being pressed AND when it's released.
+            </div>
+        </div>
+
+        <!-- Slide 5: Key Codes -->
+        <div class="slide">
+            <h1>Key Codes: The Language of Keys</h1>
+            <p>Every key has a unique code that identifies it.</p>
+            
+            <div class="key-grid">
+                <div class="key-box">
+                    <h3>↑</h3>
+                    <p>38</p>
+                </div>
+                <div class="key-box">
+                    <h3>↓</h3>
+                    <p>40</p>
+                </div>
+                <div class="key-box">
+                    <h3>←</h3>
+                    <p>37</p>
+                </div>
+                <div class="key-box">
+                    <h3>→</h3>
+                    <p>39</p>
+                </div>
+                <div class="key-box">
+                    <h3>W</h3>
+                    <p>87</p>
+                </div>
+                <div class="key-box">
+                    <h3>A</h3>
+                    <p>65</p>
+                </div>
+                <div class="key-box">
+                    <h3>S</h3>
+                    <p>83</p>
+                </div>
+                <div class="key-box">
+                    <h3>D</h3>
+                    <p>68</p>
+                </div>
+            </div>
+            
+            <div class="demo-box">
+                <strong>Try it:</strong> Open your browser console (F12) and type:<br>
+                <code>document.addEventListener('keydown', (e) => console.log(e.keyCode));</code>
+            </div>
+        </div>
+
+        <!-- Slide 6: Switch Statements for Input -->
+        <div class="slide">
+            <h1>Switch Statements: Handling Multiple Keys</h1>
+            <p>Use switch statements to elegantly handle different keys.</p>
+            
+            <div class="code-example">
+                document.addEventListener(<span class="string">'keydown'</span>, <span class="keyword">function</span>(event) {
+                    <span class="keyword">switch</span>(event.keyCode) {
+                        <span class="keyword">case</span> 37:  <span class="comment">// Left arrow</span>
+                            player.moveLeft();
+                            <span class="keyword">break</span>;
+                        <span class="keyword">case</span> 39:  <span class="comment">// Right arrow</span>
+                            player.moveRight();
+                            <span class="keyword">break</span>;
+                        <span class="keyword">case</span> 38:  <span class="comment">// Up arrow</span>
+                            player.jump();
+                            <span class="keyword">break</span>;
+                        <span class="keyword">case</span> 32:  <span class="comment">// Space bar</span>
+                            player.shoot();
+                            <span class="keyword">break</span>;
+                    }
+                });
+            </div>
+        </div>
+
+        <!-- Slide 7: The Problem with Basic Input -->
+        <div class="slide">
+            <h1>The Problem: Input Lag</h1>
+            
+            <div class="comparison-grid">
+                <div class="approach-card bad">
+                    <h3>❌ Event-Only Approach</h3>
+                    <ul style="text-align: left; font-size: 0.95em;">
+                        <li>Fires once per keypress</li>
+                        <li>Has keyboard repeat delay</li>
+                        <li>Can't handle multiple keys well</li>
+                        <li>Feels sluggish in games</li>
+                    </ul>
+                </div>
+                <div class="approach-card good">
+                    <h3>✅ State Tracking</h3>
+                    <ul style="text-align: left; font-size: 0.95em;">
+                        <li>Tracks which keys are down</li>
+                        <li>Checked every frame</li>
+                        <li>Perfect for simultaneous inputs</li>
+                        <li>Feels smooth and responsive</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="pattern-box">
+                <h3>💡 The Solution: State Management</h3>
+                <p>Track which keys are currently pressed in an object, then check that object in your game loop!</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: Key State Management -->
+        <div class="slide">
+            <h1>Key State Management Pattern</h1>
+            <p>Create an object to track the state of each key.</p>
+            
+            <div class="code-example">
+                <span class="comment">// Create a keys object to track state</span>
+                <span class="keyword">var</span> keys = {
+                    left: <span class="keyword">false</span>,
+                    right: <span class="keyword">false</span>,
+                    up: <span class="keyword">false</span>,
+                    down: <span class="keyword">false</span>
+                };
+                
+                <span class="comment">// Update state when keys are pressed</span>
+                document.addEventListener(<span class="string">'keydown'</span>, <span class="keyword">function</span>(event) {
+                    <span class="keyword">if</span> (event.keyCode === 37) keys.left = <span class="keyword">true</span>;
+                    <span class="keyword">if</span> (event.keyCode === 39) keys.right = <span class="keyword">true</span>;
+                });
+                
+                <span class="comment">// Update state when keys are released</span>
+                document.addEventListener(<span class="string">'keyup'</span>, <span class="keyword">function</span>(event) {
+                    <span class="keyword">if</span> (event.keyCode === 37) keys.left = <span class="keyword">false</span>;
+                    <span class="keyword">if</span> (event.keyCode === 39) keys.right = <span class="keyword">false</span>;
+                });
+            </div>
+        </div>
+
+        <!-- Slide 9: Using State in Game Loop -->
+        <div class="slide">
+            <h1>Using Key States in Your Game Loop</h1>
+            
+            <div class="code-example">
+                <span class="keyword">function</span> <span class="function">update</span>() {
+                    <span class="comment">// Check key states every frame</span>
+                    <span class="keyword">if</span> (keys.left) {
+                        player.x -= player.speed;
+                    }
+                    <span class="keyword">if</span> (keys.right) {
+                        player.x += player.speed;
+                    }
+                    <span class="keyword">if</span> (keys.up) {
+                        player.y -= player.speed;
+                    }
+                    <span class="keyword">if</span> (keys.down) {
+                        player.y += player.speed;
+                    }
+                    
+                    <span class="comment">// Continue game loop</span>
+                    requestAnimationFrame(update);
+                }
+            </div>
+            
+            <div class="tip-box">
+                <strong>Why This Works:</strong> Every frame, we check the current state of all keys. Multiple keys pressed = multiple if statements execute = smooth diagonal movement!
+            </div>
+        </div>
+
+        <!-- Slide 10: The Bengston Approach -->
+        <div class="slide">
+            <h1>Advanced Pattern: The keysDown Module</h1>
+            <p>Create a reusable module with getters for clean syntax.</p>
+            
+            <div class="code-example" style="font-size: 0.9em;">
+                <span class="keyword">function</span> <span class="function">keysDown</span>() {
+                    <span class="keyword">this</span>.isPressed = {};
+                    <span class="keyword">var</span> left, right, up, down;
+                    
+                    document.onkeydown = <span class="keyword">function</span>(ev) {
+                        <span class="keyword">if</span> (ev.keyCode === 37) left = <span class="keyword">true</span>;
+                        <span class="keyword">if</span> (ev.keyCode === 39) right = <span class="keyword">true</span>;
+                    };
+                    
+                    document.onkeyup = <span class="keyword">function</span>(ev) {
+                        <span class="keyword">if</span> (ev.keyCode === 37) left = <span class="keyword">false</span>;
+                        <span class="keyword">if</span> (ev.keyCode === 39) right = <span class="keyword">false</span>;
+                    };
+                    
+                    <span class="comment">// Using getters for clean syntax</span>
+                    Object.defineProperty(<span class="keyword">this</span>.isPressed, <span class="string">'left'</span>, {
+                        get: <span class="keyword">function</span>() { <span class="keyword">return</span> left; }
+                    });
+                    
+                    <span class="keyword">return</span> <span class="keyword">this</span>;
+                }
+            </div>
+        </div>
+
+        <!-- Slide 11: Event Bubbling & Capturing -->
+        <div class="slide">
+            <h1>Event Bubbling & Capturing</h1>
+            
+            <div class="demo-zone">
+                <h3 style="color: var(--ocu-cyan);">Event Flow</h3>
+                <div style="font-size: 1.2em; margin: 20px;">
+                    <p><strong>Capturing Phase:</strong> Event travels down from window to target</p>
+                    <p><strong>Target Phase:</strong> Event reaches the actual element</p>
+                    <p><strong>Bubbling Phase:</strong> Event bubbles back up to window</p>
+                </div>
+            </div>
+            
+            <div class="code-example">
+                <span class="comment">// Third parameter controls capturing</span>
+                element.addEventListener(<span class="string">'keydown'</span>, handler, <span class="keyword">true</span>);  <span class="comment">// Capture</span>
+                element.addEventListener(<span class="string">'keydown'</span>, handler, <span class="keyword">false</span>); <span class="comment">// Bubble (default)</span>
+            </div>
+            
+            <div class="tip-box">
+                <strong>For Games:</strong> Usually, you want the default (bubbling). Just use document.addEventListener for global input!
+            </div>
+        </div>
+
+        <!-- Slide 12: Preventing Default Behavior -->
+        <div class="slide">
+            <h1>Preventing Default Browser Behavior</h1>
+            <p>Stop browsers from doing their default actions (like scrolling).</p>
+            
+            <div class="code-example">
+                document.addEventListener(<span class="string">'keydown'</span>, <span class="keyword">function</span>(event) {
+                    <span class="comment">// Prevent arrow keys from scrolling page</span>
+                    <span class="keyword">if</span> (event.keyCode >= 37 && event.keyCode <= 40) {
+                        event.preventDefault();
+                    }
+                    
+                    <span class="comment">// Prevent spacebar from scrolling</span>
+                    <span class="keyword">if</span> (event.keyCode === 32) {
+                        event.preventDefault();
+                    }
+                });
+            </div>
+            
+            <div class="demo-box">
+                <strong>Common Keys to Prevent:</strong>
+                <ul style="text-align: left;">
+                    <li>Arrow keys (37-40) - Prevent scrolling</li>
+                    <li>Spacebar (32) - Prevent page jump</li>
+                    <li>Tab (9) - If using for game control</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 13: Exercise 1 - Control Mapper -->
+        <div class="slide">
+            <h1>Exercise 1: Control Mapper</h1>
+            <span class="timing-badge">15 minutes</span>
+            
+            <div class="exercise-card">
+                <h3>🎮 Build a Visual Key Display</h3>
+                <p style="font-size: 1.1em;">Create a display that shows which keys are currently pressed in real-time.</p>
+                
+                <h4>Requirements:</h4>
+                <ul style="text-align: left; font-size: 1em;">
+                    <li>Display 4 boxes for W, A, S, D (or arrow keys)</li>
+                    <li>Light up the box when key is pressed</li>
+                    <li>Dim the box when key is released</li>
+                    <li>Show the key code number in each box</li>
+                </ul>
+                
+                <h4>Bonus Challenges:</h4>
+                <ul style="text-align: left; font-size: 1em;">
+                    <li>Add spacebar and show when it's pressed</li>
+                    <li>Change color based on how long key is held</li>
+                    <li>Display a counter for total key presses</li>
+                </ul>
+            </div>
+            
+            <button data-timer="15">Start 15-Minute Timer</button>
+        </div>
+
+        <!-- Slide 14: Exercise 2 - Custom Controls -->
+        <div class="slide">
+            <h1>Exercise 2: Custom Control System</h1>
+            <span class="timing-badge">20 minutes</span>
+            
+            <div class="exercise-card">
+                <h3>⌨️ Build a Control Remapping System</h3>
+                <p style="font-size: 1.1em;">Let players choose between WASD and Arrow keys for movement.</p>
+                
+                <h4>Requirements:</h4>
+                <ul style="text-align: left; font-size: 1em;">
+                    <li>Create a button to toggle between WASD and Arrows</li>
+                    <li>Store the current control scheme in a variable</li>
+                    <li>Update your key handler to use the active scheme</li>
+                    <li>Display which scheme is currently active</li>
+                </ul>
+                
+                <h4>Bonus Challenges:</h4>
+                <ul style="text-align: left; font-size: 1em;">
+                    <li>Add a third option: custom keys that player chooses</li>
+                    <li>Save preference to localStorage</li>
+                    <li>Create a visual settings menu</li>
+                </ul>
+            </div>
+            
+            <button data-timer="20">Start 20-Minute Timer</button>
+        </div>
+
+        <!-- Slide 15: Exercise 3 - Combo System -->
+        <div class="slide">
+            <h1>Exercise 3: Combo Detection</h1>
+            <span class="timing-badge">20 minutes</span>
+            
+            <div class="exercise-card">
+                <h3>💥 Build a Combo System</h3>
+                <p style="font-size: 1.1em;">Detect and respond to key combinations and sequences (like double-tap to dash).</p>
+                
+                <h4>Requirements:</h4>
+                <ul style="text-align: left; font-size: 1em;">
+                    <li>Detect when a key is pressed twice quickly (double-tap)</li>
+                    <li>Show a visual effect when combo is triggered</li>
+                    <li>Track the time between key presses</li>
+                    <li>Reset combo if too much time passes</li>
+                </ul>
+                
+                <h4>Bonus Challenges:</h4>
+                <ul style="text-align: left; font-size: 1em;">
+                    <li>Detect sequences: ← ← → for special move</li>
+                    <li>Add simultaneous keys: Shift + Space</li>
+                    <li>Create a combo counter and display</li>
+                    <li>Add different effects for different combos</li>
+                </ul>
+            </div>
+            
+            <button data-timer="20">Start 20-Minute Timer</button>
+        </div>
+
+        <!-- Slide 16: Best Practices -->
+        <div class="slide">
+            <h1>Input Handling Best Practices</h1>
+            
+            <div class="comparison-grid">
+                <div class="approach-card good">
+                    <h3>✅ Do This</h3>
+                    <ul style="text-align: left;">
+                        <li>Use state tracking for game controls</li>
+                        <li>Always pair keydown with keyup</li>
+                        <li>Prevent default for game keys</li>
+                        <li>Organize input code in modules</li>
+                        <li>Test with multiple key combos</li>
+                    </ul>
+                </div>
+                <div class="approach-card bad">
+                    <h3>❌ Avoid This</h3>
+                    <ul style="text-align: left;">
+                        <li>Relying only on keydown events</li>
+                        <li>Forgetting to clear key states</li>
+                        <li>Not preventing default actions</li>
+                        <li>Hard-coding key codes everywhere</li>
+                        <li>Ignoring keyboard repeat delays</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 17: Common Pitfalls -->
+        <div class="slide">
+            <h1>Common Input Handling Pitfalls</h1>
+            
+            <div class="demo-zone">
+                <h3 style="color: #e74c3c;">⚠️ Watch Out For:</h3>
+                <ul style="text-align: left; font-size: 1.1em; margin-top: 20px;">
+                    <li><strong>Stuck Keys:</strong> Key stays "pressed" if player tabs away while holding key
+                        <ul><li><em>Solution:</em> Listen to window blur event and clear all keys</li></ul>
+                    </li>
+                    <li><strong>Browser Shortcuts:</strong> Ctrl+W closes tab, Ctrl+T opens new tab
+                        <ul><li><em>Solution:</em> Use preventDefault for game keys</li></ul>
+                    </li>
+                    <li><strong>Keyboard Ghosting:</strong> Some key combos don't register on certain keyboards
+                        <ul><li><em>Solution:</em> Test multiple key combinations, offer alternatives</li></ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 18: Fixing Stuck Keys -->
+        <div class="slide">
+            <h1>Fixing the Stuck Key Problem</h1>
+            
+            <div class="code-example">
+                <span class="comment">// Clear all keys when window loses focus</span>
+                window.addEventListener(<span class="string">'blur'</span>, <span class="keyword">function</span>() {
+                    keys.left = <span class="keyword">false</span>;
+                    keys.right = <span class="keyword">false</span>;
+                    keys.up = <span class="keyword">false</span>;
+                    keys.down = <span class="keyword">false</span>;
+                });
+                
+                <span class="comment">// Or use a cleaner loop approach</span>
+                window.addEventListener(<span class="string">'blur'</span>, <span class="keyword">function</span>() {
+                    <span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> keys) {
+                        keys[key] = <span class="keyword">false</span>;
+                    }
+                });
+            </div>
+            
+            <div class="tip-box">
+                <strong>Why This Matters:</strong> If a player holds a key and then Alt+Tabs, your game won't receive the keyup event, leaving the key "stuck" in the pressed state!
+            </div>
+        </div>
+
+        <!-- Slide 19: Real-World Example -->
+        <div class="slide">
+            <h1>Putting It All Together</h1>
+            <p>A complete, production-ready input handler.</p>
+            
+            <div class="code-example" style="font-size: 0.85em;">
+                <span class="keyword">var</span> InputManager = {
+                    keys: {},
+                    
+                    init: <span class="keyword">function</span>() {
+                        document.addEventListener(<span class="string">'keydown'</span>, <span class="keyword">this</span>.onKeyDown.bind(<span class="keyword">this</span>));
+                        document.addEventListener(<span class="string">'keyup'</span>, <span class="keyword">this</span>.onKeyUp.bind(<span class="keyword">this</span>));
+                        window.addEventListener(<span class="string">'blur'</span>, <span class="keyword">this</span>.clearAll.bind(<span class="keyword">this</span>));
+                    },
+                    
+                    onKeyDown: <span class="keyword">function</span>(e) {
+                        <span class="keyword">this</span>.keys[e.keyCode] = <span class="keyword">true</span>;
+                        <span class="keyword">if</span> (e.keyCode >= 37 && e.keyCode <= 40) e.preventDefault();
+                    },
+                    
+                    onKeyUp: <span class="keyword">function</span>(e) {
+                        <span class="keyword">this</span>.keys[e.keyCode] = <span class="keyword">false</span>;
+                    },
+                    
+                    clearAll: <span class="keyword">function</span>() {
+                        <span class="keyword">this</span>.keys = {};
+                    },
+                    
+                    isPressed: <span class="keyword">function</span>(keyCode) {
+                        <span class="keyword">return</span> <span class="keyword">this</span>.keys[keyCode] === <span class="keyword">true</span>;
+                    }
+                };
+            </div>
+        </div>
+
+        <!-- Slide 20: Homework & Next Steps -->
+        <div class="slide">
+            <h1>Skills Unlocked! <span class="emoji">🏆</span></h1>
+            <h2>You've Learned:</h2>
+            <ul>
+                <li>✅ How to capture keyboard input with event listeners</li>
+                <li>✅ The difference between event-driven and state-based input</li>
+                <li>✅ How to handle multiple simultaneous key presses</li>
+                <li>✅ Best practices for responsive game controls</li>
+                <li>✅ How to build reusable input management systems</li>
+            </ul>
+            
+            <div class="demo-box">
+                <p><strong>Next Quest:</strong> Movement & Boundaries - Making characters move smoothly and stay on screen!</p>
+                <p><strong>Homework:</strong> Enhance one of today's exercises with your own creative feature</p>
+                <p><strong>Reading:</strong> <a href="https://bengsfort.github.io/articles/making-a-js-game-part-1-game-engine/" class="resource-link">Bengston JS Engine Guide - Input Section</a></p>
+            </div>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="navigation">
+            <button id="prevBtn">Previous</button>
+            <span class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">20</span>
+            </span>
+            <button id="nextBtn">Next</button>
+        </div>
+    </div>
+
+    <!-- Shared Presentation JavaScript -->
+    <script src="../../js/presentation.js"></script>
+
+    <!-- Lecture-Specific JavaScript -->
+    <script>
+        // Listen for slide changes to trigger demos
+        document.addEventListener('slidechange', (e) => {
+            const slideNum = e.detail.currentSlide;
+            
+            // Demo for key code display slide (slide 4)
+            if (slideNum === 4) {
+                console.log('Try pressing keys to see their codes!');
+            }
+            
+            // Remind about preventing default on appropriate slide (slide 11)
+            if (slideNum === 11) {
+                console.log('Remember: preventDefault() stops browser defaults!');
+            }
+        });
+        
+        // Simple key press demonstration
+        let keyPressCount = 0;
+        document.addEventListener('keydown', (e) => {
+            keyPressCount++;
+            console.log(`Key pressed: ${e.keyCode} (Total presses: ${keyPressCount})`);
+        });
+    </script>
+</body>
+</html>

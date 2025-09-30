@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session 6: Advanced Loop Features - CSCI 3213</title>
+    
+    <!-- OCU Branded Presentation Styles with Theme Support -->
+    <link rel="stylesheet" href="../../styles/presentation.css">
+    <link rel="icon" type="image/x-icon" href="/images/favicon.png">
+    
+    <!-- Lecture-Specific Styles -->
+    <style>
+        .performance-visual {
+            background: #1a1a2e;
+            color: #0f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            border: 2px solid #16213e;
+        }
+        
+        .fps-display {
+            font-size: 2em;
+            color: #0f0;
+            text-align: center;
+            padding: 20px;
+            background: #000;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .cycle-diagram {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .cycle-box {
+            background: var(--card-bg, #f8f8f8);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 3px solid var(--ocu-cyan);
+        }
+        
+        .cycle-box.active {
+            border-color: #0f0;
+            background: #1a1a2e;
+            color: #0f0;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .metric-card {
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--ocu-cyan);
+        }
+        
+        .metric-card h4 {
+            margin: 0 0 10px 0;
+            color: var(--ocu-true-blue);
+        }
+        
+        .metric-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--ocu-gold);
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div class="timer-display" id="timer-display">
+            <span id="timer-text">Advanced Loop Features
+                <button class="home"><a href="../index.html">Home</a></button>
+            </span>
+        </div>
+
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <h1>Advanced Loop Features</h1>
+            <h2>Performance Monitoring & Optimization <span class="emoji">⚡</span></h2>
+            <p style="font-size: 1.5em; margin-top: 40px;">CSCI 3213 - Game Programming</p>
+            <p style="font-size: 1.3em;">Spring '26 - Session 6</p>
+            <p style="margin-top: auto; font-style: italic;">Let's make our engine fast and smart!</p>
+        </div>
+
+        <!-- Slide 2: Learning Objectives -->
+        <div class="slide">
+            <h1>Today's Quest Objectives</h1>
+            <ul style="font-size: 1.4em; line-height: 2;">
+                <li>🎯 Build a dual-cycle FPS calculation system</li>
+                <li>🎯 Implement real-time performance monitoring</li>
+                <li>🎯 Optimize game loop performance</li>
+                <li>🎯 Display and debug real-time metrics</li>
+            </ul>
+            
+            <div class="demo-box">
+                <p><strong>Why This Matters:</strong> Professional games need accurate performance measurement to ensure smooth gameplay across different hardware!</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: The FPS Problem -->
+        <div class="slide">
+            <h1>The Frame Rate Challenge</h1>
+            <p style="font-size: 1.3em;">Simple FPS calculations have serious issues:</p>
+            
+            <div class="demo-box" style="background: #ffebee; border-color: #c62828;">
+                <h3 style="color: #c62828;">❌ Problem 1: Performance Degradation</h3>
+                <p>Frame count and elapsed time keep growing forever</p>
+                <code>frameCount = 9,847,234 frames (hours of gameplay)</code>
+            </div>
+            
+            <div class="demo-box" style="background: #fff3e0; border-color: #ef6c00; margin-top: 20px;">
+                <h3 style="color: #ef6c00;">❌ Problem 2: Inaccurate Readings</h3>
+                <p>FPS shows average over entire session, not current performance</p>
+                <code>fps = totalFrames / hoursPlayed (not useful!)</code>
+            </div>
+            
+            <div class="tip-box" style="margin-top: 20px;">
+                <strong>The Solution:</strong> Dual-cycle alternating FPS calculation!
+            </div>
+        </div>
+
+        <!-- Slide 4: Dual-Cycle System Explained -->
+        <div class="slide">
+            <h1>The Dual-Cycle Solution <span class="emoji">🔄</span></h1>
+            <p>Two parallel calculations that alternate every few seconds:</p>
+            
+            <div class="cycle-diagram">
+                <div class="cycle-box active">
+                    <h3>🟢 ACTIVE CYCLE</h3>
+                    <p>Currently calculating FPS</p>
+                    <div style="margin-top: 15px; font-family: monospace;">
+                        <div>frameCount: 287</div>
+                        <div>elapsed: 4.8s</div>
+                        <div><strong>FPS: 59.8</strong></div>
+                    </div>
+                </div>
+                
+                <div class="cycle-box">
+                    <h3>⚪ INACTIVE CYCLE</h3>
+                    <p>Running in parallel</p>
+                    <div style="margin-top: 15px; font-family: monospace;">
+                        <div>frameCount: 143</div>
+                        <div>elapsed: 2.4s</div>
+                        <div>Waiting to become active...</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="demo-box">
+                <p><strong>Every 5 seconds:</strong> Active cycle resets to 0 and swaps with inactive cycle. This gives us accurate, recent FPS data!</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Setting Up the Cycles -->
+        <div class="slide">
+            <h1>Building the Dual-Cycle System</h1>
+            <div class="code-example">
+<span class="comment">// Set up two alternating FPS calculation cycles</span>
+<span class="keyword">var</span> cycles = {
+    new: {
+        frameCount: <span class="number">0</span>,
+        startTime: before,
+        sinceStart: <span class="number">0</span>
+    },
+    old: {
+        frameCount: <span class="number">0</span>,
+        startTime: before,
+        sinceStart: <span class="number">0</span>
+    }
+};
+
+<span class="keyword">var</span> resetInterval = <span class="number">5</span>; <span class="comment">// Reset every 5 seconds</span>
+<span class="keyword">var</span> resetState = <span class="string">'new'</span>; <span class="comment">// Track active cycle</span>
+<span class="keyword">var</span> loop.fps = <span class="number">0</span>; <span class="comment">// Exposed FPS value</span>
+            </div>
+            
+            <div class="tip-box">
+                <strong>Pro Tip:</strong> Both cycles run simultaneously but only one is "active" for display!
+            </div>
+        </div>
+
+        <!-- Slide 6: Updating Both Cycles -->
+        <div class="slide">
+            <h1>Incrementing Both Cycles</h1>
+            <div class="code-example">
+<span class="comment">// Inside the game loop, update BOTH cycles</span>
+<span class="keyword">for</span> (<span class="keyword">var</span> calc <span class="keyword">in</span> cycles) {
+    ++cycles[calc].frameCount;
+    cycles[calc].sinceStart = now - cycles[calc].startTime;
+}
+
+<span class="comment">// Choose the active cycle and calculate FPS</span>
+<span class="keyword">var</span> activeCycle = cycles[resetState];
+loop.fps = Math.round(<span class="number">1000</span> / (activeCycle.sinceStart / 
+                              activeCycle.frameCount) * <span class="number">100</span>) / <span class="number">100</span>;
+            </div>
+            
+            <div class="demo-box">
+                <p><strong>Key Insight:</strong> Both cycles increment every frame, but we only display the active one's FPS calculation!</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: The Reset Logic -->
+        <div class="slide">
+            <h1>Swapping Cycles</h1>
+            <div class="code-example">
+<span class="comment">// Determine when to reset (accounting for both cycles)</span>
+<span class="keyword">var</span> targetResetInterval = (cycles.new.frameCount === cycles.old.frameCount)
+    ? resetInterval * fps <span class="comment">// First interval: wait 5 seconds</span>
+    : (resetInterval * <span class="number">2</span>) * fps; <span class="comment">// After: wait 10 seconds</span>
+
+<span class="comment">// Reset the active cycle and swap</span>
+<span class="keyword">if</span> (activeCycle.frameCount > targetResetInterval) {
+    cycles[resetState].frameCount = <span class="number">0</span>;
+    cycles[resetState].startTime = now;
+    cycles[resetState].sinceStart = <span class="number">0</span>;
+    
+    <span class="comment">// Swap the active cycle</span>
+    resetState = (resetState === <span class="string">'new'</span> ? <span class="string">'old'</span> : <span class="string">'new'</span>);
+}
+            </div>
+            
+            <div class="tip-box">
+                <strong>Why Double?</strong> After the first swap, the inactive cycle is only halfway through its count, so we wait 2x the interval!
+            </div>
+        </div>
+
+        <!-- Slide 8: Displaying FPS -->
+        <div class="slide">
+            <h1>Rendering the FPS</h1>
+            <div class="code-example">
+<span class="comment">// In your render module (game.render.js)</span>
+<span class="keyword">function</span> <span class="function">gameRender</span>(scope) {
+    <span class="keyword">var</span> w = scope.constants.width;
+    
+    <span class="keyword">return function</span> <span class="function">render</span>() {
+        <span class="comment">// Clear canvas</span>
+        scope.context.clearRect(<span class="number">0</span>, <span class="number">0</span>, w, h);
+        
+        <span class="comment">// Display FPS if enabled</span>
+        <span class="keyword">if</span> (scope.constants.showFps) {
+            scope.context.fillStyle = <span class="string">'#ff0'</span>;
+            scope.context.fillText(scope.loop.fps, w - <span class="number">100</span>, <span class="number">50</span>);
+        }
+    };
+}
+            </div>
+            
+            <div class="fps-display">
+                FPS: 60.00
+            </div>
+        </div>
+
+        <!-- Slide 9: Performance Monitoring -->
+        <div class="slide">
+            <h1>Advanced Performance Metrics <span class="emoji">📊</span></h1>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <h4>Update Time</h4>
+                    <div class="metric-value">2.3ms</div>
+                    <p>Time spent updating game logic</p>
+                </div>
+                
+                <div class="metric-card">
+                    <h4>Render Time</h4>
+                    <div class="metric-value">8.1ms</div>
+                    <p>Time spent drawing to canvas</p>
+                </div>
+                
+                <div class="metric-card">
+                    <h4>Entity Count</h4>
+                    <div class="metric-value">47</div>
+                    <p>Active game objects</p>
+                </div>
+                
+                <div class="metric-card">
+                    <h4>Frame Budget</h4>
+                    <div class="metric-value">16.7ms</div>
+                    <p>Target for 60 FPS</p>
+                </div>
+            </div>
+            
+            <div class="demo-box">
+                <p><strong>Golden Rule:</strong> Update + Render must be &lt; 16.7ms to maintain 60 FPS!</p>
+            </div>
+        </div>
+
+        <!-- Slide 10: Using Console Timers -->
+        <div class="slide">
+            <h1>Measuring Performance</h1>
+            <div class="code-example">
+<span class="comment">// Use console.time() for accurate measurements</span>
+<span class="keyword">function</span> <span class="function">gameLoop</span>() {
+    <span class="comment">// Measure update performance</span>
+    console.time(<span class="string">'update'</span>);
+    update();
+    console.timeEnd(<span class="string">'update'</span>); <span class="comment">// update: 2.341ms</span>
+    
+    <span class="comment">// Measure render performance</span>
+    console.time(<span class="string">'render'</span>);
+    render();
+    console.timeEnd(<span class="string">'render'</span>); <span class="comment">// render: 8.123ms</span>
+}
+
+<span class="comment">// For specific operations</span>
+console.time(<span class="string">'collision-check'</span>);
+<span class="keyword">for</span> (<span class="keyword">var</span> entity <span class="keyword">in</span> entities) {
+    checkCollisions(entity);
+}
+console.timeEnd(<span class="string">'collision-check'</span>);
+            </div>
+        </div>
+
+        <!-- Slide 11: Memory Management -->
+        <div class="slide">
+            <h1>Loop Optimization Tips</h1>
+            <ul style="font-size: 1.3em; line-height: 1.8;">
+                <li><strong>Cache Array Lengths:</strong> <code>for (var i = 0, len = arr.length; i &lt; len; i++)</code></li>
+                <li><strong>Use Object Pools:</strong> Reuse objects instead of creating/destroying</li>
+                <li><strong>Limit Entity Checks:</strong> Only process entities near the player</li>
+                <li><strong>Defer Heavy Work:</strong> Spread expensive calculations across frames</li>
+                <li><strong>Profile First:</strong> Measure before optimizing!</li>
+            </ul>
+            
+            <div class="demo-box" style="background: #e8f5e9; border-color: #2e7d32;">
+                <p style="color: #1b5e20;"><strong>Remember:</strong> Premature optimization is the root of all evil. Profile, then optimize!</p>
+            </div>
+        </div>
+
+        <!-- Slide 12: Iterating Objects Safely -->
+        <div class="slide">
+            <h1>Safe Object Iteration</h1>
+            <div class="code-example">
+<span class="comment">// Always use hasOwnProperty check!</span>
+<span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> object) {
+    <span class="keyword">if</span> (object.hasOwnProperty(key)) {
+        <span class="comment">// Process only direct properties, not inherited ones</span>
+        console.log(key, object[key]);
+    }
+}
+
+<span class="comment">// Alternative: Use Object.keys() for cleaner code</span>
+<span class="keyword">var</span> keys = Object.keys(entities);
+<span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; keys.length; i++) {
+    <span class="keyword">var</span> entity = entities[keys[i]];
+    entity.update();
+}
+            </div>
+            
+            <div class="tip-box">
+                <strong>Why?</strong> Without hasOwnProperty, you might iterate over inherited properties from the prototype chain!
+            </div>
+        </div>
+
+        <!-- Slide 13: Exercise 1 - FPS Monitor -->
+        <div class="slide">
+            <h1>Exercise 1: FPS Graph <span class="emoji">📈</span></h1>
+            <div class="activity-box">
+                <h3>Challenge: Create a Visual FPS Monitor</h3>
+                <p><strong>Goal:</strong> Display a graph of FPS over the last 60 frames</p>
+                
+                <div style="text-align: left; margin: 20px;">
+                    <h4>Requirements:</h4>
+                    <ul>
+                        <li>Store FPS in an array (max 60 values)</li>
+                        <li>Draw vertical bars for each frame's FPS</li>
+                        <li>Color code: Green (55-60), Yellow (45-54), Red (&lt;45)</li>
+                        <li>Display current, min, and max FPS</li>
+                    </ul>
+                </div>
+                
+                <div class="tip-box">
+                    <strong>Hint:</strong> Use <code>fpsHistory.push(currentFPS)</code> and <code>if (fpsHistory.length > 60) fpsHistory.shift()</code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Exercise 2 - Performance Profiler -->
+        <div class="slide">
+            <h1>Exercise 2: Performance Profiler <span class="emoji">🔍</span></h1>
+            <div class="activity-box">
+                <h3>Challenge: Add Debug Information Panel</h3>
+                <p><strong>Goal:</strong> Create toggleable performance overlay</p>
+                
+                <div style="text-align: left; margin: 20px;">
+                    <h4>Display Metrics:</h4>
+                    <ul>
+                        <li>Update time (in milliseconds)</li>
+                        <li>Render time (in milliseconds)</li>
+                        <li>Entity count</li>
+                        <li>Frame budget remaining (16.7ms - total time)</li>
+                    </ul>
+                    
+                    <h4>Features:</h4>
+                    <ul>
+                        <li>Press 'D' to toggle debug overlay</li>
+                        <li>Show warnings when frame time exceeds budget</li>
+                    </ul>
+                </div>
+                
+                <div class="tip-box">
+                    <strong>Hint:</strong> Use <code>performance.now()</code> before and after operations to measure time!
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: Exercise 3 - Stress Tester -->
+        <div class="slide">
+            <h1>Exercise 3: Performance Stress Test <span class="emoji">💪</span></h1>
+            <div class="activity-box">
+                <h3>Challenge: Find Your Engine's Limit</h3>
+                <p><strong>Goal:</strong> Automatically spawn objects until FPS drops below 30</p>
+                
+                <div style="text-align: left; margin: 20px;">
+                    <h4>Implementation:</h4>
+                    <ul>
+                        <li>Start with 10 moving squares</li>
+                        <li>Every second, add 10 more squares</li>
+                        <li>Stop spawning when FPS &lt; 30</li>
+                        <li>Display: "Performance Limit: X objects at Y FPS"</li>
+                        <li>Add a reset button to start over</li>
+                    </ul>
+                </div>
+                
+                <div class="tip-box">
+                    <strong>Bonus:</strong> Try different entity types (circles, images) to see which is most expensive to render!
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16: Common Pitfalls -->
+        <div class="slide">
+            <h1>Performance Pitfalls to Avoid</h1>
+            <div class="two-column">
+                <div class="bad-practice">
+                    <h3>❌ Don't Do This</h3>
+                    <ul>
+                        <li>Creating new objects every frame</li>
+                        <li>Calculating array length in loop condition</li>
+                        <li>Using try-catch in hot paths</li>
+                        <li>Excessive DOM manipulation</li>
+                        <li>Not caching frequently accessed values</li>
+                    </ul>
+                </div>
+                
+                <div class="best-practice">
+                    <h3>✅ Do This Instead</h3>
+                    <ul>
+                        <li>Reuse object pools</li>
+                        <li>Cache length: <code>len = arr.length</code></li>
+                        <li>Validate before the loop</li>
+                        <li>Batch canvas operations</li>
+                        <li>Store calculated values</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 17: Debugging Techniques -->
+        <div class="slide">
+            <h1>Debugging Your Loop</h1>
+            <div class="code-example">
+<span class="comment">// Add visual indicators for debugging</span>
+<span class="keyword">function</span> <span class="function">debugRender</span>() {
+    <span class="comment">// Draw entity count</span>
+    ctx.fillText(<span class="string">'Entities: '</span> + entityCount, <span class="number">10</span>, <span class="number">30</span>);
+    
+    <span class="comment">// Draw performance warning</span>
+    <span class="keyword">if</span> (frameTime > <span class="number">16.7</span>) {
+        ctx.fillStyle = <span class="string">'red'</span>;
+        ctx.fillText(<span class="string">'⚠ SLOW FRAME'</span>, <span class="number">10</span>, <span class="number">60</span>);
+    }
+    
+    <span class="comment">// Log expensive operations</span>
+    <span class="keyword">if</span> (updateTime > <span class="number">10</span>) {
+        console.warn(<span class="string">'Slow update: '</span>, updateTime + <span class="string">'ms'</span>);
+    }
+}
+            </div>
+            
+            <div class="demo-box">
+                <p><strong>Pro Tip:</strong> Use Chrome DevTools Performance tab to record and analyze frame-by-frame performance!</p>
+            </div>
+        </div>
+
+        <!-- Slide 18: Real-World Application -->
+        <div class="slide">
+            <h1>Why This Matters</h1>
+            <p style="font-size: 1.3em;">Professional games use these exact techniques:</p>
+            
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <h4>🎮 Fortnite</h4>
+                    <p>Constant FPS monitoring to maintain 60 FPS on all platforms</p>
+                </div>
+                
+                <div class="metric-card">
+                    <h4>🏎️ Gran Turismo</h4>
+                    <p>Frame pacing system ensures smooth 60 FPS racing</p>
+                </div>
+                
+                <div class="metric-card">
+                    <h4>⚔️ Dark Souls</h4>
+                    <p>Performance monitoring to maintain consistent timing</p>
+                </div>
+                
+                <div class="metric-card">
+                    <h4>🌍 Minecraft</h4>
+                    <p>Entity culling and LOD based on performance metrics</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 19: Key Takeaways -->
+        <div class="slide">
+            <h1>Key Concepts Review</h1>
+            <ul style="font-size: 1.3em; line-height: 2;">
+                <li>🔄 <strong>Dual-Cycle System:</strong> Prevents performance degradation and provides accurate FPS</li>
+                <li>⏱️ <strong>Performance Timing:</strong> Use console.time() and performance.now()</li>
+                <li>🎯 <strong>Frame Budget:</strong> Must complete update + render in &lt;16.7ms for 60 FPS</li>
+                <li>🧹 <strong>Optimization:</strong> Profile first, then optimize bottlenecks</li>
+                <li>🔍 <strong>Debug Tools:</strong> Visual indicators help spot performance issues</li>
+            </ul>
+        </div>
+
+        <!-- Slide 20: Achievement Unlocked -->
+        <div class="slide">
+            <h1>Achievement Unlocked! <span class="emoji">🏆</span></h1>
+            <h2>Performance Engineer</h2>
+            <ul>
+                <li>✅ Implemented dual-cycle FPS calculation</li>
+                <li>✅ Built performance monitoring tools</li>
+                <li>✅ Created visual debugging systems</li>
+                <li>✅ Learned professional optimization techniques</li>
+            </ul>
+            
+            <div class="demo-box">
+                <p><strong>Next Quest:</strong> Entity System Design - Creating game objects with lifecycle management</p>
+                <p><strong>Homework:</strong> Add the FPS graph to your game engine and optimize it to maintain 60 FPS with 100+ entities!</p>
+            </div>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="navigation">
+            <button id="prevBtn">Previous</button>
+            <span class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">20</span>
+            </span>
+            <button id="nextBtn">Next</button>
+        </div>
+    </div>
+
+    <!-- Shared Presentation JavaScript -->
+    <script src="../../js/presentation.js"></script>
+
+    <!-- Lecture-Specific JavaScript -->
+    <script>
+        // Listen for slide changes
+        document.addEventListener('slidechange', (e) => {
+            const slideNum = e.detail.currentSlide;
+            
+            // Animate FPS display on slide 8
+            if (slideNum === 7) {
+                animateFPS();
+            }
+            
+            // Highlight cycle swapping on slide 4
+            if (slideNum === 3) {
+                setTimeout(() => {
+                    const cycles = document.querySelectorAll('.cycle-box');
+                    setInterval(() => {
+                        cycles.forEach(cycle => cycle.classList.toggle('active'));
+                    }, 3000);
+                }, 500);
+            }
+        });
+        
+        // Simulate FPS fluctuation
+        function animateFPS() {
+            const fpsDisplay = document.querySelector('.fps-display');
+            if (!fpsDisplay) return;
+            
+            let fps = 60;
+            setInterval(() => {
+                fps = 55 + Math.random() * 10;
+                fpsDisplay.textContent = `FPS: ${fps.toFixed(2)}`;
+                fpsDisplay.style.color = fps >= 58 ? '#0f0' : fps >= 50 ? '#ff0' : '#f00';
+            }, 100);
+        }
+    </script>
+</body>
+</html>

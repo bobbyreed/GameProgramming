@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session 7: Entity System Design - CSCI 3213</title>
+    
+    <!-- OCU Branded Presentation Styles with Theme Support -->
+    <link rel="stylesheet" href="../../styles/presentation.css">
+    <link rel="icon" type="image/x-icon" href="/images/favicon.png">
+    
+    <!-- Lecture-Specific Styles -->
+    <style>
+        .entity-diagram {
+            background: var(--card-bg, #f8f8f8);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border: 3px solid var(--ocu-cyan, #00a8ff);
+        }
+        
+        .entity-card {
+            background: var(--bg-secondary, #fff);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 5px solid var(--ocu-gold, #ffb81c);
+        }
+        
+        .lifecycle-flow {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .lifecycle-step {
+            background: linear-gradient(135deg, var(--ocu-true-blue, #003865) 0%, var(--ocu-cyan, #00a8ff) 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 140px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .arrow {
+            font-size: 2em;
+            color: var(--ocu-gold, #ffb81c);
+            margin: 0 10px;
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .comparison-card {
+            background: var(--card-bg, #f8f8f8);
+            padding: 20px;
+            border-radius: 8px;
+            border-top: 4px solid var(--ocu-true-blue, #003865);
+        }
+        
+        .comparison-card h3 {
+            color: var(--ocu-true-blue, #003865);
+            margin-bottom: 15px;
+        }
+        
+        .pros-cons {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .pros-cons li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .pros-cons li.pro::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4caf50;
+            font-weight: bold;
+        }
+        
+        .pros-cons li.con::before {
+            content: "✗";
+            position: absolute;
+            left: 0;
+            color: #f44336;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div class="timer-display" id="timer-display">
+            <span id="timer-text">Entity System Design
+                <button class="home"><a href="../index.html">Home</a></button>
+            </span>
+        </div>
+
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <h1>Entity System Design</h1>
+            <h2>Building the Characters of Your World <span class="emoji">🎭</span></h2>
+            <p style="font-size: 1.5em; margin-top: 40px;">CSCI 3213 - Game Programming</p>
+            <p style="font-size: 1.3em;">Spring '26 - Week 7</p>
+            <p style="margin-top: auto; font-style: italic;">Time to populate your game world with life!</p>
+        </div>
+
+        <!-- Slide 2: Learning Objectives -->
+        <div class="slide">
+            <h1>Today's Quest Objectives</h1>
+            <ul style="font-size: 1.4em; line-height: 2;">
+                <li>🎯 Design entity architecture patterns</li>
+                <li>🎯 Create player and enemy entities</li>
+                <li>🎯 Implement entity lifecycle management</li>
+                <li>🎯 Manage multiple entities efficiently</li>
+            </ul>
+            
+            <div class="tip-box" style="margin-top: 40px;">
+                <strong>Remember:</strong> Everything in your game that moves, interacts, or thinks is an entity!
+            </div>
+        </div>
+
+        <!-- Slide 3: What is an Entity? -->
+        <div class="slide">
+            <h1>What is an Entity?</h1>
+            <p style="font-size: 1.3em; margin-bottom: 30px;">An entity is any interactive game object with state and behavior</p>
+            
+            <div class="entity-diagram">
+                <h3>Entity Components:</h3>
+                <div class="entity-card">
+                    <strong>State:</strong> Properties that define what the entity IS
+                    <br><small>Position, velocity, health, type, etc.</small>
+                </div>
+                <div class="entity-card">
+                    <strong>Update:</strong> Logic for what the entity DOES
+                    <br><small>Movement, AI, state changes</small>
+                </div>
+                <div class="entity-card">
+                    <strong>Render:</strong> How the entity APPEARS
+                    <br><small>Drawing, animations, visual effects</small>
+                </div>
+            </div>
+            
+            <div class="demo-box">
+                <strong>Examples:</strong> Player character, enemies, projectiles, power-ups, NPCs, obstacles
+            </div>
+        </div>
+
+        <!-- Slide 4: The Entity Lifecycle -->
+        <div class="slide">
+            <h1>Entity Lifecycle</h1>
+            <p style="font-size: 1.2em; margin-bottom: 30px;">Every entity follows this pattern:</p>
+            
+            <div class="lifecycle-flow">
+                <div class="lifecycle-step">CREATE<br><small>Initialize state</small></div>
+                <span class="arrow">→</span>
+                <div class="lifecycle-step">UPDATE<br><small>Change state</small></div>
+                <span class="arrow">→</span>
+                <div class="lifecycle-step">RENDER<br><small>Display state</small></div>
+                <span class="arrow">→</span>
+                <div class="lifecycle-step">DESTROY<br><small>Clean up</small></div>
+            </div>
+            
+            <div class="code-example" style="margin-top: 30px;">
+                <span class="comment">// Game loop calls these methods</span>
+                <span class="keyword">for</span> (<span class="keyword">var</span> entity <span class="keyword">in</span> entities) {
+                    entities[entity].<span class="function">update</span>();  <span class="comment">// Every frame</span>
+                    entities[entity].<span class="function">render</span>();  <span class="comment">// Every frame</span>
+                }
+            </div>
+        </div>
+
+        <!-- Slide 5: Building Your First Entity -->
+        <div class="slide">
+            <h1>Building Your First Entity</h1>
+            <p>Let's create a basic entity using the constructor pattern:</p>
+
+            <div class="code-example">
+                <span class="keyword">function</span> <span class="function">Entity</span>(x, y) {
+                    <span class="keyword">this</span>.state = {
+                        position: { x: x, y: y },
+                        velocity: { x: <span class="number">0</span>, y: <span class="number">0</span> },
+                        active: <span class="keyword">true</span>
+                    };
+                    
+                    <span class="keyword">this</span>.width = <span class="number">32</span>;
+                    <span class="keyword">this</span>.height = <span class="number">32</span>;
+                    <span class="keyword">this</span>.color = <span class="string">'#40d870'</span>;
+                }
+                
+                <span class="comment">// Shared methods via prototype</span>
+                Entity.prototype.<span class="function">update</span> = <span class="keyword">function</span>() {
+                    <span class="keyword">this</span>.state.position.x += <span class="keyword">this</span>.state.velocity.x;
+                    <span class="keyword">this</span>.state.position.y += <span class="keyword">this</span>.state.velocity.y;
+                };
+                
+                Entity.prototype.<span class="function">render</span> = <span class="keyword">function</span>(context) {
+                    context.fillStyle = <span class="keyword">this</span>.color;
+                    context.fillRect(<span class="keyword">this</span>.state.position.x, 
+                                    <span class="keyword">this</span>.state.position.y,
+                                    <span class="keyword">this</span>.width, <span class="keyword">this</span>.height);
+                };
+            </div>
+        </div>
+
+        <!-- Slide 6: Prototype Pattern Benefits -->
+        <div class="slide">
+            <h1>Why Use Prototypes?</h1>
+            
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <h3>❌ Without Prototype</h3>
+                    <div class="code-example" style="font-size: 0.9em;">
+                        <span class="keyword">function</span> <span class="function">Entity</span>() {
+                            <span class="keyword">this</span>.update = <span class="keyword">function</span>() {
+                                <span class="comment">// Each entity gets</span>
+                                <span class="comment">// its own copy!</span>
+                            };
+                        }
+                    </div>
+                    <p style="margin-top: 15px;">1000 entities = 1000 update functions in memory 😱</p>
+                </div>
+                
+                <div class="comparison-card">
+                    <h3>✅ With Prototype</h3>
+                    <div class="code-example" style="font-size: 0.9em;">
+                        Entity.prototype.<span class="function">update</span> = 
+                            <span class="keyword">function</span>() {
+                            <span class="comment">// All entities share</span>
+                            <span class="comment">// ONE function!</span>
+                        };
+                    </div>
+                    <p style="margin-top: 15px;">1000 entities = 1 update function shared by all! 🎉</p>
+                </div>
+            </div>
+            
+            <div class="tip-box">
+                <strong>Performance Tip:</strong> Use prototypes for methods, use instance properties for unique data
+            </div>
+        </div>
+
+        <!-- Slide 7: Creating Specialized Entities -->
+        <div class="slide">
+            <h1>Creating a Player Entity</h1>
+            <p>Building on our base entity with player-specific features:</p>
+
+            <div class="code-example">
+                <span class="keyword">function</span> <span class="function">Player</span>(scope, x, y) {
+                    <span class="keyword">var</span> player = <span class="keyword">this</span>;
+                    
+                    <span class="comment">// Initialize state with player-specific properties</span>
+                    player.state = {
+                        position: { x: x, y: y },
+                        velocity: { x: <span class="number">0</span>, y: <span class="number">0</span> },
+                        moveSpeed: <span class="number">1.5</span>,
+                        health: <span class="number">100</span>,
+                        score: <span class="number">0</span>
+                    };
+                    
+                    player.width = <span class="number">16</span>;
+                    player.height = <span class="number">23</span>;
+                    
+                    player.<span class="function">render</span> = <span class="keyword">function</span>() {
+                        scope.context.fillStyle = <span class="string">'#40d870'</span>;
+                        scope.context.fillRect(
+                            player.state.position.x,
+                            player.state.position.y,
+                            player.width, player.height
+                        );
+                    };
+                    
+                    player.<span class="function">update</span> = <span class="keyword">function</span>() {
+                        <span class="comment">// Handle player input and movement</span>
+                        <span class="comment">// Check boundaries, collisions, etc.</span>
+                    };
+                    
+                    <span class="keyword">return</span> player;
+                }
+            </div>
+        </div>
+
+        <!-- Slide 8: Inheritance vs Composition -->
+        <div class="slide">
+            <h1>Inheritance vs Composition</h1>
+            
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <h3>Inheritance ("IS-A")</h3>
+                    <ul class="pros-cons">
+                        <li class="pro">Player IS-A Entity</li>
+                        <li class="pro">Shares base functionality</li>
+                        <li class="con">Rigid hierarchy</li>
+                        <li class="con">Can't easily mix traits</li>
+                    </ul>
+                    <div class="code-example" style="font-size: 0.85em; margin-top: 15px;">
+                        Player.prototype = 
+                            Object.create(Entity.prototype);
+                    </div>
+                </div>
+                
+                <div class="comparison-card">
+                    <h3>Composition ("HAS-A")</h3>
+                    <ul class="pros-cons">
+                        <li class="pro">Player HAS-A position</li>
+                        <li class="pro">Flexible and modular</li>
+                        <li class="pro">Mix and match components</li>
+                        <li class="con">More initial setup</li>
+                    </ul>
+                    <div class="code-example" style="font-size: 0.85em; margin-top: 15px;">
+                        player.addComponent(
+                            <span class="keyword">new</span> HealthComponent()
+                        );
+                    </div>
+                </div>
+            </div>
+            
+            <div class="demo-box">
+                <strong>Course Approach:</strong> We'll use simple inheritance for this course, but explore composition in advanced projects!
+            </div>
+        </div>
+
+        <!-- Slide 9: Managing Multiple Entities -->
+        <div class="slide">
+            <h1>Entity Manager Pattern</h1>
+            <p>How do we handle 100+ entities efficiently?</p>
+
+            <div class="code-example">
+                <span class="keyword">var</span> EntityManager = {
+                    entities: [],
+                    
+                    <span class="function">add</span>: <span class="keyword">function</span>(entity) {
+                        <span class="keyword">this</span>.entities.push(entity);
+                    },
+                    
+                    <span class="function">remove</span>: <span class="keyword">function</span>(entity) {
+                        <span class="keyword">var</span> index = <span class="keyword">this</span>.entities.indexOf(entity);
+                        <span class="keyword">if</span> (index !== <span class="number">-1</span>) {
+                            <span class="keyword">this</span>.entities.splice(index, <span class="number">1</span>);
+                        }
+                    },
+                    
+                    <span class="function">updateAll</span>: <span class="keyword">function</span>() {
+                        <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i < <span class="keyword">this</span>.entities.length; i++) {
+                            <span class="keyword">if</span> (<span class="keyword">this</span>.entities[i].state.active) {
+                                <span class="keyword">this</span>.entities[i].update();
+                            }
+                        }
+                    },
+                    
+                    <span class="function">renderAll</span>: <span class="keyword">function</span>(context) {
+                        <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i < <span class="keyword">this</span>.entities.length; i++) {
+                            <span class="keyword">if</span> (<span class="keyword">this</span>.entities[i].state.active) {
+                                <span class="keyword">this</span>.entities[i].render(context);
+                            }
+                        }
+                    }
+                };
+            </div>
+        </div>
+
+        <!-- Slide 10: Entity States -->
+        <div class="slide">
+            <h1>Entity State Management</h1>
+            <p>Entities need to track their current state:</p>
+
+            <div class="entity-card">
+                <strong>Common Entity States:</strong>
+                <ul style="margin-top: 10px; font-size: 1.1em;">
+                    <li>🟢 ACTIVE - Normal operation</li>
+                    <li>🔵 IDLE - Waiting for input/event</li>
+                    <li>🟡 MOVING - In motion</li>
+                    <li>🟠 ATTACKING - Performing action</li>
+                    <li>🔴 DAMAGED - Taking damage</li>
+                    <li>⚫ DESTROYED - Ready for cleanup</li>
+                </ul>
+            </div>
+
+            <div class="code-example" style="margin-top: 20px;">
+                <span class="comment">// State-based behavior</span>
+                Entity.prototype.<span class="function">update</span> = <span class="keyword">function</span>() {
+                    <span class="keyword">switch</span>(<span class="keyword">this</span>.state.current) {
+                        <span class="keyword">case</span> <span class="string">'IDLE'</span>:
+                            <span class="keyword">this</span>.handleIdle();
+                            <span class="keyword">break</span>;
+                        <span class="keyword">case</span> <span class="string">'MOVING'</span>:
+                            <span class="keyword">this</span>.handleMovement();
+                            <span class="keyword">break</span>;
+                        <span class="keyword">case</span> <span class="string">'ATTACKING'</span>:
+                            <span class="keyword">this</span>.handleAttack();
+                            <span class="keyword">break</span>;
+                    }
+                };
+            </div>
+        </div>
+
+        <!-- Slide 11: Object Pooling Concept -->
+        <div class="slide">
+            <h1>Object Pooling Preview</h1>
+            <p style="font-size: 1.2em;">Creating and destroying objects is expensive...</p>
+            
+            <div class="entity-diagram">
+                <h3>Traditional Approach:</h3>
+                <p>Create bullet → Use bullet → Delete bullet → Garbage collection</p>
+                <p style="color: #f44336; font-weight: bold;">Problem: Creates lag spikes! 💥</p>
+                
+                <h3 style="margin-top: 30px;">Object Pool Approach:</h3>
+                <p>Create 100 bullets at start → Activate when needed → Deactivate when done → Reuse!</p>
+                <p style="color: #4caf50; font-weight: bold;">Result: Smooth performance! ✨</p>
+            </div>
+            
+            <div class="tip-box">
+                <strong>Coming Soon:</strong> We'll implement full object pooling in advanced sessions!
+            </div>
+        </div>
+
+        <!-- Slide 12: Exercise Overview -->
+        <div class="slide">
+            <h1>Time to Code! <span class="emoji">💻</span></h1>
+            
+            <div class="activity-box">
+                <h2>Exercise 1: Entity Factory (15 min)</h2>
+                <p>Create a factory function that spawns different entity types with shared base properties</p>
+                <ul>
+                    <li>Create EntityFactory with create() method</li>
+                    <li>Support 'player', 'enemy', and 'collectible' types</li>
+                    <li>All entities share position and render method</li>
+                    <li>Each type has unique colors and sizes</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 13: Exercise 2 -->
+        <div class="slide">
+            <h1>Exercise 2: Entity Manager</h1>
+            
+            <div class="activity-box">
+                <h2>Build a Complete Entity Manager (20 min)</h2>
+                <p>Create a system that handles the full entity lifecycle</p>
+                <ul>
+                    <li>Implement add(), remove(), and clear() methods</li>
+                    <li>Add updateAll() that updates only active entities</li>
+                    <li>Add renderAll() that renders all entities</li>
+                    <li>Include getEntityById() for entity lookup</li>
+                    <li>Add cleanup to remove destroyed entities</li>
+                </ul>
+                
+                <div class="tip-box" style="margin-top: 20px;">
+                    <strong>Bonus Challenge:</strong> Add getEntitiesInRadius() to find nearby entities!
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Exercise 3 -->
+        <div class="slide">
+            <h1>Exercise 3: Entity Interaction</h1>
+            
+            <div class="activity-box">
+                <h2>Entity Detection System (15 min)</h2>
+                <p>Implement a simple system where entities detect nearby entities</p>
+                <ul>
+                    <li>Create getDistance() helper function</li>
+                    <li>Add detectNearby() method to entities</li>
+                    <li>Make enemies turn red when near player</li>
+                    <li>Make collectibles spin when player approaches</li>
+                </ul>
+                
+                <div class="code-example" style="margin-top: 15px; font-size: 0.9em;">
+                    <span class="comment">// Distance formula</span>
+                    <span class="keyword">function</span> <span class="function">getDistance</span>(x1, y1, x2, y2) {
+                        <span class="keyword">var</span> dx = x2 - x1;
+                        <span class="keyword">var</span> dy = y2 - y1;
+                        <span class="keyword">return</span> Math.sqrt(dx * dx + dy * dy);
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: Key Takeaways -->
+        <div class="slide">
+            <h1>Level Complete! <span class="emoji">🏆</span></h1>
+            <h2>Skills Unlocked:</h2>
+            <ul style="font-size: 1.3em; line-height: 1.8;">
+                <li>✅ Built entities with constructor and prototype patterns</li>
+                <li>✅ Implemented entity lifecycle (create, update, render, destroy)</li>
+                <li>✅ Created entity management systems</li>
+                <li>✅ Handled multiple entities efficiently</li>
+                <li>✅ Explored composition vs inheritance</li>
+            </ul>
+            
+            <div class="demo-box" style="margin-top: 30px;">
+                <p><strong>Next Quest:</strong> Input Handling - Making entities respond to player commands!</p>
+                <p><strong>Homework:</strong> Extend your entity system with a new entity type (powerup, obstacle, or projectile)</p>
+            </div>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="navigation">
+            <button id="prevBtn">Previous</button>
+            <span class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">15</span>
+            </span>
+            <button id="nextBtn">Next</button>
+        </div>
+    </div>
+
+    <!-- Shared Presentation JavaScript -->
+    <script src="../../js/presentation.js"></script>
+
+    <!-- Lecture-Specific JavaScript -->
+    <script>
+        // Track current exercise for timer
+        let currentExercise = 0;
+        const exerciseTimes = [15, 20, 15]; // Minutes for each exercise
+        
+        document.addEventListener('slidechange', (e) => {
+            const slideNum = e.detail.currentSlide;
+            
+            // Start timer for exercises
+            if (slideNum === 11) { // Exercise 1
+                console.log('Starting Exercise 1 - Entity Factory (15 minutes)');
+                currentExercise = 1;
+            } else if (slideNum === 12) { // Exercise 2
+                console.log('Starting Exercise 2 - Entity Manager (20 minutes)');
+                currentExercise = 2;
+            } else if (slideNum === 13) { // Exercise 3
+                console.log('Starting Exercise 3 - Entity Interaction (15 minutes)');
+                currentExercise = 3;
+            }
+        });
+
+        // Simple entity demo for illustration
+        function EntityDemo() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 400;
+            canvas.height = 300;
+            
+            // This could be activated on specific slides for live demos
+            console.log('Entity system demo ready');
+        }
+    </script>
+</body>
+</html>
