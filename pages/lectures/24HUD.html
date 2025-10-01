@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 23: Game HUD & Map Info - CSCI 3213</title>
+    
+    <!-- OCU Branded Presentation Styles with Theme Support -->
+    <link rel="stylesheet" href="../../styles/presentation.css">
+    <link rel="icon" type="image/x-icon" href="/images/favicon.png">
+    
+    <!-- Lecture-Specific Styles -->
+    <style>
+        .hud-demo {
+            background: #1a1a2e;
+            color: #0f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            border: 2px solid #16213e;
+        }
+        
+        .ui-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .ui-card {
+            background: var(--card-bg, #f8f8f8);
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid var(--border-color, #ddd);
+        }
+        
+        .code-showcase {
+            background: #2d2d2d;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            border-left: 4px solid var(--ocu-cyan);
+            overflow-x: auto;
+        }
+
+        .save-system-flow {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .flow-box {
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 8px;
+            flex: 1;
+            min-width: 150px;
+            text-align: center;
+            border: 2px solid var(--ocu-cyan);
+        }
+
+        .godot-tip {
+            background: var(--ocu-cyan);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 5px solid var(--ocu-true-blue);
+        }
+
+        .best-time-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="presentation-container">
+        <!-- Timer display -->
+        <div class="timer-display" id="timer-display">
+            <span id="timer-text">Lecture 23: Game HUD & Map Info
+                 <button class="home"><a href="../../index.html">Home</a></button>
+            </span>
+        </div>
+
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <h1>Game HUD & Map Info</h1>
+            <h2>Creating Player Feedback Systems <span class="emoji">📊</span></h2>
+            <p style="font-size: 1.5em; margin-top: 40px;">CSCI 3213 - Game Programming</p>
+            <p style="font-size: 1.3em;">Spring '26 - Week 23, Lecture 1</p>
+            <p style="margin-top: auto; font-style: italic;">Display information that matters!</p>
+        </div>
+
+        <!-- Slide 2: Learning Objectives -->
+        <div class="slide">
+            <h1>Today's Quest Objectives</h1>
+            <ul style="font-size: 1.4em; line-height: 2;">
+                <li>🎯 Create a heads-up display (HUD) using CanvasLayer</li>
+                <li>🎯 Display dynamic map information to players</li>
+                <li>🎯 Track and show elapsed time on maps</li>
+                <li>🎯 Implement per-map save data systems</li>
+                <li>🎯 Track and display best completion times</li>
+                <li>🎯 Use format strings for dynamic text</li>
+            </ul>
+        </div>
+
+        <!-- Slide 3: What is a HUD? -->
+        <div class="slide">
+            <h1>What is a HUD? 🖥️</h1>
+            <div class="demo-box">
+                <h3>Heads-Up Display</h3>
+                <p style="font-size: 1.2em;">A HUD displays game information without interrupting gameplay</p>
+            </div>
+            
+            <div class="ui-comparison">
+                <div class="ui-card">
+                    <h3>🎮 Common HUD Elements</h3>
+                    <ul style="text-align: left;">
+                        <li>Health/Energy bars</li>
+                        <li>Score/Points</li>
+                        <li>Mini-maps</li>
+                        <li>Timer/Clock</li>
+                        <li>Inventory icons</li>
+                        <li>Objective markers</li>
+                    </ul>
+                </div>
+                <div class="ui-card">
+                    <h3>✨ Our HUD Features</h3>
+                    <ul style="text-align: left;">
+                        <li>Map name display</li>
+                        <li>Current time counter</li>
+                        <li>Best time tracking</li>
+                        <li>New record notifications</li>
+                        <li>Persistent across maps</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: CanvasLayer Concept -->
+        <div class="slide">
+            <h1>Understanding CanvasLayer 🎨</h1>
+            
+            <div class="godot-tip">
+                <h3>Why CanvasLayer?</h3>
+                <p>CanvasLayer nodes render independently of the game camera and on separate rendering layers</p>
+            </div>
+
+            <div class="save-system-flow">
+                <div class="flow-box">
+                    <strong>Layer 0</strong><br>
+                    Game World
+                </div>
+                <div class="flow-box">
+                    <strong>Layer 1</strong><br>
+                    Effects/Particles
+                </div>
+                <div class="flow-box">
+                    <strong>Layer 2</strong><br>
+                    Menus/Dialogs
+                </div>
+                <div class="flow-box" style="border-color: gold; border-width: 3px;">
+                    <strong>Layer 3</strong><br>
+                    HUD (Our Layer!)
+                </div>
+            </div>
+
+            <div class="demo-box">
+                <h3>Key Properties:</h3>
+                <ul style="text-align: left; font-size: 1.1em;">
+                    <li><strong>Layer property:</strong> Controls render order (higher = on top)</li>
+                    <li><strong>Always visible:</strong> Stays on screen regardless of camera</li>
+                    <li><strong>Perfect for UI:</strong> Ideal for information overlays</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 5: Creating the HUD Scene -->
+        <div class="slide">
+            <h1>Building the HUD Scene 🏗️</h1>
+            
+            <div class="code-showcase">
+# Scene Structure:
+CanvasLayer (root)
+├─ Label (map_name_label)
+└─ Label (map_time_label)
+            </div>
+
+            <div class="demo-box">
+                <h3>Setup Steps:</h3>
+                <ol style="text-align: left; font-size: 1.1em;">
+                    <li>Create new scene with CanvasLayer root</li>
+                    <li>Set Layer property to 3</li>
+                    <li>Add Label for map name (left side, position x=16)</li>
+                    <li>Add Label for time (right side, position x=324)</li>
+                    <li>Set font size to 11 for 16-pixel height</li>
+                    <li>Add to autoload as "HUD"</li>
+                </ol>
+            </div>
+
+            <div class="godot-tip">
+                <strong>Pro Tip:</strong> Setting font size to 11 gives us 16 pixels of vertical space, matching our tile size perfectly!
+            </div>
+        </div>
+
+        <!-- Slide 6: Map Names & Class System -->
+        <div class="slide">
+            <h1>Adding Map Names 🗺️</h1>
+            
+            <div class="code-showcase">
+# map.gd
+class_name GameMap
+extends Node
+
+@export var map_name := "Map"
+            </div>
+
+            <div class="ui-comparison">
+                <div class="ui-card">
+                    <h3>Class Name Benefits</h3>
+                    <ul style="text-align: left;">
+                        <li>Type safety in function parameters</li>
+                        <li>Better code organization</li>
+                        <li>Autocompletion support</li>
+                        <li>Clear intent and structure</li>
+                    </ul>
+                </div>
+                <div class="ui-card">
+                    <h3>Exported Variables</h3>
+                    <ul style="text-align: left;">
+                        <li>Editable in inspector</li>
+                        <li>Per-scene customization</li>
+                        <li>Default values included</li>
+                        <li>No code changes needed</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="demo-box">
+                <p><strong>Remember:</strong> Pass the entire GameMap object to get access to all its properties, not just the path!</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: HUD Script & Display -->
+        <div class="slide">
+            <h1>HUD Script Implementation 💻</h1>
+            
+            <div class="code-showcase">
+# hud.gd
+extends CanvasLayer
+
+@export var map_name_label: Label
+@export var map_time_label: Label
+
+func _ready() -> void:
+    visible = false
+
+func show_map_info(map: GameMap) -> void:
+    map_name_label.text = map.map_name
+    show_map_time(0.0)
+    visible = true
+
+func show_map_time(time: float) -> void:
+    map_time_label.text = "%ds" % time
+            </div>
+
+            <div class="godot-tip">
+                <strong>Format Strings:</strong> Use <code>"%ds"</code> where %d is a placeholder for a decimal integer. The % operator fills in the value!
+            </div>
+        </div>
+
+        <!-- Slide 8: Time Tracking -->
+        <div class="slide">
+            <h1>Tracking Map Time ⏱️</h1>
+            
+            <div class="code-showcase">
+# map.gd
+var current_map_time := 0.0
+
+func _process(delta: float) -> void:
+    current_map_time += delta
+    HUD.show_map_time(current_map_time)
+            </div>
+
+            <div class="demo-box">
+                <h3>How it Works:</h3>
+                <ul style="text-align: left; font-size: 1.1em;">
+                    <li><strong>delta:</strong> Time elapsed since last frame</li>
+                    <li><strong>Accumulation:</strong> Add delta each frame to track total time</li>
+                    <li><strong>Update HUD:</strong> Show the current time every frame</li>
+                    <li><strong>Frame-rate independent:</strong> Works at any FPS</li>
+                </ul>
+            </div>
+
+            <div class="godot-tip">
+                <strong>Important:</strong> Always use delta for time-based calculations to ensure consistent behavior regardless of frame rate!
+            </div>
+        </div>
+
+        <!-- Slide 9: Save Data Architecture -->
+        <div class="slide">
+            <h1>Game Save Data Structure 💾</h1>
+            
+            <div class="save-system-flow">
+                <div class="flow-box">
+                    <strong>game_save_data</strong><br>
+                    Global dictionary
+                </div>
+                <div class="flow-box">
+                    <strong>per_map_data</strong><br>
+                    Map-specific dict
+                </div>
+                <div class="flow-box">
+                    <strong>map_save_data</strong><br>
+                    Individual map
+                </div>
+            </div>
+
+            <div class="code-showcase">
+# main.gd structure
+game_save_data = {
+    "game_save_version": 1,
+    "map_path": "res://maps/map1.tscn",
+    "per_map_data": {
+        "res://maps/map1.tscn": {
+            "best_time": 45
+        },
+        "res://maps/map2.tscn": {
+            "best_time": 67
+        }
+    }
+}
+            </div>
+
+            <div class="demo-box">
+                <p><strong>Key Insight:</strong> Store data hierarchically - global game data at the top, per-map data nested underneath</p>
+            </div>
+        </div>
+
+        <!-- Slide 10: Activity - HUD Setup -->
+        <div class="slide">
+            <h1>Activity: Create Your HUD 🎯</h1>
+            
+            <div class="demo-box">
+                <h3>10-Minute Challenge</h3>
+                <ol style="text-align: left;">
+                    <li>Create a new scene with CanvasLayer root</li>
+                    <li>Set the layer to 3</li>
+                    <li>Add two Label nodes for different info displays</li>
+                    <li>Position them with appropriate margins</li>
+                    <li>Attach a script with <code>@export</code> variables</li>
+                    <li>Add the HUD to your autoload list</li>
+                    <li>Test that it appears in your game</li>
+                </ol>
+            </div>
+            
+            <button data-timer="10">Start 10-Minute Timer</button>
+        </div>
+
+        <!-- Slide 11: Per-Map Save Data -->
+        <div class="slide">
+            <h1>Implementing Per-Map Data 📝</h1>
+            
+            <div class="code-showcase">
+# main.gd
+func map_loaded(map: GameMap) -> void:
+    var map_path := map.scene_file_path
+    game_save_data[KEY_MAP_PATH] = map_path
+    
+    var per_map_data := game_save_data[KEY_PER_MAP_DATA] as Dictionary
+    if not per_map_data.has(map_path):
+        per_map_data[map_path] = {}
+    
+    # Give the map its own save data reference
+    map.map_save_data = per_map_data[map_path]
+            </div>
+
+            <div class="ui-comparison">
+                <div class="ui-card">
+                    <h3>✅ Benefits</h3>
+                    <ul style="text-align: left;">
+                        <li>Each map has isolated data</li>
+                        <li>Easy to track per-map stats</li>
+                        <li>Scalable to many maps</li>
+                        <li>Automatic initialization</li>
+                    </ul>
+                </div>
+                <div class="ui-card">
+                    <h3>🎮 Use Cases</h3>
+                    <ul style="text-align: left;">
+                        <li>Best completion times</li>
+                        <li>Collectibles found</li>
+                        <li>Achievements earned</li>
+                        <li>Map-specific settings</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Best Time Tracking -->
+        <div class="slide">
+            <h1>Recording Best Times 🏆</h1>
+            
+            <div class="code-showcase">
+# map.gd
+const KEY_BEST_TIME := "best_time"
+
+func _update_best_time() -> void:
+    var new_time := floori(current_map_time)
+    if (
+        not map_save_data.has(KEY_BEST_TIME)
+        or new_time < map_save_data[KEY_BEST_TIME]
+    ):
+        map_save_data[KEY_BEST_TIME] = new_time
+        HUD.show_new_best_map_time(new_time)
+            </div>
+
+            <div class="godot-tip">
+                <strong>floori():</strong> Converts a float to an integer by rounding down. We use this to track whole seconds only!
+            </div>
+
+            <div class="demo-box">
+                <h3>Logic Flow:</h3>
+                <p>1️⃣ Check if there's no best time yet OR new time is better<br>
+                2️⃣ Save the new best time to map data<br>
+                3️⃣ Show notification to player</p>
+            </div>
+        </div>
+
+        <!-- Slide 13: Best Time Notification -->
+        <div class="slide">
+            <h1>Displaying Achievements 🎊</h1>
+            
+            <div class="code-showcase">
+# hud.gd
+@export var new_best_map_time_label: Label
+
+func _ready() -> void:
+    visible = false
+    new_best_map_time_label.visible = false
+
+func show_new_best_map_time(new_time: int) -> void:
+    new_best_map_time_label.text = "New best time: %ds" % new_time
+    new_best_map_time_label.visible = true
+
+func show_map_info(map: GameMap) -> void:
+    # ... other code ...
+    new_best_map_time_label.visible = false  # Hide when loading new map
+            </div>
+
+            <div class="best-time-display">
+                New best time: 42s
+            </div>
+
+            <div class="demo-box">
+                <p><strong>UX Note:</strong> Keep the notification visible during map transitions for better player feedback!</p>
+            </div>
+        </div>
+
+        <!-- Slide 14: Complete Flow -->
+        <div class="slide">
+            <h1>The Complete System 🔄</h1>
+            
+            <div class="save-system-flow">
+                <div class="flow-box">
+                    <strong>1. Map Loads</strong><br>
+                    Show map info<br>
+                    Start timer at 0
+                </div>
+                <div class="flow-box">
+                    <strong>2. Player Plays</strong><br>
+                    Time accumulates<br>
+                    Display updates
+                </div>
+                <div class="flow-box">
+                    <strong>3. Map Complete</strong><br>
+                    Check best time<br>
+                    Update if better
+                </div>
+                <div class="flow-box">
+                    <strong>4. Show Feedback</strong><br>
+                    Display notification<br>
+                    Save to file
+                </div>
+            </div>
+
+            <div class="ui-comparison">
+                <div class="ui-card">
+                    <h3>Key Components</h3>
+                    <ul style="text-align: left;">
+                        <li>HUD (CanvasLayer)</li>
+                        <li>Map script (GameMap)</li>
+                        <li>Main controller</li>
+                        <li>Save system</li>
+                    </ul>
+                </div>
+                <div class="ui-card">
+                    <h3>Data Flow</h3>
+                    <ul style="text-align: left;">
+                        <li>Map → HUD (display)</li>
+                        <li>Map → Main (save)</li>
+                        <li>Main → Map (load)</li>
+                        <li>File ↔ Main (persist)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: Best Practices -->
+        <div class="slide">
+            <h1>HUD Design Best Practices 📋</h1>
+            
+            <div class="comparison-table">
+                <div class="comparison-card good">
+                    <h3>✅ Do This</h3>
+                    <ul style="text-align: left;">
+                        <li>Keep HUD elements minimal</li>
+                        <li>Use consistent positioning</li>
+                        <li>Match game's visual style</li>
+                        <li>Update only when needed</li>
+                        <li>Test readability on all backgrounds</li>
+                        <li>Consider colorblind accessibility</li>
+                    </ul>
+                </div>
+                <div class="comparison-card bad">
+                    <h3>❌ Avoid This</h3>
+                    <ul style="text-align: left;">
+                        <li>Cluttering screen with info</li>
+                        <li>Blocking important game areas</li>
+                        <li>Using inconsistent fonts/sizes</li>
+                        <li>Updating HUD every frame unnecessarily</li>
+                        <li>Making text too small or hard to read</li>
+                        <li>Forgetting to hide when not needed</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16: Common Gotchas -->
+        <div class="slide">
+            <h1>Common Pitfalls to Avoid ⚠️</h1>
+            
+            <div class="demo-box">
+                <h3>Watch Out For:</h3>
+                <ul style="text-align: left; font-size: 1.1em;">
+                    <li><strong>Forgetting to set visibility:</strong> Remember to hide/show the HUD appropriately</li>
+                    <li><strong>Wrong layer order:</strong> Set CanvasLayer layer property high enough</li>
+                    <li><strong>Not hooking up exports:</strong> Connect Label nodes in the inspector!</li>
+                    <li><strong>Save data references:</strong> The map gets a reference, not a copy</li>
+                    <li><strong>Integer division:</strong> Use <code>floori()</code> or <code>int()</code> for proper conversion</li>
+                    <li><strong>Calling show before ready:</strong> Map must be loaded before showing its info</li>
+                </ul>
+            </div>
+
+            <div class="godot-tip">
+                <strong>Debug Tip:</strong> Use <code>print()</code> statements to verify your save data structure is correct!
+            </div>
+        </div>
+
+        <!-- Slide 17: Extension Ideas -->
+        <div class="slide">
+            <h1>Extending Your HUD 🚀</h1>
+            
+            <div class="ui-comparison">
+                <div class="ui-card">
+                    <h3>Easy Additions</h3>
+                    <ul style="text-align: left;">
+                        <li>Player health bar</li>
+                        <li>Collectible counter</li>
+                        <li>Score display</li>
+                        <li>Lives remaining</li>
+                    </ul>
+                </div>
+                <div class="ui-card">
+                    <h3>Intermediate</h3>
+                    <ul style="text-align: left;">
+                        <li>Mini-map display</li>
+                        <li>Combo counter</li>
+                        <li>Animated transitions</li>
+                        <li>Multiple pages/tabs</li>
+                    </ul>
+                </div>
+                <div class="ui-card">
+                    <h3>Advanced</h3>
+                    <ul style="text-align: left;">
+                        <li>Dynamic scaling UI</li>
+                        <li>Contextual prompts</li>
+                        <li>Achievement popups</li>
+                        <li>Damage indicators</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="demo-box">
+                <p><strong>Challenge:</strong> Add a "deaths counter" that persists per-map and displays on the HUD!</p>
+            </div>
+        </div>
+
+        <!-- Slide 18: Activity - Best Time System -->
+        <div class="slide">
+            <h1>Activity: Implement Best Time 🎯</h1>
+            
+            <div class="demo-box">
+                <h3>15-Minute Challenge</h3>
+                <ol style="text-align: left;">
+                    <li>Add a <code>current_map_time</code> variable to your map</li>
+                    <li>Create a <code>_process()</code> function to accumulate time</li>
+                    <li>Add a <code>map_save_data</code> dictionary variable</li>
+                    <li>Implement <code>_update_best_time()</code> function</li>
+                    <li>Create a notification label in your HUD</li>
+                    <li>Call the update function when objectives complete</li>
+                    <li>Test by completing a map multiple times!</li>
+                </ol>
+            </div>
+            
+            <button data-timer="15">Start 15-Minute Timer</button>
+        </div>
+
+        <!-- Slide 19: Testing Your HUD -->
+        <div class="slide">
+            <h1>Testing & Debugging 🔍</h1>
+            
+            <div class="code-showcase">
+# Useful debug commands in map.gd:
+func _ready() -> void:
+    print("Map loaded: ", map_name)
+    print("Save data: ", map_save_data)
+
+func _update_best_time() -> void:
+    print("Current time: ", current_map_time)
+    print("Best time: ", map_save_data.get(KEY_BEST_TIME, "none"))
+            </div>
+
+            <div class="demo-box">
+                <h3>Testing Checklist:</h3>
+                <ul style="text-align: left; font-size: 1.1em;">
+                    <li>✓ HUD appears on map load</li>
+                    <li>✓ Map name displays correctly</li>
+                    <li>✓ Timer counts up properly</li>
+                    <li>✓ Best time saves between sessions</li>
+                    <li>✓ New best time notification appears</li>
+                    <li>✓ Multiple maps track separately</li>
+                    <li>✓ HUD hides when appropriate</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 20: Questions & Discussion -->
+        <div class="slide">
+            <h1>Discussion Topics 💬</h1>
+            
+            <div class="demo-box">
+                <h3>Think About:</h3>
+                <ul style="text-align: left; font-size: 1.2em;">
+                    <li>What other information would improve player experience?</li>
+                    <li>How much UI is too much UI?</li>
+                    <li>When should HUD elements be hidden vs. always visible?</li>
+                    <li>How can we make the HUD more visually appealing?</li>
+                    <li>What accessibility considerations should we include?</li>
+                </ul>
+            </div>
+
+            <div class="godot-tip">
+                <strong>Remember:</strong> Good UI design is invisible - players should get information without thinking about it!
+            </div>
+        </div>
+
+        <!-- Slide 21: Wrap-up -->
+        <div class="slide">
+            <h1>Today's Achievements <span class="emoji">🏆</span></h1>
+            <h2>Skills Unlocked:</h2>
+            <ul style="font-size: 1.3em; line-height: 1.8;">
+                <li>✅ Created a HUD using CanvasLayer</li>
+                <li>✅ Displayed dynamic map information</li>
+                <li>✅ Implemented time tracking system</li>
+                <li>✅ Built per-map save data structure</li>
+                <li>✅ Tracked and displayed best completion times</li>
+                <li>✅ Used format strings for dynamic text</li>
+                <li>✅ Implemented player achievement feedback</li>
+            </ul>
+            
+            <div class="demo-box" style="margin-top: 30px;">
+                <p><strong>Next Up:</strong> Extra Map Info - Additional displays and polish!</p>
+                <p><strong>Homework:</strong> Continue working on your game project. Add a HUD to display relevant information to your player. See the README in the course repository for references to the source material.</p>
+            </div>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="navigation">
+            <button id="prevBtn">Previous</button>
+            <span class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">21</span>
+            </span>
+            <button id="nextBtn">Next</button>
+        </div>
+    </div>
+
+    <!-- Shared Presentation JavaScript -->
+    <script src="../../js/presentation.js"></script>
+
+    <!-- Lecture-Specific JavaScript -->
+    <script>
+        // Listen for slide changes to trigger any specific behaviors
+        document.addEventListener('slidechange', (e) => {
+            console.log(`Slide ${e.detail.currentSlide + 1} of ${e.detail.totalSlides}`);
+            
+            // Could add slide-specific behaviors here
+            if (e.detail.currentSlide === 9) {
+                console.log('Activity time - HUD Setup!');
+            }
+            if (e.detail.currentSlide === 17) {
+                console.log('Activity time - Best Time System!');
+            }
+        });
+    </script>
+</body>
+</html>
