@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Showcase Demo Day - CSCI 3213</title>
+    
+    <!-- OCU Branded Presentation Styles with Theme Support -->
+    <link rel="stylesheet" href="../.../styles/presentation.css">
+    <link rel="icon" type="image/x-icon" href="/images/favicon.png">
+    
+    <!-- Lecture-Specific Styles -->
+    <style>
+        .showcase-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .presenter-guidelines {
+            background: var(--card-bg, #f8f8f8);
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+            margin: 20px 0;
+        }
+        
+        .presenter-guidelines h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .timer-card {
+            background: #1a1a2e;
+            color: #00ff88;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 2em;
+            border: 3px solid #00ff88;
+            box-shadow: 0 0 20px rgba(0,255,136,0.3);
+        }
+        
+        .feedback-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .feedback-card {
+            background: var(--bg-secondary, #fff);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid var(--border-color, #ddd);
+            transition: all 0.3s;
+        }
+        
+        .feedback-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px var(--shadow);
+        }
+        
+        .celebration {
+            font-size: 3em;
+            text-align: center;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .schedule-item {
+            background: var(--card-bg, #f0f0f0);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #764ba2;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .schedule-time {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.2em;
+            min-width: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div class="timer-display" id="timer-display">
+            <span id="timer-text">Game Showcase Demo Day
+                 <button class="home"><a href="../index.html">Home</a></button>
+            </span>
+        </div>
+
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <h1>🎮 Game Showcase Demo Day 🎮</h1>
+            <div class="showcase-banner">
+                <h2 style="margin: 0; font-size: 2.5em;">Your Games. Your Stories. Your Moment.</h2>
+                <p style="font-size: 1.3em; margin-top: 20px;">Time to share what you've created!</p>
+            </div>
+            <p style="font-size: 1.5em; margin-top: 40px;">CSCI 3213 - Game Programming</p>
+            <p style="font-size: 1.3em;">Spring '26 - Week 12</p>
+            <div class="celebration">🎉 🏆 🎊</div>
+        </div>
+
+        <!-- Slide 2: Today's Agenda -->
+        <div class="slide">
+            <h1>Today's Game Plan</h1>
+            <div class="schedule-item">
+                <div class="schedule-time">5 min</div>
+                <div>Welcome & Setup</div>
+            </div>
+            <div class="schedule-item">
+                <div class="schedule-time">~45 min</div>
+                <div>Student Game Presentations (3 min each)</div>
+            </div>
+            <div class="schedule-item">
+                <div class="schedule-time">~60 min</div>
+                <div>Gameplay & Demo Time - Try Each Other's Games!</div>
+            </div>
+            <div class="schedule-item">
+                <div class="schedule-time">10 min</div>
+                <div>Wrap-up & Celebration</div>
+            </div>
+            
+            <div class="tip-box" style="margin-top: 30px;">
+                <strong>Remember:</strong> This is a celebration of learning and creativity. Every game represents hours of problem-solving, debugging, and growth!
+            </div>
+        </div>
+
+        <!-- Slide 3: Presentation Guidelines -->
+        <div class="slide">
+            <h1>Presentation Format (3 Minutes Max)</h1>
+            <div class="presenter-guidelines">
+                <h3>What to Cover:</h3>
+                <ul style="font-size: 1.3em; line-height: 1.8;">
+                    <li>🎯 <strong>Game Concept:</strong> What's your game about?</li>
+                    <li>🛠️ <strong>Technical Highlights:</strong> What did you build? What tech did you use?</li>
+                    <li>💡 <strong>Biggest Challenge:</strong> What was the hardest problem you solved?</li>
+                    <li>🏆 <strong>Proudest Moment:</strong> What are you most proud of?</li>
+                    <li>🎮 <strong>How to Play:</strong> Quick demo of core mechanics</li>
+                </ul>
+            </div>
+            
+            <div class="timer-card" style="margin-top: 30px;">
+                ⏱️ 3:00 ⏱️
+            </div>
+        </div>
+
+        <!-- Slide 4: Demo Guidelines -->
+        <div class="slide">
+            <h1>Demo & Gameplay Session</h1>
+            <h2>After presentations, it's time to PLAY! 🎮</h2>
+            
+            <div class="demo-box">
+                <h3>For Game Creators:</h3>
+                <ul style="font-size: 1.2em;">
+                    <li>Set up your game at your station</li>
+                    <li>Be available to help players understand controls</li>
+                    <li>Watch players interact with your game (great UX insights!)</li>
+                    <li>Take notes on any bugs or feedback</li>
+                </ul>
+            </div>
+            
+            <div class="activity-box" style="margin-top: 20px;">
+                <h3>For Players:</h3>
+                <ul style="font-size: 1.2em;">
+                    <li>Try to play every game (rotate every ~5 minutes)</li>
+                    <li>Ask questions and provide constructive feedback</li>
+                    <li>Look for creative solutions and cool features</li>
+                    <li>Have fun and celebrate your classmates' work!</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 5: What to Look For -->
+        <div class="slide">
+            <h1>What to Notice While Playing</h1>
+            <div class="feedback-grid">
+                <div class="feedback-card">
+                    <h3>🎨 Game Design</h3>
+                    <ul>
+                        <li>Is it fun?</li>
+                        <li>Clear objectives?</li>
+                        <li>Good difficulty curve?</li>
+                        <li>Unique mechanics?</li>
+                    </ul>
+                </div>
+                
+                <div class="feedback-card">
+                    <h3>💻 Technical Execution</h3>
+                    <ul>
+                        <li>Smooth performance?</li>
+                        <li>Bug-free experience?</li>
+                        <li>Clean code visible?</li>
+                        <li>Good architecture?</li>
+                    </ul>
+                </div>
+                
+                <div class="feedback-card">
+                    <h3>🎮 User Experience</h3>
+                    <ul>
+                        <li>Intuitive controls?</li>
+                        <li>Clear feedback?</li>
+                        <li>Visual clarity?</li>
+                        <li>Audio/effects?</li>
+                    </ul>
+                </div>
+                
+                <div class="feedback-card">
+                    <h3>✨ Creativity</h3>
+                    <ul>
+                        <li>Original concept?</li>
+                        <li>Innovative features?</li>
+                        <li>Artistic style?</li>
+                        <li>Memorable moments?</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Giving Good Feedback -->
+        <div class="slide">
+            <h1>Constructive Feedback Tips</h1>
+            
+            <div class="presenter-guidelines">
+                <h3>✅ Good Feedback:</h3>
+                <ul style="font-size: 1.3em;">
+                    <li>"I loved the movement system - felt really responsive!"</li>
+                    <li>"The puzzle on level 2 was challenging in a good way"</li>
+                    <li>"Could the jump button also be spacebar? I kept pressing it"</li>
+                    <li>"The art style really makes the game stand out"</li>
+                    <li>"I got stuck at the door - maybe add a hint?"</li>
+                </ul>
+            </div>
+            
+            <div class="warning-box" style="margin-top: 20px;">
+                <h3>❌ Not Helpful:</h3>
+                <ul style="font-size: 1.3em;">
+                    <li>"This game is bad"</li>
+                    <li>"You should have used Unity instead"</li>
+                    <li>"It's boring" (without explaining why)</li>
+                    <li>Comparing negatively to professional games</li>
+                </ul>
+            </div>
+            
+            <div class="tip-box" style="margin-top: 20px;">
+                <strong>Remember:</strong> Everyone is learning. Focus on what works and offer specific suggestions for improvement.
+            </div>
+        </div>
+
+        <!-- Slide 7: Technical Discussion Topics -->
+        <div class="slide">
+            <h1>Great Questions to Ask Developers</h1>
+            <ul style="font-size: 1.4em; line-height: 2;">
+                <li>🤔 What engine/framework did you use and why?</li>
+                <li>💡 How did you implement [specific feature]?</li>
+                <li>🐛 What was your biggest bug and how did you fix it?</li>
+                <li>⏰ How long did it take to build?</li>
+                <li>📚 What resources helped you the most?</li>
+                <li>🔄 What would you do differently next time?</li>
+                <li>🎯 Did you hit your original vision or pivot?</li>
+            </ul>
+        </div>
+
+        <!-- Slide 8: Celebration Time! -->
+        <div class="slide">
+            <h1>You All Did It! 🎉</h1>
+            <div class="showcase-banner">
+                <h2>From Idea to Playable Game</h2>
+                <p style="font-size: 1.5em; margin: 20px 0;">Every single one of you is now a game developer!</p>
+            </div>
+            
+            <div class="demo-box" style="margin-top: 30px;">
+                <h3>What You've Accomplished:</h3>
+                <ul style="font-size: 1.3em; line-height: 2;">
+                    <li>✅ Learned game programming fundamentals</li>
+                    <li>✅ Mastered game loops and mechanics</li>
+                    <li>✅ Debugged countless issues</li>
+                    <li>✅ Created something playable from scratch</li>
+                    <li>✅ Shared your work with others</li>
+                </ul>
+            </div>
+            
+            <div class="celebration" style="margin-top: 30px;">
+                🏆 🎮 👾 🕹️ 🎯
+            </div>
+        </div>
+
+        <!-- Slide 9: What's Next? -->
+        <div class="slide">
+            <h1>Level Up: What's Next?</h1>
+            
+            <div class="activity-box">
+                <h3>📈 Keep Building:</h3>
+                <ul style="font-size: 1.3em;">
+                    <li>Polish your game based on today's feedback</li>
+                    <li>Add that feature you didn't have time for</li>
+                    <li>Publish it on itch.io or share with friends</li>
+                    <li>Start a new, more ambitious project</li>
+                </ul>
+            </div>
+            
+            <div class="demo-box" style="margin-top: 20px;">
+                <h3>🌟 Portfolio Building:</h3>
+                <ul style="font-size: 1.3em;">
+                    <li>Add your game to your portfolio website</li>
+                    <li>Write a dev blog about your process</li>
+                    <li>Record a gameplay video for your portfolio</li>
+                    <li>Document your code on GitHub</li>
+                </ul>
+            </div>
+            
+            <div class="tip-box" style="margin-top: 20px;">
+                <strong>Pro Tip:</strong> Finished games (even small ones) are incredibly valuable for job applications and portfolio reviews!
+            </div>
+        </div>
+
+        <!-- Slide 10: Final Words -->
+        <div class="slide">
+            <h1>Thank You All! 🎮</h1>
+            <div class="showcase-banner">
+                <h2>You're Game Developers Now</h2>
+                <p style="font-size: 1.3em; margin: 20px 0;">
+                    "The best way to predict the future is to create it."
+                </p>
+                <p style="font-size: 1.5em; margin-top: 20px;">Keep making awesome games!</p>
+            </div>
+            
+            <div class="demo-box" style="margin-top: 40px;">
+                <h3>Final Thoughts:</h3>
+                <p style="font-size: 1.3em; line-height: 1.8;">
+                    Today you shared your creativity, technical skills, and hard work. 
+                    You learned from each other's approaches and celebrated together. 
+                    This is what being part of the game development community is all about.
+                </p>
+                <p style="font-size: 1.4em; margin-top: 20px; font-weight: bold;">
+                    Never stop creating. Never stop learning. Never stop playing.
+                </p>
+            </div>
+            
+            <div class="celebration">
+                🎊 GG! 🎊
+            </div>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="navigation">
+            <button id="prevBtn">Previous</button>
+            <span class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">10</span>
+            </span>
+            <button id="nextBtn">Next</button>
+        </div>
+    </div>
+
+    <!-- Shared Presentation JavaScript -->
+    <script src="../../js/presentation.js"></script>
+
+    <!-- Lecture-Specific JavaScript -->
+    <script>
+        // Timer functionality for presentations
+        let presentationTimer = null;
+        let timeRemaining = 180; // 3 minutes in seconds
+        
+        function startPresentationTimer() {
+            if (presentationTimer) {
+                clearInterval(presentationTimer);
+            }
+            
+            timeRemaining = 180;
+            const timerElements = document.querySelectorAll('.timer-card');
+            
+            presentationTimer = setInterval(() => {
+                timeRemaining--;
+                
+                const minutes = Math.floor(timeRemaining / 60);
+                const seconds = timeRemaining % 60;
+                const displayTime = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                timerElements.forEach(el => {
+                    el.textContent = `⏱️ ${displayTime} ⏱️`;
+                    
+                    // Warning colors
+                    if (timeRemaining <= 30) {
+                        el.style.borderColor = '#ff4444';
+                        el.style.color = '#ff4444';
+                    } else if (timeRemaining <= 60) {
+                        el.style.borderColor = '#ffaa00';
+                        el.style.color = '#ffaa00';
+                    }
+                });
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(presentationTimer);
+                    timerElements.forEach(el => {
+                        el.textContent = '⏱️ TIME! ⏱️';
+                        el.style.animation = 'pulse 0.5s infinite';
+                    });
+                }
+            }, 1000);
+        }
+        
+        // Add keyboard shortcut to start/reset timer
+        document.addEventListener('keydown', (e) => {
+            // Press 'T' to start/reset timer
+            if (e.key.toLowerCase() === 't') {
+                startPresentationTimer();
+            }
+            // Press 'R' to reset timer
+            if (e.key.toLowerCase() === 'r') {
+                timeRemaining = 180;
+                if (presentationTimer) {
+                    clearInterval(presentationTimer);
+                    presentationTimer = null;
+                }
+                document.querySelectorAll('.timer-card').forEach(el => {
+                    el.textContent = '⏱️ 3:00 ⏱️';
+                    el.style.borderColor = '#00ff88';
+                    el.style.color = '#00ff88';
+                    el.style.animation = 'none';
+                });
+            }
+        });
+        
+        // Log slide changes for any custom behavior
+        document.addEventListener('slidechange', (e) => {
+            console.log(`Slide ${e.detail.currentSlide + 1} of ${e.detail.totalSlides}`);
+        });
+        
+        // Add pulse animation for timer
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0%, 100% { opacity: 1; transform: scale(1); }
+                50% { opacity: 0.7; transform: scale(1.05); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        console.log('Demo Day initialized! Press "T" to start presentation timer, "R" to reset.');
+    </script>
+</body>
+</html>
