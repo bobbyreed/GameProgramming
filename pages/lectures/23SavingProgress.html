@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 22: Saving Progress - CSCI 3213</title>
+    
+    <!-- OCU Branded Presentation Styles with Theme Support -->
+    <link rel="stylesheet" href="../../styles/presentation.css">
+    <link rel="icon" type="image/x-icon" href="/images/favicon.png">
+    
+    <!-- Lecture-Specific Styles -->
+    <style>
+        .game-demo {
+            background: #1a1a2e;
+            color: #0f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            border: 2px solid #16213e;
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .comparison-card {
+            background: var(--card-bg, #f8f8f8);
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid var(--border-color, #ddd);
+        }
+        
+        .security-warning {
+            background: rgba(249, 115, 22, 0.1);
+            border: 2px solid #f97316;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        .file-path {
+            background: #2d2d2d;
+            color: #4ade80;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            display: inline-block;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme toggle will be automatically added by JavaScript -->
+    
+    <div class="presentation-container">
+        <!-- Timer display for activities -->
+        <div class="timer-display" id="timer-display">
+            <span id="timer-text">Lecture 22: Saving Progress
+                 <button class="home"><a href="../../index.html">Home</a></button>
+            </span>
+        </div>
+
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <h1>Saving Progress in Godot</h1>
+            <h2>Writing and Reading Custom Data <span class="emoji">💾</span></h2>
+            <p style="font-size: 1.5em; margin-top: 40px;">CSCI 3213 - Game Programming</p>
+            <p style="font-size: 1.3em;">Spring '26 - Week 11, Lecture 22</p>
+            <p style="margin-top: auto; font-style: italic;">Start a new game or continue where you left off!</p>
+        </div>
+
+        <!-- Slide 2: Learning Objectives -->
+        <div class="slide">
+            <h1>Today's Quest Objectives</h1>
+            <ul style="font-size: 1.4em; line-height: 2;">
+                <li>🎯 Understand persistent data storage in Godot</li>
+                <li>🎯 Implement save/load functionality</li>
+                <li>🎯 Create a main menu with continue option</li>
+                <li>🎯 Use dictionaries for flexible data storage</li>
+                <li>🎯 Implement save file validation and security</li>
+            </ul>
+        </div>
+
+        <!-- Slide 3: Why Save Systems Matter -->
+        <div class="slide">
+            <h1>Why Save Systems Matter</h1>
+            <div style="font-size: 1.2em; line-height: 1.8;">
+                <p><strong>Player Experience:</strong></p>
+                <ul>
+                    <li>Resume progress without starting over</li>
+                    <li>Experiment without fear of losing progress</li>
+                    <li>Play at their own pace</li>
+                </ul>
+                <p style="margin-top: 30px;"><strong>Game Design Benefits:</strong></p>
+                <ul>
+                    <li>Enable longer play sessions across multiple sittings</li>
+                    <li>Support multiple save slots</li>
+                    <li>Track player statistics and achievements</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 4: Upgrade to Godot 4.4 -->
+        <div class="slide">
+            <h1>Upgrading to Godot 4.4</h1>
+            <div class="demo-box">
+                <h3>Key Changes in 4.4:</h3>
+                <ul style="font-size: 1.2em; text-align: left;">
+                    <li><strong>UIDs (Unique Identifiers):</strong> Resources now use UIDs internally</li>
+                    <li>Separate .uid files generated automatically</li>
+                    <li>Scene UIDs stored in .tscn files</li>
+                </ul>
+            </div>
+            <div class="tip-box">
+                <strong>⚠️ Watch out for duplicate UIDs!</strong> If you duplicated scenes in 4.3, they may have the same UID. Fix by manually editing the UID in the .tscn file.
+            </div>
+            <div class="file-path">
+                [gd_scene load_steps=6 format=3 uid="uid://cfq4dnyqev3sm"]
+            </div>
+        </div>
+
+        <!-- Slide 5: Tracking Current Map -->
+        <div class="slide">
+            <h1>Storing the Current Map Path</h1>
+            <div class="code-example" style="font-size: 1em;">
+                <pre>
+# main.gd
+var current_map_path: String
+
+func load_next_map() -> void:
+    var split_path := current_map_path.split(".")
+    # ... map transition logic
+
+func map_loaded(map_path: String) -> void:
+    current_map_path = map_path
+                </pre>
+            </div>
+            <p style="font-size: 1.2em; margin-top: 20px;">
+                We track the current map using a variable in main.gd. Each map calls <code>map_loaded()</code> when ready.
+            </p>
+        </div>
+
+        <!-- Slide 6: Map Responsibility -->
+        <div class="slide">
+            <h1>Maps Register Themselves</h1>
+            <div class="code-example" style="font-size: 0.95em;">
+                <pre>
+# map.gd
+func _ready() -> void:
+    for child_node in get_children():
+        # ... child setup
+    
+    # Tell Main which map loaded
+    Main.map_loaded(scene_file_path)
+                </pre>
+            </div>
+            <div class="tip-box">
+                <strong>Design Pattern:</strong> This approach works whether you run a map directly from the editor or load it through normal gameplay!
+            </div>
+        </div>
+
+        <!-- Slide 7: Persistent Data Path -->
+        <div class="slide">
+            <h1>Where to Store Save Files</h1>
+            <div style="font-size: 1.2em;">
+                <p><strong>Godot provides a persistent user data folder:</strong></p>
+                <div class="file-path">user://</div>
+                <p style="margin-top: 20px;">This path is:</p>
+                <ul style="text-align: left;">
+                    <li>✅ Platform-independent (Windows, Mac, Linux)</li>
+                    <li>✅ Automatically created by Godot</li>
+                    <li>✅ Separate from game installation</li>
+                    <li>✅ Customizable via project settings</li>
+                </ul>
+            </div>
+            <div class="code-example" style="font-size: 0.95em; margin-top: 20px;">
+                <pre>
+const GAME_SAVE_PATH := "user://game.save"
+                </pre>
+            </div>
+        </div>
+
+        <!-- Slide 8: Writing to File -->
+        <div class="slide">
+            <h1>Creating the Save File</h1>
+            <div class="code-example" style="font-size: 0.9em;">
+                <pre>
+func map_loaded(map_path: String) -> void:
+    current_map_path = map_path
+    
+    # Open file for writing (creates or overwrites)
+    var game_save_file := FileAccess.open(
+        GAME_SAVE_PATH, 
+        FileAccess.WRITE
+    )
+    
+    # Store the map path as a string
+    game_save_file.store_string(map_path)
+    
+    # File automatically closes when function ends
+                </pre>
+            </div>
+            <p style="font-size: 1.1em; margin-top: 15px;">
+                <strong>Note:</strong> No need to explicitly close the file - Godot handles cleanup!
+            </p>
+        </div>
+
+        <!-- Slide 9: Creating Main Menu -->
+        <div class="slide">
+            <h1>Building the Main Menu</h1>
+            <div class="comparison-grid">
+                <div>
+                    <h3>Scene Structure:</h3>
+                    <ul style="font-size: 1.1em; text-align: left;">
+                        <li>Control (MainMenu)</li>
+                        <li>└ Control (MenuButtons)
+                            <ul>
+                                <li>└ Button (NewGameButton)</li>
+                                <li>└ Button (ContinueButton)</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Layout Setup:</h3>
+                    <ul style="font-size: 1.1em; text-align: left;">
+                        <li>MenuButtons: 100×80 custom size</li>
+                        <li>Anchors Preset: Center</li>
+                        <li>NewGame: Top Wide</li>
+                        <li>Continue: Bottom Wide</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="tip-box" style="margin-top: 20px;">
+                <strong>Pro Tip:</strong> Use Anchors for responsive UI that works at any resolution!
+            </div>
+        </div>
+
+        <!-- Slide 10: Menu Script Structure -->
+        <div class="slide">
+            <h1>Main Menu Script</h1>
+            <div class="code-example" style="font-size: 0.9em;">
+                <pre>
+# main_menu.gd
+extends Control
+
+func _on_new_game_button_pressed() -> void:
+    pass  # We'll implement this next
+
+func _on_continue_button_pressed() -> void:
+    pass  # And this too
+                </pre>
+            </div>
+            <p style="font-size: 1.2em; margin-top: 20px;">
+                Connect both button <code>pressed()</code> signals to these functions via the inspector!
+            </p>
+        </div>
+
+        <!-- Slide 11: Loading Any Map -->
+        <div class="slide">
+            <h1>Refactoring for Flexible Map Loading</h1>
+            <div class="code-example" style="font-size: 0.85em;">
+                <pre>
+func load_next_map() -> void:
+    # Calculate next map path
+    var split_path := current_map_path.split(".")
+    var next_map_number := split_path[1].to_int() + 1
+    split_path[1] = str(next_map_number).pad_zeros(3)
+    var next_map_path = ".".join(split_path)
+    
+    if not ResourceLoader.exists(next_map_path):
+        split_path[1] = "001"
+        next_map_path = ".".join(split_path)
+    
+    load_map(next_map_path)  # New separate function!
+
+func load_map(map_path: String) -> void:
+    ResourceLoader.load_threaded_request(map_path)
+    get_tree().paused = true
+    await MapTransition.play_exit_map()
+    get_tree().change_scene_to_packed(
+        ResourceLoader.load_threaded_get(map_path)
+    )
+    await MapTransition.play_enter_map()
+    get_tree().paused = false
+                </pre>
+            </div>
+        </div>
+
+        <!-- Slide 12: Starting New Game -->
+        <div class="slide">
+            <h1>Implementing New Game</h1>
+            <div class="code-example" style="font-size: 0.95em;">
+                <pre>
+# main_menu.gd
+@export var first_map: PackedScene
+
+func _on_new_game_button_pressed() -> void:
+    Main.load_map(first_map.resource_path)
+                </pre>
+            </div>
+            <div class="demo-box" style="margin-top: 30px;">
+                <p style="font-size: 1.2em;">
+                    <strong>Remember:</strong> Set first_map via the inspector to point to your first map scene!
+                </p>
+            </div>
+            <div class="tip-box" style="margin-top: 20px;">
+                Set this scene as your main scene via: Scene context menu → Set as Main Scene
+            </div>
+        </div>
+
+        <!-- Slide 13: Checking for Save File -->
+        <div class="slide">
+            <h1>Can We Continue?</h1>
+            <div class="code-example" style="font-size: 0.95em;">
+                <pre>
+# main.gd
+func can_continue() -> bool:
+    return FileAccess.file_exists(GAME_SAVE_PATH)
+                </pre>
+            </div>
+            <p style="font-size: 1.3em; margin-top: 30px;">
+                Simple but essential! Check if the save file exists before trying to load it.
+            </p>
+        </div>
+
+        <!-- Slide 14: Loading Save File -->
+        <div class="slide">
+            <h1>Reading the Save File</h1>
+            <div class="code-example" style="font-size: 0.9em;">
+                <pre>
+func load_continue_map() -> void:
+    # Safety check
+    if not can_continue():
+        print("Tried to continue without save file!")
+        return
+    
+    # Open file for reading
+    var game_save_file := FileAccess.open(
+        GAME_SAVE_PATH, 
+        FileAccess.READ
+    )
+    
+    # Get file contents as text and load that map
+    load_map(game_save_file.get_as_text())
+                </pre>
+            </div>
+        </div>
+
+        <!-- Slide 15: Continue Button Logic -->
+        <div class="slide">
+            <h1>Connecting Continue Button</h1>
+            <div class="code-example" style="font-size: 0.9em;">
+                <pre>
+# main_menu.gd
+func _on_continue_button_pressed() -> void:
+    Main.load_continue_map()
+                </pre>
+            </div>
+            <p style="font-size: 1.2em; margin-top: 20px;">Now players can resume their last session!</p>
+        </div>
+
+        <!-- Slide 16: Disabling Continue -->
+        <div class="slide">
+            <h1>Disable Continue When No Save Exists</h1>
+            <div class="code-example" style="font-size: 0.9em;">
+                <pre>
+# main_menu.gd
+@export var continue_button: Button
+
+func _ready() -> void:
+    if not Main.can_continue():
+        continue_button.disabled = true
+                </pre>
+            </div>
+            <div class="demo-box" style="margin-top: 30px;">
+                <p style="font-size: 1.2em;">
+                    <strong>UX Improvement:</strong> Gray out the continue button when there's nothing to continue!
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 17: Better Save Format -->
+        <div class="slide">
+            <h1>Upgrading to Dictionary Format</h1>
+            <div style="font-size: 1.1em;">
+                <p><strong>Why use a dictionary?</strong></p>
+                <ul style="text-align: left; line-height: 1.8;">
+                    <li>✅ Store multiple pieces of data</li>
+                    <li>✅ Easy to expand in the future</li>
+                    <li>✅ More structured and maintainable</li>
+                    <li>✅ Can include version information</li>
+                </ul>
+            </div>
+            <div class="code-example" style="font-size: 0.85em; margin-top: 20px;">
+                <pre>
+const KEY_MAP_PATH := "map_path"
+
+func map_loaded(map_path: String) -> void:
+    current_map_path = map_path
+    var game_save_file := FileAccess.open(
+        GAME_SAVE_PATH, 
+        FileAccess.WRITE
+    )
+    # Store a dictionary instead of plain text
+    game_save_file.store_var({KEY_MAP_PATH: map_path})
+                </pre>
+            </div>
+        </div>
+
+        <!-- Slide 18: Loading Dictionary Data -->
+        <div class="slide">
+            <h1>Reading Dictionary Format</h1>
+            <div class="code-example" style="font-size: 0.85em;">
+                <pre>
+func load_continue_map() -> void:
+    if not can_continue():
+        print("Tried to continue without save file!")
+        return
+    
+    var game_save_file := FileAccess.open(
+        GAME_SAVE_PATH, 
+        FileAccess.READ
+    )
+    
+    # Get dictionary from file
+    var game_save_data := game_save_file.get_var() as Dictionary
+    
+    # Extract the map path
+    load_map(game_save_data[KEY_MAP_PATH])
+                </pre>
+            </div>
+        </div>
+
+        <!-- Slide 19: Adding Version Number -->
+        <div class="slide">
+            <h1>Save File Versioning</h1>
+            <div class="code-example" style="font-size: 0.85em;">
+                <pre>
+const GAME_SAVE_VERSION := 1
+const KEY_GAME_SAVE_VERSION := "version"
+const KEY_MAP_PATH := "map_path"
+
+func map_loaded(map_path: String) -> void:
+    current_map_path = map_path
+    var game_save_file := FileAccess.open(
+        GAME_SAVE_PATH, 
+        FileAccess.WRITE
+    )
+    game_save_file.store_var({
+        KEY_MAP_PATH: map_path,
+        KEY_GAME_SAVE_VERSION: GAME_SAVE_VERSION,
+    })  # Trailing comma per Godot style guide
+                </pre>
+            </div>
+            <div class="tip-box">
+                <strong>Future-Proofing:</strong> Version numbers help handle save file compatibility!
+            </div>
+        </div>
+
+        <!-- Slide 20: Version Validation -->
+        <div class="slide">
+            <h1>Checking Save File Version</h1>
+            <div class="code-example" style="font-size: 0.8em;">
+                <pre>
+func load_continue_map() -> void:
+    if not can_continue():
+        print("Tried to continue without save file!")
+        return
+    
+    var game_save_file := FileAccess.open(
+        GAME_SAVE_PATH, 
+        FileAccess.READ
+    )
+    var game_save_data := game_save_file.get_var() as Dictionary
+    
+    # Check if save file is from the future!
+    if game_save_data[KEY_GAME_SAVE_VERSION] > GAME_SAVE_VERSION:
+        print("Tried to load unknown future save file format!")
+        return
+    
+    load_map(game_save_data[KEY_MAP_PATH])
+                </pre>
+            </div>
+        </div>
+
+        <!-- Slide 21: Path Validation -->
+        <div class="slide">
+            <h1>Validating Map Paths</h1>
+            <div class="code-example" style="font-size: 0.75em;">
+                <pre>
+const MAP_PATH_PREFIX := "res://maps/"
+
+func load_continue_map() -> void:
+    # ... version check code ...
+    
+    var map_path := game_save_data[KEY_MAP_PATH] as String
+    
+    # Ensure path starts with correct prefix
+    if not map_path.begins_with(MAP_PATH_PREFIX):
+        print("Invalid map path!")
+        return
+    
+    load_map(map_path)
+                </pre>
+            </div>
+            <div class="security-warning">
+                <strong>⚠️ Security Note:</strong> Always validate file paths to prevent loading unintended resources!
+            </div>
+        </div>
+
+        <!-- Slide 22: Preventing Path Traversal -->
+        <div class="slide">
+            <h1>Blocking Path Traversal Attacks</h1>
+            <div class="demo-box">
+                <h3>The Problem:</h3>
+                <div class="file-path">res://maps/../main_menu.tscn</div>
+                <p>This escapes the maps folder using ".."</p>
+            </div>
+            <div class="code-example" style="font-size: 0.8em; margin-top: 20px;">
+                <pre>
+var map_path := game_save_data[KEY_MAP_PATH] as String
+
+if (
+    not map_path.begins_with(MAP_PATH_PREFIX)
+    or map_path.contains("..")
+):
+    print("Invalid map path!")
+    return
+
+load_map(map_path)
+                </pre>
+            </div>
+        </div>
+
+        <!-- Slide 23: Complete Validation -->
+        <div class="slide">
+            <h1>Full Load Function with Validation</h1>
+            <div class="code-example" style="font-size: 0.65em;">
+                <pre>
+func load_continue_map() -> void:
+    # Step 1: Check file exists
+    if not can_continue():
+        print("Tried to continue without save file!")
+        return
+    
+    # Step 2: Load and parse data
+    var game_save_file := FileAccess.open(GAME_SAVE_PATH, FileAccess.READ)
+    var game_save_data := game_save_file.get_var() as Dictionary
+    
+    # Step 3: Validate version
+    if game_save_data[KEY_GAME_SAVE_VERSION] > GAME_SAVE_VERSION:
+        print("Tried to load unknown future save file format!")
+        return
+    
+    # Step 4: Validate path
+    var map_path := game_save_data[KEY_MAP_PATH] as String
+    if (not map_path.begins_with(MAP_PATH_PREFIX) or map_path.contains("..")):
+        print("Invalid map path!")
+        return
+    
+    # Step 5: Load the map!
+    load_map(map_path)
+                </pre>
+            </div>
+        </div>
+
+        <!-- Slide 24: Is This Secure? -->
+        <div class="slide">
+            <h1>Save File Security Considerations</h1>
+            <div class="comparison-grid">
+                <div class="comparison-card" style="border-color: #4ade80;">
+                    <h3 style="color: #4ade80;">✅ Protected Against:</h3>
+                    <ul style="text-align: left; font-size: 1em;">
+                        <li>Path traversal attacks</li>
+                        <li>Loading wrong resource types</li>
+                        <li>Version incompatibility</li>
+                        <li>Missing save files</li>
+                    </ul>
+                </div>
+                <div class="comparison-card" style="border-color: #f97316;">
+                    <h3 style="color: #f97316;">⚠️ Still Vulnerable To:</h3>
+                    <ul style="text-align: left; font-size: 1em;">
+                        <li>Manual save file editing</li>
+                        <li>Cheating/manipulation</li>
+                        <li>Save file corruption</li>
+                    </ul>
+                </div>
+            </div>
+            <p style="font-size: 1.1em; margin-top: 20px;">
+                For single-player games, this level of security is typically sufficient. 
+                For multiplayer or competitive games, server-side validation is essential!
+            </p>
+        </div>
+
+        <!-- Slide 25: Expanding the System -->
+        <div class="slide">
+            <h1>What Can We Store Next?</h1>
+            <div style="font-size: 1.2em;">
+                <p><strong>The dictionary format makes it easy to add:</strong></p>
+                <ul style="text-align: left; line-height: 2;">
+                    <li>🎒 Player inventory items</li>
+                    <li>💰 Currency and resources</li>
+                    <li>🏆 Achievements and statistics</li>
+                    <li>⚙️ Game settings and preferences</li>
+                    <li>📍 Player position within a map</li>
+                    <li>🎭 Story progression flags</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 26: Save System Patterns -->
+        <div class="slide">
+            <h1>Common Save System Patterns</h1>
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <h3>Auto-Save</h3>
+                    <p style="font-size: 0.95em;">Save automatically at checkpoints or intervals</p>
+                    <p style="font-size: 0.9em; color: #4ade80;">✅ Prevents progress loss</p>
+                    <p style="font-size: 0.9em; color: #f97316;">⚠️ Can't reload mistakes</p>
+                </div>
+                <div class="comparison-card">
+                    <h3>Manual Save</h3>
+                    <p style="font-size: 0.95em;">Player chooses when to save</p>
+                    <p style="font-size: 0.9em; color: #4ade80;">✅ More player control</p>
+                    <p style="font-size: 0.9em; color: #f97316;">⚠️ Can forget to save</p>
+                </div>
+            </div>
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <h3>Multiple Slots</h3>
+                    <p style="font-size: 0.95em;">Multiple independent save files</p>
+                    <p style="font-size: 0.9em; color: #4ade80;">✅ Try different strategies</p>
+                </div>
+                <div class="comparison-card">
+                    <h3>Cloud Saves</h3>
+                    <p style="font-size: 0.95em;">Sync across devices</p>
+                    <p style="font-size: 0.9em; color: #4ade80;">✅ Play anywhere</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 27: Best Practices -->
+        <div class="slide">
+            <h1>Save System Best Practices</h1>
+            <div style="font-size: 1.1em;">
+                <ul style="line-height: 2;">
+                    <li><strong>Always validate input</strong> - Don't trust save file data</li>
+                    <li><strong>Use version numbers</strong> - Plan for future changes</li>
+                    <li><strong>Handle errors gracefully</strong> - Don't crash on corrupt saves</li>
+                    <li><strong>Provide feedback</strong> - Show save/load status to players</li>
+                    <li><strong>Test thoroughly</strong> - Try edge cases and corruption</li>
+                    <li><strong>Document format</strong> - Future you will thank present you</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 28: Common Pitfalls -->
+        <div class="slide">
+            <h1>Watch Out For These Issues!</h1>
+            <div class="security-warning">
+                <h3>❌ Common Mistakes:</h3>
+                <ul style="text-align: left; font-size: 1.1em; line-height: 1.8;">
+                    <li>Forgetting to check if file exists before reading</li>
+                    <li>Not handling corrupted save data</li>
+                    <li>Saving at the wrong time (mid-animation, etc.)</li>
+                    <li>Not testing save/load after code changes</li>
+                    <li>Hardcoding paths instead of using user://</li>
+                    <li>Saving too frequently (performance impact)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 29: Testing Your Save System -->
+        <div class="slide">
+            <h1>How to Test Save Systems</h1>
+            <div style="font-size: 1.1em;">
+                <ol style="text-align: left; line-height: 2;">
+                    <li><strong>Normal Flow:</strong> Save, quit, restart, continue - does it work?</li>
+                    <li><strong>Delete Save:</strong> Delete save file - does new game work?</li>
+                    <li><strong>Corrupt Data:</strong> Edit save file with invalid data - does it handle gracefully?</li>
+                    <li><strong>Multiple Sessions:</strong> Save multiple times - does latest save load?</li>
+                    <li><strong>Version Mismatch:</strong> Test with future version numbers</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Slide 30: Summary -->
+        <div class="slide">
+            <h1>Level Complete! <span class="emoji">🏆</span></h1>
+            <h2>Skills Unlocked:</h2>
+            <ul style="font-size: 1.3em; line-height: 1.8;">
+                <li>✅ Implemented persistent data storage with FileAccess</li>
+                <li>✅ Created a main menu with new game and continue options</li>
+                <li>✅ Used dictionaries for structured save data</li>
+                <li>✅ Added version control and path validation</li>
+                <li>✅ Protected against common security issues</li>
+            </ul>
+            
+            <div class="demo-box" style="margin-top: 30px;">
+                <p><strong>Next Quest:</strong> Game HUD - displaying score, health, and other UI elements</p>
+                <p><strong>Homework:</strong> Continue working on your semester game project. Implement a save system for your game!</p>
+            </div>
+        </div>
+
+        <!-- Slide 31: Resources -->
+        <div class="slide">
+            <h1>Additional Resources</h1>
+            <div style="font-size: 1.1em;">
+                <p><strong>📚 Documentation:</strong></p>
+                <ul style="text-align: left; line-height: 1.8;">
+                    <li><a href="https://docs.godotengine.org/en/stable/classes/class_fileaccess.html" target="_blank">FileAccess Class Reference</a></li>
+                    <li><a href="https://docs.godotengine.org/en/stable/tutorials/io/data_paths.html" target="_blank">File Paths in Godot</a></li>
+                    <li><a href="https://catlikecoding.com/unity/tutorials/" target="_blank">Catlike Coding Tutorials</a> (Unity, but concepts apply)</li>
+                </ul>
+                <p style="margin-top: 30px;"><strong>🎮 Practice:</strong></p>
+                <p>Check out the source material in the repository README for more Godot tutorials and examples!</p>
+            </div>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="navigation">
+            <button id="prevBtn">Previous</button>
+            <span class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">31</span>
+            </span>
+            <button id="nextBtn">Next</button>
+        </div>
+    </div>
+
+    <!-- Shared Presentation JavaScript -->
+    <script src="../../js/presentation.js"></script>
+
+    <!-- Lecture-Specific JavaScript -->
+    <script>
+        document.addEventListener('slidechange', (e) => {
+            console.log(`Slide ${e.detail.currentSlide + 1} of ${e.detail.totalSlides}`);
+            
+            // Log key slides
+            const keySlides = {
+                5: 'Storing map path',
+                8: 'Writing to file',
+                14: 'Reading save file',
+                17: 'Dictionary format',
+                22: 'Security validation',
+                30: 'Summary and next steps'
+            };
+            
+            if (keySlides[e.detail.currentSlide + 1]) {
+                console.log(`Key topic: ${keySlides[e.detail.currentSlide + 1]}`);
+            }
+        });
+    </script>
+</body>
+</html>
