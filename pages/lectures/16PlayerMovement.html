@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 16: Player Character & Movement - CSCI 3213</title>
+    
+    <!-- OCU Branded Presentation Styles with Theme Support -->
+    <link rel="stylesheet" href="../../styles/presentation.css">
+    <link rel="icon" type="image/x-icon" href="/images/favicon.png">
+    
+    <!-- Lecture-Specific Styles -->
+    <style>
+        .game-demo {
+            background: #1a1a2e;
+            color: #0f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            border: 2px solid #16213e;
+        }
+        
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .component-card {
+            background: var(--card-bg, #f8f8f8);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid var(--border-color, #ddd);
+            transition: transform 0.3s;
+        }
+        
+        .component-card:hover {
+            transform: scale(1.05);
+        }
+        
+        .code-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .code-box {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+        }
+        
+        .highlight {
+            background: rgba(255, 215, 0, 0.2);
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        .physics-visual {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .particle-demo {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+        
+        .demo-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ffffff, #ffff00, #ffd674);
+            box-shadow: 0 0 20px rgba(255, 215, 116, 0.6);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme toggle will be automatically added by JavaScript -->
+    
+    <div class="presentation-container">
+        <!-- Timer display -->
+        <div class="timer-display" id="timer-display">
+            <span id="timer-text">Player Character & Movement
+                 <button class="home"><a href="../../index.html">Home</a></button>
+            </span>
+        </div>
+
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <h1>Player Character & Movement</h1>
+            <h2>Bringing Your Game to Life <span class="emoji">🎮</span></h2>
+            <p style="font-size: 1.5em; margin-top: 40px;">CSCI 3213 - Game Programming</p>
+            <p style="font-size: 1.3em;">Spring '26 - Week 8, Lecture 16</p>
+            <p style="margin-top: auto; font-style: italic;">Let's make something move!</p>
+        </div>
+
+        <!-- Slide 2: Learning Objectives -->
+        <div class="slide">
+            <h1>Today's Quest Objectives <span class="emoji">🎯</span></h1>
+            <ul style="font-size: 1.3em; line-height: 2;">
+                <li>🎭 Create a player character scene in Godot</li>
+                <li>🎨 Design sprites with proper texture filtering</li>
+                <li>⚙️ Implement physics-based movement</li>
+                <li>🧱 Add collision detection with the environment</li>
+                <li>✨ Create visual effects with particle systems</li>
+                <li>🎮 Handle player input for responsive controls</li>
+            </ul>
+        </div>
+
+        <!-- Slide 3: CharacterBody2D Overview -->
+        <div class="slide">
+            <h1>CharacterBody2D Node <span class="emoji">🤖</span></h1>
+            <div class="component-grid">
+                <div class="component-card">
+                    <h3>CharacterBody2D</h3>
+                    <p>Root node for player character control</p>
+                    <p style="color: var(--ocu-cyan);">Handles physics & movement</p>
+                </div>
+                <div class="component-card">
+                    <h3>CollisionShape2D</h3>
+                    <p>Defines physical boundaries</p>
+                    <p style="color: var(--ocu-cyan);">CircleShape2D with 6px radius</p>
+                </div>
+                <div class="component-card">
+                    <h3>Sprite2D</h3>
+                    <p>Visual representation</p>
+                    <p style="color: var(--ocu-cyan);">Gradient texture (14x14px)</p>
+                </div>
+                <div class="component-card">
+                    <h3>GPUParticles2D</h3>
+                    <p>Visual effects system</p>
+                    <p style="color: var(--ocu-cyan);">Creates glowing trail</p>
+                </div>
+            </div>
+            <div class="demo-box">
+                <p><strong>Key Point:</strong> CharacterBody2D provides built-in physics support for character movement and collision response</p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Motion Mode -->
+        <div class="slide">
+            <h1>Motion Mode: Floating <span class="emoji">🎈</span></h1>
+            <div class="physics-visual">
+                <h2>Top-Down Game Configuration</h2>
+                <p style="font-size: 1.3em; margin: 20px 0;">
+                    Default: Platformer (side-scrolling)<br>
+                    <strong>Change to: Floating (top-down)</strong>
+                </p>
+            </div>
+            <ul style="font-size: 1.2em; line-height: 2;">
+                <li><strong>Wall Min Slide Angle:</strong> 15° default</li>
+                <li>Controls how character slides along walls</li>
+                <li>Movement at ≥15° from wall = slide along it</li>
+                <li>Movement &lt;15° from wall = stop</li>
+            </ul>
+            <div class="demo-box">
+                <p><strong>Remember:</strong> Motion mode affects which physics properties are available!</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Texture Filtering -->
+        <div class="slide">
+            <h1>Texture Filtering <span class="emoji">🖼️</span></h1>
+            <div class="code-comparison">
+                <div>
+                    <h3 style="text-align: center; margin-bottom: 10px;">❌ Bilinear (Fuzzy)</h3>
+                    <div class="code-box">
+Default filtering method
+Blends between adjacent pixels
+Good for high-res images
+BAD for pixel art!
+                    </div>
+                </div>
+                <div>
+                    <h3 style="text-align: center; margin-bottom: 10px;">✅ Nearest (Crisp)</h3>
+                    <div class="code-box">
+Uses nearest color only
+No blending between pixels
+Perfect for pixel art
+Sharp, retro aesthetic
+                    </div>
+                </div>
+            </div>
+            <div class="demo-box">
+                <p><strong>Solution:</strong> Set CanvasItem › Texture › Filter to <span class="highlight">Nearest</span></p>
+                <p>This produces solid square areas, giving that classic pixel-art look!</p>
+            </div>
+        </div>
+
+        <!-- Slide 6: Movement Implementation -->
+        <div class="slide">
+            <h1>Player Movement Code <span class="emoji">⌨️</span></h1>
+            <div class="code-box" style="font-size: 1.1em;">
+extends CharacterBody2D
+
+## Speed in pixels per second.
+@export_range(0, 1000) var speed := 60
+
+func _physics_process(_delta: float) -> void:
+    get_player_input()
+    move_and_slide()
+
+func get_player_input() -> void:
+    var vector := Input.get_vector(
+        "ui_left", "ui_right", 
+        "ui_up", "ui_down"
+    )
+    velocity = vector * speed
+            </div>
+            <div class="demo-box">
+                <p><strong>Key Functions:</strong></p>
+                <ul style="text-align: left;">
+                    <li><code>Input.get_vector()</code> - Gets directional input</li>
+                    <li><code>move_and_slide()</code> - Applies movement with collision</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 7: Input System -->
+        <div class="slide">
+            <h1>Player Input <span class="emoji">🕹️</span></h1>
+            <ul style="font-size: 1.3em; line-height: 2;">
+                <li><strong>Arrow Keys:</strong> Default UI actions
+                    <ul style="font-size: 0.9em;">
+                        <li>"ui_left", "ui_right", "ui_up", "ui_down"</li>
+                    </ul>
+                </li>
+                <li><strong>Diagonal Movement:</strong> Press two keys at once</li>
+                <li><strong>Controller Support:</strong> Analog stick provides variable speed</li>
+                <li><strong>Constant Speed:</strong> Arrow keys = full speed always</li>
+                <li><strong>Variable Speed:</strong> Controller stick = proportional control</li>
+            </ul>
+            <div class="demo-box">
+                <p><strong>Pro Tip:</strong> Diagonal movement with arrow keys is √½ pixels per dimension (≈0.707)</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: Collision Physics -->
+        <div class="slide">
+            <h1>Adding Physics Layers <span class="emoji">🧱</span></h1>
+            <div style="font-size: 1.2em;">
+                <h3>Steps to Enable Collision:</h3>
+                <ol style="line-height: 2;">
+                    <li>Select <strong>TileMap</strong> in map scene</li>
+                    <li>Expand <strong>TileSet resource</strong></li>
+                    <li>Open <strong>Physics Layers</strong> section</li>
+                    <li>Click <strong>Add Element</strong> button</li>
+                    <li>In TileSet editor, select tiles</li>
+                    <li>Use <strong>Reset to default tile shape</strong> (or press F)</li>
+                    <li>Apply to walls and water tiles</li>
+                </ol>
+            </div>
+            <div class="demo-box">
+                <p><strong>Result:</strong> Red overlay indicates collision polygons. Player can no longer pass through walls or water!</p>
+            </div>
+        </div>
+
+        <!-- Slide 9: Particle System Overview -->
+        <div class="slide">
+            <h1>Glowing Trail Effect <span class="emoji">✨</span></h1>
+            <div class="particle-demo">
+                <div class="demo-circle"></div>
+                <div style="font-size: 1.5em;">→</div>
+                <div style="text-align: left;">
+                    <p><strong>GPUParticles2D Node</strong></p>
+                    <ul style="font-size: 0.9em;">
+                        <li>Runs on GPU for performance</li>
+                        <li>60 FPS (Fixed FPS = 60)</li>
+                        <li>No interpolation needed</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="component-grid">
+                <div class="component-card">
+                    <h4>Material</h4>
+                    <p>CanvasItemMaterial</p>
+                    <p>Blend Mode: <strong>Add</strong></p>
+                </div>
+                <div class="component-card">
+                    <h4>Texture</h4>
+                    <p>8×8 radial gradient</p>
+                    <p>White → Black</p>
+                </div>
+                <div class="component-card">
+                    <h4>Process Material</h4>
+                    <p>ParticleProcessMaterial</p>
+                    <p>Controls behavior</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Particle Configuration -->
+        <div class="slide">
+            <h1>Particle System Settings <span class="emoji">⚙️</span></h1>
+            <div style="font-size: 1.15em;">
+                <h3>Key Settings:</h3>
+                <ul style="line-height: 2;">
+                    <li><strong>Gravity:</strong> Set to (0, 0) - no gravity in top-down</li>
+                    <li><strong>Emission Shape:</strong> Ring
+                        <ul>
+                            <li>Ring Radius: 3.5</li>
+                            <li>Ring Inner Radius: 2</li>
+                            <li>Ring Height: 0 (we're in 2D)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Color:</strong> #ffff793f (subtle yellow glow)</li>
+                    <li><strong>Alpha Curve:</strong> (0,0) → (0.1,1) → (1,0)</li>
+                    <li><strong>Amount:</strong> 30 particles for solid trail</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 11: Pixel Art Considerations -->
+        <div class="slide">
+            <h1>Pixel Art Rendering <span class="emoji">🎨</span></h1>
+            <ul style="font-size: 1.3em; line-height: 2;">
+                <li><strong>Visual Alignment:</strong> Character appears grid-aligned</li>
+                <li><strong>Sub-pixel Movement:</strong> Actual position can be fractional</li>
+                <li><strong>Jittery Movement:</strong> Natural trait of low-res pixel art</li>
+                <li><strong>Trade-off:</strong> Crisp pixels vs. smooth motion</li>
+            </ul>
+            <div class="demo-box">
+                <p><strong>Style Choice:</strong></p>
+                <p>Nearest filtering = Sharp but jittery</p>
+                <p>Linear filtering = Smooth but morphs slightly</p>
+                <p><em>Most pixel art games prefer crisp aesthetics</em></p>
+            </div>
+        </div>
+
+        <!-- Slide 12: Scene Structure -->
+        <div class="slide">
+            <h1>Scene Organization <span class="emoji">📁</span></h1>
+            <div class="game-demo">
+Map (Node2D)
+├── TileMap
+│   └── TileSet (with Physics Layer)
+└── PlayerCharacter (CharacterBody2D)
+    ├── CollisionShape2D (CircleShape2D, radius=6)
+    ├── Sprite2D (GradientTexture2D, 14×14)
+    │   └── Texture Filter: Nearest
+    └── GPUParticles2D
+        ├── CanvasItemMaterial (Blend: Add)
+        ├── Texture (8×8 gradient)
+        └── ParticleProcessMaterial
+            </div>
+            <div class="demo-box">
+                <p><strong>Important:</strong> PlayerCharacter should be child of Map, NOT child of TileMap!</p>
+            </div>
+        </div>
+
+        <!-- Slide 13: Code Best Practices -->
+        <div class="slide">
+            <h1>GDScript Best Practices <span class="emoji">💡</span></h1>
+            <ul style="font-size: 1.2em; line-height: 2;">
+                <li><strong>@export decorators:</strong> Make properties editable in inspector
+                    <ul style="font-size: 0.9em;">
+                        <li><code>@export_range(0, 1000) var speed := 60</code></li>
+                    </ul>
+                </li>
+                <li><strong>Type hints:</strong> Improve code clarity and catch errors
+                    <ul style="font-size: 0.9em;">
+                        <li><code>func _physics_process(_delta: float) -> void:</code></li>
+                    </ul>
+                </li>
+                <li><strong>Unused parameters:</strong> Prefix with underscore
+                    <ul style="font-size: 0.9em;">
+                        <li><code>_delta</code> instead of <code>delta</code></li>
+                    </ul>
+                </li>
+                <li><strong>Function separation:</strong> Keep code modular and readable</li>
+            </ul>
+        </div>
+
+        <!-- Slide 14: Physics Process -->
+        <div class="slide">
+            <h1>Why _physics_process? <span class="emoji">⚡</span></h1>
+            <div class="physics-visual">
+                <h3>Two Types of Processing:</h3>
+            </div>
+            <div class="code-comparison">
+                <div>
+                    <h4 style="text-align: center;">_process(delta)</h4>
+                    <ul style="font-size: 1.1em;">
+                        <li>Variable frame rate</li>
+                        <li>Visual updates</li>
+                        <li>UI interactions</li>
+                        <li>Non-physics code</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="text-align: center;">_physics_process(delta)</h4>
+                    <ul style="font-size: 1.1em;">
+                        <li>Fixed timestep (60Hz)</li>
+                        <li>Movement calculations</li>
+                        <li>Collision detection</li>
+                        <li><strong>Use for player input!</strong></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="demo-box">
+                <p><strong>Rule of thumb:</strong> Movement and physics = _physics_process</p>
+            </div>
+        </div>
+
+        <!-- Slide 15: Common Issues & Solutions -->
+        <div class="slide">
+            <h1>Troubleshooting <span class="emoji">🔧</span></h1>
+            <ul style="font-size: 1.2em; line-height: 2;">
+                <li><strong>Fuzzy sprites:</strong> Change texture filter to Nearest</li>
+                <li><strong>Player passes through walls:</strong> Add physics layer to tiles</li>
+                <li><strong>No movement:</strong> Check Motion Mode is set to Floating</li>
+                <li><strong>Particles not showing:</strong> Verify Material and Texture are set</li>
+                <li><strong>Particles fall down:</strong> Set Gravity to (0, 0)</li>
+                <li><strong>Character too fast/slow:</strong> Adjust speed export variable</li>
+            </ul>
+        </div>
+
+        <!-- Slide 16: Summary & Next Steps -->
+        <div class="slide">
+            <h1>Quest Complete! <span class="emoji">🏆</span></h1>
+            <h2>Skills Unlocked:</h2>
+            <ul style="font-size: 1.3em; line-height: 2;">
+                <li>✅ Created CharacterBody2D player character</li>
+                <li>✅ Implemented physics-based movement</li>
+                <li>✅ Added collision detection with tiles</li>
+                <li>✅ Applied proper texture filtering for pixel art</li>
+                <li>✅ Created particle effects for visual polish</li>
+            </ul>
+            
+            <div class="demo-box">
+                <p><strong>Homework:</strong> Continue working on your game project. Apply what you've learned about player characters, movement, and visual effects. Project due at end of semester.</p>
+                <p><strong>Reference:</strong> See the course repository README for source materials and additional tutorials.</p>
+            </div>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="navigation">
+            <button id="prevBtn">Previous</button>
+            <span class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">16</span>
+            </span>
+            <button id="nextBtn">Next</button>
+        </div>
+    </div>
+
+    <!-- Shared Presentation JavaScript -->
+    <script src="../../js/presentation.js"></script>
+
+    <!-- Lecture-Specific JavaScript -->
+    <script>
+        // Listen for slide change events
+        document.addEventListener('slidechange', (e) => {
+            console.log(`Slide ${e.detail.currentSlide + 1} of ${e.detail.totalSlides}`);
+            
+            // Trigger specific effects on certain slides
+            if (e.detail.currentSlide === 8) {
+                console.log('Particle system demonstration slide!');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 19: Detectors & Pressure Plates - CSCI 3213</title>
+    
+    <!-- OCU Branded Presentation Styles with Theme Support -->
+    <link rel="stylesheet" href="../../styles/presentation.css">
+    <link rel="icon" type="image/x-icon" href="/images/favicon.png">
+    
+    <!-- Lecture-Specific Styles -->
+    <style>
+        .detector-demo {
+            background: #1a1a2e;
+            color: #0f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            border: 2px solid #16213e;
+        }
+        
+        .collision-visual {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .collision-box {
+            background: var(--card-bg, #f8f8f8);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid var(--border-color, #ddd);
+        }
+        
+        .detector-state {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            margin: 10px;
+            border: 2px solid #333;
+        }
+        
+        .detector-invalid {
+            background: #ff4444;
+            animation: pulse 2s infinite;
+        }
+        
+        .detector-valid {
+            background: #44ff44;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .code-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .before-code, .after-code {
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .before-code {
+            background: #ffe6e6;
+            border-left: 4px solid #ff4444;
+        }
+        
+        .after-code {
+            background: #e6ffe6;
+            border-left: 4px solid #44ff44;
+        }
+        
+        .godot-tip {
+            background: var(--ocu-cyan);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 5px solid var(--ocu-true-blue);
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme toggle will be automatically added by JavaScript -->
+    
+    <div class="presentation-container">
+        <!-- Timer display -->
+        <div class="timer-display" id="timer-display">
+            <span id="timer-text">Lecture 19: Detectors & Pressure Plates
+                 <button class="home"><a href="../../index.html">Home</a></button>
+            </span>
+        </div>
+
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <h1>Detectors & Pressure Plates</h1>
+            <h2>Creating Interactive Game Mechanics <span class="emoji">🎮</span></h2>
+            <p style="font-size: 1.5em; margin-top: 40px;">CSCI 3213 - Game Programming</p>
+            <p style="font-size: 1.3em;">Spring '26 - Week 19</p>
+            <p style="margin-top: auto; font-style: italic;">Building puzzle mechanics with Godot!</p>
+        </div>
+
+        <!-- Slide 2: Learning Objectives -->
+        <div class="slide">
+            <h1>Today's Quest Objectives</h1>
+            <ul style="font-size: 1.4em; line-height: 2;">
+                <li>🎯 Understand collision detection with Area2D nodes</li>
+                <li>🔧 Tweak collision shapes for better gameplay</li>
+                <li>🎨 Implement visual feedback for game states</li>
+                <li>📊 Track multiple objects on detectors</li>
+                <li>✨ Create polished visual effects with pulsing animations</li>
+                <li>🎮 Build classic puzzle game mechanics</li>
+            </ul>
+            <div class="godot-tip">
+                <strong>Source Material:</strong> Based on Catlike Coding's Godot tutorial "Detectors"
+            </div>
+        </div>
+
+        <!-- Slide 3: Introduction to Pressure Plates -->
+        <div class="slide">
+            <h1>What Are Pressure Plates? <span class="emoji">⚙️</span></h1>
+            <p style="font-size: 1.3em;">Classic puzzle game mechanic where objects must be placed on specific spots to trigger actions.</p>
+            
+            <div class="collision-visual">
+                <div class="collision-box">
+                    <h3>Inactive Detector</h3>
+                    <div class="detector-state detector-invalid"></div>
+                    <p>No objects detected</p>
+                    <p style="color: #ff4444; font-weight: bold;">Red & Pulsing</p>
+                </div>
+                <div class="collision-box">
+                    <h3>Active Detector</h3>
+                    <div class="detector-state detector-valid"></div>
+                    <p>Object detected!</p>
+                    <p style="color: #44ff44; font-weight: bold;">Solid Green</p>
+                </div>
+            </div>
+            
+            <div class="demo-box">
+                <p><strong>Use Cases:</strong> Door switches, weight-based puzzles, multi-object challenges, timed sequences</p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Tweaking Movable Objects -->
+        <div class="slide">
+            <h1>Problem: Objects Getting Stuck <span class="emoji">🚫</span></h1>
+            
+            <h2>The Issue:</h2>
+            <p style="font-size: 1.2em;">When two 8-pixel wide objects are pushed through a single tile corridor, they get stuck!</p>
+            
+            <div class="code-comparison">
+                <div class="before-code">
+                    <h3>❌ Before (8.0 pixels)</h3>
+                    <pre style="margin: 0;">
+Size: 8.0 x 8.0
+
+Two objects side-by-side
+exactly fill one tile
+→ Causes friction/jamming
+                    </pre>
+                </div>
+                <div class="after-code">
+                    <h3>✅ After (7.9 pixels)</h3>
+                    <pre style="margin: 0;">
+Size: 7.9 x 7.9
+
+Tiny gap allows objects
+to slide past each other
+→ Smooth movement!
+                    </pre>
+                </div>
+            </div>
+            
+            <div class="godot-tip">
+                <strong>Pro Tip:</strong> A 0.1 pixel reduction is imperceptible to players but dramatically improves physics!
+            </div>
+        </div>
+
+        <!-- Slide 5: Creating the Detector Scene -->
+        <div class="slide">
+            <h1>Building the Detector <span class="emoji">🏗️</span></h1>
+            
+            <h2>Scene Structure:</h2>
+            <div class="demo-box">
+                <pre style="text-align: left; font-size: 1.1em;">
+📁 detector.tscn
+  └─ Area2D (Detector)
+      ├─ CollisionShape2D
+      │   └─ RectangleShape2D (12x12 pixels)
+      └─ Sprite2D
+          └─ GradientTexture2D (white→black, 12x12)
+                </pre>
+            </div>
+            
+            <h2>Key Properties:</h2>
+            <ul style="font-size: 1.2em;">
+                <li><strong>Collision Shape:</strong> 12×12 rectangle (larger than objects)</li>
+                <li><strong>Sprite:</strong> White center with black edge</li>
+                <li><strong>Filtering:</strong> Nearest (for pixel art)</li>
+                <li><strong>Material:</strong> Unlit CanvasItemMaterial</li>
+                <li><strong>Default Color:</strong> Red (invalid state)</li>
+            </ul>
+        </div>
+
+        <!-- Slide 6: Detector Script Basics -->
+        <div class="slide">
+            <h1>GDScript: Color Switching <span class="emoji">🎨</span></h1>
+            
+            <div class="detector-demo">
+                <pre style="color: #fff; font-size: 1.1em;">
+extends Area2D
+
+## Color for when no objects are on the detector.
+@export_color_no_alpha var invalid_color := Color.RED
+
+## Color for when objects are on the detector.
+@export_color_no_alpha var valid_color := Color.GREEN
+
+@export var sprite: Sprite2D
+
+func _on_body_entered(_body: Node2D) -> void:
+    sprite.modulate = valid_color
+
+func _on_body_exited(_body: Node2D) -> void:
+    sprite.modulate = invalid_color
+                </pre>
+            </div>
+            
+            <div class="godot-tip">
+                <strong>Note:</strong> @export_color_no_alpha hides the alpha slider since we always want alpha = 1
+            </div>
+        </div>
+
+        <!-- Slide 7: Collision Layers & Masks -->
+        <div class="slide">
+            <h1>Selective Detection <span class="emoji">🎯</span></h1>
+            
+            <h2>Problem: Detecting Everything!</h2>
+            <p style="font-size: 1.2em;">Initially, detectors react to players AND movable objects. We only want movable objects!</p>
+            
+            <div class="collision-visual">
+                <div class="collision-box">
+                    <h3>Detector Settings</h3>
+                    <p><strong>Collision Mask:</strong> Layer 2 only</p>
+                    <p><strong>Monitorable:</strong> Disabled</p>
+                    <p style="color: #888; font-size: 0.9em;">Won't detect player on Layer 1</p>
+                </div>
+                <div class="collision-box">
+                    <h3>Movable Object Settings</h3>
+                    <p><strong>Collision Layer:</strong> 1 AND 2</p>
+                    <p style="color: #888; font-size: 0.9em;">Can be detected by detectors</p>
+                    <p style="color: #888; font-size: 0.9em;">Still collides with player</p>
+                </div>
+            </div>
+            
+            <div class="demo-box">
+                <p><strong>Result:</strong> Detectors only respond to movable objects, not the player!</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: Counting Multiple Objects -->
+        <div class="slide">
+            <h1>Handling Multiple Objects <span class="emoji">📊</span></h1>
+            
+            <h2>Bug: Detector turns invalid too early!</h2>
+            <p style="font-size: 1.2em;">When one object exits but another remains, the detector shouldn't turn red.</p>
+            
+            <div class="detector-demo">
+                <pre style="color: #fff; font-size: 1em;">
+var object_count := 0
+
+func _on_body_entered(_body: Node2D) -> void:
+    if object_count == 0:
+        sprite.modulate = valid_color
+    object_count += 1
+
+func _on_body_exited(_body: Node2D) -> void:
+    object_count -= 1
+    if object_count == 0:
+        sprite.modulate = invalid_color
+                </pre>
+            </div>
+            
+            <div class="godot-tip">
+                <strong>Logic:</strong> Only change color when transitioning between 0 and 1+ objects
+            </div>
+        </div>
+
+        <!-- Slide 9: Pulsing Animation -->
+        <div class="slide">
+            <h1>Visual Polish: Pulsing Effect <span class="emoji">✨</span></h1>
+            
+            <p style="font-size: 1.2em;">Make inactive detectors pulse to draw player attention!</p>
+            
+            <div class="detector-demo">
+                <pre style="color: #fff; font-size: 0.95em;">
+@export_range(0.1, 1.0) var pulse_frequency := 0.25
+var pulse_progress := 0.0
+
+func _process(delta: float) -> void:
+    if object_count == 0:
+        pulse_progress += delta * pulse_frequency
+        if pulse_progress >= 1.0:
+            pulse_progress -= 1.0
+        
+        # Cosine wave: 1 to -1, scaled to 0.5 to 1.0
+        var brightness := cos(pulse_progress * TAU) * 0.25 + 0.75
+        
+        sprite.modulate = Color(
+            invalid_color.r * brightness,
+            invalid_color.g * brightness,
+            invalid_color.b * brightness
+        )
+                </pre>
+            </div>
+        </div>
+
+        <!-- Slide 10: Finishing Touches -->
+        <div class="slide">
+            <h1>Polish & Randomization <span class="emoji">🎯</span></h1>
+            
+            <h2>Final Improvements:</h2>
+            
+            <div class="collision-visual">
+                <div class="collision-box">
+                    <h3>Reset on Exit</h3>
+                    <pre style="text-align: left; font-size: 1em;">
+func _on_body_exited(...):
+    object_count -= 1
+    if object_count == 0:
+        pulse_progress = 0.0
+                    </pre>
+                    <p>Start pulse at full brightness</p>
+                </div>
+                <div class="collision-box">
+                    <h3>Random Start</h3>
+                    <pre style="text-align: left; font-size: 1em;">
+func _init() -> void:
+    pulse_progress = randf()
+                    </pre>
+                    <p>Desynchronize multiple detectors</p>
+                </div>
+            </div>
+            
+            <div class="demo-box">
+                <p><strong>Result:</strong> Professional-looking detectors that feel alive and responsive!</p>
+            </div>
+        </div>
+
+        <!-- Slide 11: Summary & Best Practices -->
+        <div class="slide">
+            <h1>Key Takeaways <span class="emoji">🎓</span></h1>
+            
+            <h2>Technical Concepts:</h2>
+            <ul style="font-size: 1.2em;">
+                <li>✅ <strong>Area2D:</strong> Non-physical collision detection</li>
+                <li>✅ <strong>Collision Layers/Masks:</strong> Selective detection</li>
+                <li>✅ <strong>State Management:</strong> Counting objects properly</li>
+                <li>✅ <strong>Visual Feedback:</strong> Color changes + animations</li>
+                <li>✅ <strong>Math Functions:</strong> Using cosine for smooth oscillation</li>
+            </ul>
+            
+            <div class="godot-tip">
+                <strong>Design Principle:</strong> Small physics tweaks (7.9 vs 8.0) can have huge gameplay impacts!
+            </div>
+        </div>
+
+        <!-- Slide 12: Homework & Next Steps -->
+        <div class="slide">
+            <h1>Quest Complete! <span class="emoji">🏆</span></h1>
+            
+            <h2>What You've Built:</h2>
+            <ul style="font-size: 1.2em;">
+                <li>✅ Functional pressure plate system</li>
+                <li>✅ Visual state indicators</li>
+                <li>✅ Multi-object detection</li>
+                <li>✅ Polished pulsing animation</li>
+            </ul>
+            
+            <div class="demo-box">
+                <p><strong>Homework:</strong> Continue working on your semester game project. Apply what you've learned about detectors to create interactive puzzle elements!</p>
+                <p style="margin-top: 15px;"><strong>Source Material:</strong> See the README in the course repository for links to Catlike Coding's original tutorial</p>
+                <p style="margin-top: 15px;"><strong>Next Tutorial:</strong> Multiple Maps - Connecting different game areas</p>
+            </div>
+            
+            <p style="margin-top: auto; font-style: italic; font-size: 1.1em;">Keep building amazing games! 🎮</p>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="navigation">
+            <button id="prevBtn">Previous</button>
+            <span class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">12</span>
+            </span>
+            <button id="nextBtn">Next</button>
+        </div>
+    </div>
+
+    <!-- Shared Presentation JavaScript -->
+    <script src="../../js/presentation.js"></script>
+
+    <!-- Lecture-Specific JavaScript -->
+    <script>
+        // Listen for slide changes
+        document.addEventListener('slidechange', (e) => {
+            console.log(`Slide ${e.detail.currentSlide + 1} of ${e.detail.totalSlides}`);
+            
+            // Could add interactive demos on specific slides
+            if (e.detail.currentSlide === 2) {
+                console.log('Showing pressure plate comparison');
+            }
+        });
+    </script>
+</body>
+</html>
