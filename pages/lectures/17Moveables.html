@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 17: Godot Movable Objects - CSCI 3213</title>
+    
+    <!-- OCU Branded Presentation Styles with Theme Support -->
+    <link rel="stylesheet" href="../../styles/presentation.css">
+    <link rel="icon" type="image/x-icon" href="/images/favicon.png">
+    
+    <!-- Lecture-Specific Styles -->
+    <style>
+        .code-demo {
+            background: #1a1a2e;
+            color: #0f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            border: 2px solid #16213e;
+        }
+        
+        .physics-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .physics-card {
+            background: var(--card-bg, #f8f8f8);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid var(--border-color, #ddd);
+        }
+        
+        .resource-link {
+            color: #00a8ff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .resource-link:hover {
+            text-decoration: underline;
+        }
+
+        .collision-demo {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid var(--ocu-cyan);
+        }
+
+        .implementation-steps {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div class="timer-display" id="timer-display">
+            <span id="timer-text">Godot Movable Objects
+                 <button class="home"><a href="../../index.html">Home</a></button>
+            </span>
+        </div>
+
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <h1>Godot Movable Objects</h1>
+            <h2>Pushing Things Around <span class="emoji">📦</span></h2>
+            <p style="font-size: 1.5em; margin-top: 40px;">CSCI 3213 - Game Programming</p>
+            <p style="font-size: 1.3em;">Spring '26 - Week 9, Lecture 17</p>
+            <p style="margin-top: auto; font-style: italic;">Let's make interactive game objects!</p>
+        </div>
+
+        <!-- Slide 2: Learning Objectives -->
+        <div class="slide">
+            <h1>Today's Quest Objectives</h1>
+            <ul style="font-size: 1.4em; line-height: 2;">
+                <li>🎯 Create movable objects with RigidBody2D/CharacterBody2D</li>
+                <li>🎯 Implement collision detection systems</li>
+                <li>🎯 Apply physics forces and impacts</li>
+                <li>🎯 Handle object-to-object interactions</li>
+                <li>🎯 Optimize movement with drag and velocity management</li>
+            </ul>
+        </div>
+
+        <!-- Slide 3: What We're Building -->
+        <div class="slide">
+            <h1>What We're Building Today</h1>
+            <div class="demo-box">
+                <h2>Interactive Movable Objects</h2>
+                <p style="font-size: 1.3em; line-height: 1.8;">
+                    We're adding objects that the player can push around in our top-down 2D game.
+                    These objects will interact with the player, the environment, and each other!
+                </p>
+            </div>
+            <div class="physics-comparison">
+                <div class="physics-card">
+                    <h3>✅ Can Do</h3>
+                    <p>Push, drag sideways, collide with other objects</p>
+                </div>
+                <div class="physics-card">
+                    <h3>❌ Can't Do</h3>
+                    <p>Pull objects (only push)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Scene Setup -->
+        <div class="slide">
+            <h1>Setting Up the Movable Object</h1>
+            <div class="implementation-steps">
+                <h2>Node Structure:</h2>
+                <ol style="font-size: 1.2em; line-height: 1.8;">
+                    <li><strong>RigidBody2D</strong> - Root node (later changed to CharacterBody2D)</li>
+                    <li><strong>CollisionShape2D</strong> - Rectangle shape (8×8 pixels)</li>
+                    <li><strong>Sprite2D</strong> - Visual representation with gradient</li>
+                </ol>
+            </div>
+            <div class="demo-box">
+                <p><strong>Tip:</strong> Set texture filter to "Nearest" for pixel-perfect graphics</p>
+                <p><strong>Gradient:</strong> Square fill, black-to-white for a darker interior</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Gravity Problem -->
+        <div class="slide">
+            <h1>Fixing Gravity <span class="emoji">⬇️</span></h1>
+            <div class="collision-demo">
+                <h2>Problem: Objects Fall!</h2>
+                <p style="font-size: 1.2em; line-height: 1.8;">
+                    Default 2D gravity is set for side-view games. In top-down games, 
+                    objects shouldn't fall down the screen.
+                </p>
+            </div>
+            <div class="code-demo">
+                <h3>Solution:</h3>
+                <p>Project Settings → Physics → 2D → Default Gravity = <strong>0</strong></p>
+            </div>
+        </div>
+
+        <!-- Slide 6: Collision Detection -->
+        <div class="slide">
+            <h1>Detecting Collisions</h1>
+            <div class="code-demo">
+                <pre style="color: #0f0; font-size: 1.1em;">
+func _physics_process(_delta: float) -> void:
+    get_player_input()
+    if move_and_slide():
+        resolve_collisions()
+
+func resolve_collisions() -> void:
+    for i in get_slide_collision_count():
+        var collision := get_slide_collision(i)
+        var body := collision.get_collider()
+        print(body)
+                </pre>
+            </div>
+            <p style="font-size: 1.2em;">move_and_slide() returns true when we hit something!</p>
+        </div>
+
+        <!-- Slide 7: Filtering Collisions -->
+        <div class="slide">
+            <h1>Filtering for Movable Objects</h1>
+            <div class="code-demo">
+                <pre style="color: #0f0; font-size: 1.1em;">
+func resolve_collisions() -> void:
+    for i in get_slide_collision_count():
+        var collision := get_slide_collision(i)
+        var body := collision.get_collider() as RigidBody2D
+        if body:
+            # This is a movable object!
+            print(body)
+                </pre>
+            </div>
+            <div class="demo-box">
+                <p><strong>Type Casting:</strong> Use "as RigidBody2D" to filter for only movable objects</p>
+                <p><strong>Result:</strong> Null if it's a wall, valid body if it's an object</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: Getting Push Direction -->
+        <div class="slide">
+            <h1>Push Direction with Normals</h1>
+            <div class="implementation-steps">
+                <h2>Understanding Collision Normals:</h2>
+                <ul style="font-size: 1.2em; line-height: 1.8;">
+                    <li><strong>collision.get_normal()</strong> - Returns unit vector</li>
+                    <li>Points FROM the object TO the player</li>
+                    <li>To push: multiply by -1 to reverse direction</li>
+                    <li>Scale by force magnitude (e.g., -100)</li>
+                </ul>
+            </div>
+            <div class="code-demo">
+                <pre style="color: #0f0;">
+body.apply_force(-100.0 * collision.get_normal())
+                </pre>
+            </div>
+        </div>
+
+        <!-- Slide 9: Preventing Rotation -->
+        <div class="slide">
+            <h1>Keeping Objects Upright</h1>
+            <div class="demo-box">
+                <h2>Problem: Objects spin when pushed!</h2>
+                <p style="font-size: 1.2em; margin: 20px 0;">
+                    By default, RigidBody2D objects rotate when forces are applied off-center.
+                </p>
+            </div>
+            <div class="collision-demo">
+                <h3>Solution:</h3>
+                <p style="font-size: 1.2em;">
+                    <strong>RigidBody2D → Deactivation → Lock Rotation</strong> = ON
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 10: Tile Map Collision Issue -->
+        <div class="slide">
+            <h1>The Tile Map Problem <span class="emoji">🧱</span></h1>
+            <div class="collision-demo">
+                <h2>Issue: Getting Stuck!</h2>
+                <p style="font-size: 1.2em; line-height: 1.8;">
+                    Objects can penetrate slightly into tiles due to physics precision limits.
+                    When sliding to adjacent tiles, they catch on edges and get stuck.
+                </p>
+            </div>
+            <div class="demo-box">
+                <p><strong>Why?</strong> Each tile has its own separate collider rectangle</p>
+                <p><strong>Traditional Fix:</strong> Manual large colliders (tedious!)</p>
+                <p><strong>Our Solution:</strong> Use CharacterBody2D instead!</p>
+            </div>
+        </div>
+
+        <!-- Slide 11: Objects as Characters -->
+        <div class="slide">
+            <h1>Converting to CharacterBody2D</h1>
+            <div class="implementation-steps">
+                <h2>Why This Works:</h2>
+                <ul style="font-size: 1.2em; line-height: 1.8;">
+                    <li>CharacterBody2D uses move_and_slide() - different collision logic</li>
+                    <li>Player character doesn't get stuck, so objects won't either</li>
+                    <li>Not realistic physics, but simple and effective!</li>
+                </ul>
+            </div>
+            <div class="code-demo">
+                <h3>Steps:</h3>
+                <ol style="color: #0f0;">
+                    <li>Change Type → CharacterBody2D</li>
+                    <li>Set Motion Mode → Floating</li>
+                    <li>Attach script: "movable_object.gd"</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Slide 12: Movable Object Script -->
+        <div class="slide">
+            <h1>Creating the Script</h1>
+            <div class="code-demo">
+                <pre style="color: #0f0; font-size: 1em;">
+class_name MovableObject
+extends CharacterBody2D
+
+func _physics_process(_delta: float) -> void:
+    move_and_slide()
+
+func apply_impact(impact_velocity: Vector2) -> void:
+    velocity = impact_velocity
+                </pre>
+            </div>
+            <div class="demo-box">
+                <p><strong>class_name:</strong> Makes it easy to reference from other scripts</p>
+                <p><strong>apply_impact():</strong> Simple velocity transfer (not realistic, but clear)</p>
+            </div>
+        </div>
+
+        <!-- Slide 13: Player Pushing Objects -->
+        <div class="slide">
+            <h1>Player Collision Code</h1>
+            <div class="code-demo">
+                <pre style="color: #0f0; font-size: 1em;">
+func resolve_collisions() -> void:
+    for i in get_slide_collision_count():
+        var collision := get_slide_collision(i)
+        var body := collision.get_collider() as MovableObject
+        if body:
+            body.apply_impact(velocity)
+                </pre>
+            </div>
+            <div class="demo-box">
+                <p><strong>Result:</strong> Player transfers full velocity to objects</p>
+                <p><strong>Bonus:</strong> Glancing hits allow dragging sideways!</p>
+            </div>
+        </div>
+
+        <!-- Slide 14: Velocity Management -->
+        <div class="slide">
+            <h1>Adjusting Object Velocity</h1>
+            <div class="collision-demo">
+                <h2>Problem: Objects slide around corners</h2>
+                <p style="font-size: 1.2em;">Objects keep moving in their direction even when blocked</p>
+            </div>
+            <div class="code-demo">
+                <pre style="color: #0f0; font-size: 0.95em;">
+func resolve_collisions() -> void:
+    for i in get_slide_collision_count():
+        var collision := get_slide_collision(i)
+        velocity -= velocity.project(collision.get_normal())
+                </pre>
+            </div>
+            <p style="font-size: 1.2em;"><strong>project()</strong> - Gets velocity component along collision direction</p>
+        </div>
+
+        <!-- Slide 15: Objects Pushing Objects -->
+        <div class="slide">
+            <h1>Object-to-Object Collisions</h1>
+            <div class="code-demo">
+                <pre style="color: #0f0; font-size: 0.95em;">
+func resolve_collisions() -> void:
+    for i in get_slide_collision_count():
+        var collision := get_slide_collision(i)
+        var body := collision.get_collider() as MovableObject
+        if body:
+            body.apply_impact(velocity)
+        else:
+            velocity -= velocity.project(collision.get_normal())
+                </pre>
+            </div>
+            <div class="demo-box">
+                <p>If hitting another MovableObject → push it</p>
+                <p>Otherwise (wall) → adjust own velocity</p>
+            </div>
+        </div>
+
+        <!-- Slide 16: Adding Drag -->
+        <div class="slide">
+            <h1>Drag to Stop Movement</h1>
+            <div class="implementation-steps">
+                <h2>Problem: Objects move forever!</h2>
+                <p style="font-size: 1.2em;">Once pushed, objects keep going until they hit something</p>
+            </div>
+            <div class="code-demo">
+                <pre style="color: #0f0; font-size: 1em;">
+@export_range(0.0, 10.0) var drag := 5.0
+
+func _physics_process(delta: float) -> void:
+    if velocity.length_squared() > 1.0:
+        velocity *= 1.0 - drag * delta
+        if move_and_slide():
+            resolve_collisions()
+                </pre>
+            </div>
+            <p style="font-size: 1.2em;"><strong>length_squared()</strong> - Faster than length() (avoids sqrt)</p>
+        </div>
+
+        <!-- Slide 17: Impact Response -->
+        <div class="slide">
+            <h1>Reducing Impact Force</h1>
+            <div class="code-demo">
+                <pre style="color: #0f0; font-size: 1em;">
+@export_range(0.0, 1.0) var impact_response := 0.5
+
+func apply_impact(impact_velocity: Vector2) -> void:
+    velocity += (impact_velocity - velocity) * impact_response
+                </pre>
+            </div>
+            <div class="demo-box">
+                <h3>Benefits:</h3>
+                <ul style="font-size: 1.2em;">
+                    <li>Adds sense of weight to objects</li>
+                    <li>Easier to manipulate objects not against walls</li>
+                    <li>More controllable pushing behavior</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 18: Symmetrical Collisions -->
+        <div class="slide">
+            <h1>Fair Head-on Collisions</h1>
+            <div class="collision-demo">
+                <h2>Problem: One object "wins"</h2>
+                <p style="font-size: 1.2em;">
+                    The first object processed applies its velocity, reducing the other's 
+                    velocity before it gets a chance to move.
+                </p>
+            </div>
+            <div class="code-demo">
+                <pre style="color: #0f0; font-size: 0.9em;">
+func resolve_collisions() -> void:
+    var current_velocity := velocity
+    for i in get_slide_collision_count():
+        var collision := get_slide_collision(i)
+        var body := collision.get_collider() as MovableObject
+        if body:
+            apply_impact(body.velocity)
+            body.apply_impact(current_velocity)
+        else:
+            velocity -= velocity.project(collision.get_normal())
+                </pre>
+            </div>
+        </div>
+
+        <!-- Slide 19: Testing Setup -->
+        <div class="slide">
+            <h1>Testing Head-on Collisions</h1>
+            <div class="code-demo">
+                <pre style="color: #0f0; font-size: 1em;">
+@export var initial_velocity := Vector2.ZERO
+
+func _ready() -> void:
+    velocity = initial_velocity
+                </pre>
+            </div>
+            <div class="demo-box">
+                <h3>Test Configuration:</h3>
+                <ul style="font-size: 1.2em;">
+                    <li>Set two objects near each other</li>
+                    <li>Object 1: initial_velocity = (60, 0)</li>
+                    <li>Object 2: initial_velocity = (-60, 0)</li>
+                    <li>Set drag = 0 to see full collision effect</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 20: Key Concepts Recap -->
+        <div class="slide">
+            <h1>Key Concepts <span class="emoji">🔑</span></h1>
+            <div class="physics-comparison">
+                <div class="physics-card">
+                    <h3>Collision Detection</h3>
+                    <p>move_and_slide() + get_slide_collision()</p>
+                </div>
+                <div class="physics-card">
+                    <h3>Type Casting</h3>
+                    <p>Filter collisions with "as" operator</p>
+                </div>
+                <div class="physics-card">
+                    <h3>Normals</h3>
+                    <p>Use collision.get_normal() for direction</p>
+                </div>
+                <div class="physics-card">
+                    <h3>Velocity Transfer</h3>
+                    <p>apply_impact() for object interactions</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 21: Advanced Topics -->
+        <div class="slide">
+            <h1>Advanced Considerations</h1>
+            <div class="implementation-steps">
+                <h2>Optimization Tips:</h2>
+                <ul style="font-size: 1.2em; line-height: 1.8;">
+                    <li>Use length_squared() instead of length() when possible</li>
+                    <li>Stop processing when velocity is very low (< 1.0)</li>
+                    <li>Round position when objects become stationary (prevents shadow artifacts)</li>
+                </ul>
+            </div>
+            <div class="demo-box">
+                <p><strong>Remember:</strong> This is simplified physics for gameplay, not realistic simulation!</p>
+            </div>
+        </div>
+
+        <!-- Slide 22: Complete Implementation -->
+        <div class="slide">
+            <h1>Complete movable_object.gd</h1>
+            <div class="code-demo">
+                <pre style="color: #0f0; font-size: 0.8em;">
+class_name MovableObject
+extends CharacterBody2D
+
+@export_range(0.0, 10.0) var drag := 5.0
+@export_range(0.0, 1.0) var impact_response := 0.5
+@export var initial_velocity := Vector2.ZERO
+
+func _ready() -> void:
+    velocity = initial_velocity
+
+func _physics_process(delta: float) -> void:
+    if velocity.length_squared() > 1.0:
+        velocity *= 1.0 - drag * delta
+        if move_and_slide():
+            resolve_collisions()
+    else:
+        position = round(position)
+        velocity = Vector2.ZERO
+
+func resolve_collisions() -> void:
+    var current_velocity := velocity
+    for i in get_slide_collision_count():
+        var collision := get_slide_collision(i)
+        var body := collision.get_collider() as MovableObject
+        if body:
+            apply_impact(body.velocity)
+            body.apply_impact(current_velocity)
+        else:
+            velocity -= velocity.project(collision.get_normal())
+
+func apply_impact(impact_velocity: Vector2) -> void:
+    velocity += (impact_velocity - velocity) * impact_response
+                </pre>
+            </div>
+        </div>
+
+        <!-- Slide 23: Practical Applications -->
+        <div class="slide">
+            <h1>Real Game Applications <span class="emoji">🎮</span></h1>
+            <div class="physics-comparison">
+                <div class="physics-card">
+                    <h3>Puzzle Games</h3>
+                    <p>Push blocks to solve puzzles (Sokoban-style)</p>
+                </div>
+                <div class="physics-card">
+                    <h3>Adventure Games</h3>
+                    <p>Move objects to reveal secrets or reach areas</p>
+                </div>
+                <div class="physics-card">
+                    <h3>Action Games</h3>
+                    <p>Explosive barrels, destructible environment</p>
+                </div>
+                <div class="physics-card">
+                    <h3>Stealth Games</h3>
+                    <p>Hide behind movable cover</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 24: Common Issues -->
+        <div class="slide">
+            <h1>Troubleshooting Common Issues</h1>
+            <div class="collision-demo">
+                <h3>Objects stuck on tiles?</h3>
+                <p>→ Make sure you're using CharacterBody2D, not RigidBody2D</p>
+            </div>
+            <div class="collision-demo">
+                <h3>Objects spinning when pushed?</h3>
+                <p>→ Enable Lock Rotation (only for RigidBody2D)</p>
+            </div>
+            <div class="collision-demo">
+                <h3>Can't push objects?</h3>
+                <p>→ Check if resolve_collisions() is being called</p>
+            </div>
+            <div class="collision-demo">
+                <h3>Objects move too fast/slow?</h3>
+                <p>→ Adjust impact_response and drag values</p>
+            </div>
+        </div>
+
+        <!-- Slide 25: Resources -->
+        <div class="slide">
+            <h1>Resources & References</h1>
+            <div class="demo-box">
+                <h2>Official Documentation:</h2>
+                <ul style="font-size: 1.2em; line-height: 1.8;">
+                    <li><a href="https://docs.godotengine.org/en/stable/classes/class_characterbody2d.html" class="resource-link" target="_blank">CharacterBody2D Docs</a></li>
+                    <li><a href="https://docs.godotengine.org/en/stable/classes/class_rigidbody2d.html" class="resource-link" target="_blank">RigidBody2D Docs</a></li>
+                    <li><a href="https://docs.godotengine.org/en/stable/tutorials/physics/physics_introduction.html" class="resource-link" target="_blank">Physics Introduction</a></li>
+                </ul>
+            </div>
+            <div class="demo-box">
+                <h2>Tutorial Series:</h2>
+                <p style="font-size: 1.2em;">
+                    This is part of a top-down 2D game tutorial series. 
+                    Next tutorial: <strong>Light and Shadow</strong>
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 26: Lab Activity -->
+        <div class="slide">
+            <h1>Today's Lab Activity <span class="emoji">🔬</span></h1>
+            <div class="demo-box">
+                <h2>Build Your Own Movable Objects!</h2>
+                <ol style="font-size: 1.2em; line-height: 1.8;">
+                    <li>Create a new scene with movable objects</li>
+                    <li>Implement the complete script from Slide 22</li>
+                    <li>Add multiple objects and test collisions</li>
+                    <li>Experiment with different drag and impact_response values</li>
+                    <li><strong>Challenge:</strong> Create objects with different "weights" using impact_response</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Slide 27: Homework -->
+        <div class="slide">
+            <h1>Homework Assignment <span class="emoji">📝</span></h1>
+            <div class="demo-box">
+                <h2>Continue Your Game Project</h2>
+                <p style="font-size: 1.3em; line-height: 1.8; margin: 20px 0;">
+                    Keep working on your game project that you will turn in at the end of the semester.
+                    Consider how you can incorporate movable objects into your game design!
+                </p>
+            </div>
+            <div class="implementation-steps">
+                <h3>Ideas to Consider:</h3>
+                <ul style="font-size: 1.2em;">
+                    <li>Add pushable blocks as obstacles or puzzle elements</li>
+                    <li>Create interactive objects that affect gameplay</li>
+                    <li>Experiment with different physics properties</li>
+                    <li>Combine with previous lessons (player movement, sprites, etc.)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 28: Summary -->
+        <div class="slide">
+            <h1>Level Complete! <span class="emoji">🏆</span></h1>
+            <h2>Skills Unlocked:</h2>
+            <ul style="font-size: 1.3em; line-height: 1.8;">
+                <li>✅ Created movable objects using CharacterBody2D</li>
+                <li>✅ Implemented collision detection and response</li>
+                <li>✅ Applied physics forces and velocity transfers</li>
+                <li>✅ Handled object-to-object interactions</li>
+                <li>✅ Optimized with drag and velocity management</li>
+            </ul>
+            
+            <div class="demo-box">
+                <p><strong>Next Quest:</strong> Light and Shadow systems</p>
+                <p><strong>Keep Building:</strong> Your semester game project!</p>
+            </div>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="navigation">
+            <button id="prevBtn">Previous</button>
+            <span class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">28</span>
+            </span>
+            <button id="nextBtn">Next</button>
+        </div>
+    </div>
+
+    <!-- Shared Presentation JavaScript -->
+    <script src="../../js/presentation.js"></script>
+
+    <!-- Lecture-Specific JavaScript -->
+    <script>
+        document.addEventListener('slidechange', (e) => {
+            console.log(`Slide ${e.detail.currentSlide + 1} of ${e.detail.totalSlides}`);
+            
+            // Log when we reach key slides
+            const keySlides = {
+                5: 'Gravity configuration',
+                11: 'CharacterBody2D conversion',
+                18: 'Symmetrical collisions',
+                22: 'Complete implementation'
+            };
+            
+            if (keySlides[e.detail.currentSlide + 1]) {
+                console.log(`Key topic: ${keySlides[e.detail.currentSlide + 1]}`);
+            }
+        });
+    </script>
+</body>
+</html>

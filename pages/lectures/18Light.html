@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 18: Light and Shadow - CSCI 3213</title>
+    
+    <!-- OCU Branded Presentation Styles with Theme Support -->
+    <link rel="stylesheet" href="../../styles/presentation.css">
+    <link rel="icon" type="image/x-icon" href="/images/favicon.png">
+    
+    <!-- Lecture-Specific Styles -->
+    <style>
+        .lighting-demo {
+            background: #1a1a2e;
+            color: #0f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            border: 2px solid #16213e;
+        }
+        
+        .light-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .light-card {
+            background: var(--card-bg, #f8f8f8);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid var(--border-color, #ddd);
+        }
+        
+        .code-showcase {
+            background: #2d2d2d;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            border-left: 4px solid #00ff00;
+        }
+
+        .shadow-example {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            gap: 20px;
+        }
+
+        .shadow-box {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 8px;
+            flex: 1;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="presentation-container">
+        <!-- Timer display -->
+        <div class="timer-display" id="timer-display">
+            <span id="timer-text">Lecture 18: Light and Shadow in Godot
+                 <button class="home"><a href="../../index.html">Home</a></button>
+            </span>
+        </div>
+
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <h1>Light and Shadow</h1>
+            <h2>Illuminating Your 2D Game World <span class="emoji">💡</span></h2>
+            <p style="font-size: 1.5em; margin-top: 40px;">CSCI 3213 - Game Programming</p>
+            <p style="font-size: 1.3em;">Spring '26 - Week 18</p>
+            <p style="margin-top: auto; font-style: italic;">Let there be light!</p>
+        </div>
+
+        <!-- Slide 2: Learning Objectives -->
+        <div class="slide">
+            <h1>Today's Quest Objectives</h1>
+            <ul style="font-size: 1.4em; line-height: 2;">
+                <li>🎯 Understand 2D lighting systems in Godot</li>
+                <li>💡 Implement PointLight2D for dynamic lighting</li>
+                <li>✨ Create jittering light effects</li>
+                <li>🌑 Work with shadow rendering</li>
+                <li>🔧 Fix phantom shadow issues</li>
+                <li>🎮 Attach lights to player characters</li>
+            </ul>
+        </div>
+
+        <!-- Slide 3: Introduction to 2D Lighting -->
+        <div class="slide">
+            <h1>Lighting in 2D Games</h1>
+            <h2>Why Lighting Matters</h2>
+            <div class="demo-box">
+                <p><strong>Lighting creates:</strong></p>
+                <ul>
+                    <li>🌟 <strong>Atmosphere</strong> - Set the mood and tone</li>
+                    <li>👁️ <strong>Visual Focus</strong> - Guide player attention</li>
+                    <li>🎨 <strong>Depth</strong> - Add dimension to flat graphics</li>
+                    <li>⚡ <strong>Gameplay Mechanics</strong> - Light-based puzzles</li>
+                </ul>
+            </div>
+            <p style="margin-top: 30px;"><em>In top-down 2D games, lighting can transform simple pixel art into immersive worlds!</em></p>
+        </div>
+
+        <!-- Slide 4: PointLight2D Node -->
+        <div class="slide">
+            <h1>PointLight2D in Godot</h1>
+            <h2>Your Primary Lighting Tool</h2>
+            <div class="light-comparison">
+                <div class="light-card">
+                    <h3>🔆 Properties</h3>
+                    <p>Energy, Range, Color, Texture</p>
+                </div>
+                <div class="light-card">
+                    <h3>🎭 Shadow Casting</h3>
+                    <p>Automatic shadow rendering</p>
+                </div>
+                <div class="light-card">
+                    <h3>⚡ Performance</h3>
+                    <p>Hardware-accelerated</p>
+                </div>
+            </div>
+            <div class="demo-box">
+                <p><strong>Key Insight:</strong> PointLight2D creates circular light that radiates from a point, perfect for torches, explosions, or glowing characters!</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Creating Lively Light -->
+        <div class="slide">
+            <h1>Lively Light Scene</h1>
+            <h2>Setting Up Dynamic Lighting</h2>
+            <div class="code-showcase">
+                <p><strong>Scene Structure:</strong></p>
+                <p>📁 LivelyLight (Node2D)</p>
+                <p>&nbsp;&nbsp;💡 LightA (PointLight2D)</p>
+                <p>&nbsp;&nbsp;💡 LightB (PointLight2D)</p>
+            </div>
+            <div class="demo-box">
+                <p><strong>Tip:</strong> Using two overlapping lights creates a softer, more natural lighting effect!</p>
+                <p><strong>Shadow Item Cull Mask:</strong> Set to 2 to properly handle shadow rendering</p>
+            </div>
+        </div>
+
+        <!-- Slide 6: Jittering Light Effect -->
+        <div class="slide">
+            <h1>Light Jittering</h1>
+            <h2>Creating Flickering Effects</h2>
+            <div class="code-showcase">
+                <pre style="margin: 0;">
+@export var jitter_offset := 0.25
+@export var jitter_speed := 6.0
+@export var light_a: PointLight2D
+@export var light_b: PointLight2D
+
+var progress := 0.0
+
+func _process(delta: float) -> void:
+    progress += delta * jitter_speed
+    if progress >= 1.0:
+        progress -= 1.0
+        jitter()
+                </pre>
+            </div>
+            <p><strong>Effect:</strong> Simulates flickering torches, unstable energy, or magical effects!</p>
+        </div>
+
+        <!-- Slide 7: Position and Energy Jittering -->
+        <div class="slide">
+            <h1>Jitter Implementation</h1>
+            <h2>Position and Energy Variation</h2>
+            <div class="code-showcase">
+                <pre style="margin: 0;">
+func jitter() -> void:
+    var p := Vector2(
+        randf_range(-jitter_offset, jitter_offset),
+        randf_range(-jitter_offset, jitter_offset)
+    )
+    light_a.position = p
+    light_b.position = p
+    
+    var e := randf_range(jitter_min_energy, 1.0)
+    light_a.energy = e
+    light_b.energy = e
+                </pre>
+            </div>
+            <p><strong>Result:</strong> Natural-looking light fluctuation that adds life to your scene!</p>
+        </div>
+
+        <!-- Slide 8: Player Character Lighting -->
+        <div class="slide">
+            <h1>Player as Light Source</h1>
+            <h2>Glowing Character Implementation</h2>
+            <div class="demo-box">
+                <p><strong>Concept:</strong> For a glowing sphere character, make the player emit light!</p>
+                <ol style="text-align: left; display: inline-block;">
+                    <li>Remove static lights from the map scene</li>
+                    <li>Add PointLight2D to player character scene</li>
+                    <li>Set light position to (0, 0) relative to player</li>
+                    <li>Light now follows player movement automatically!</li>
+                </ol>
+            </div>
+            <p style="margin-top: 20px;"><em>The light becomes part of the character, creating dynamic shadows as you move!</em></p>
+        </div>
+
+        <!-- Slide 9: Phantom Shadows Problem -->
+        <div class="slide">
+            <h1>Phantom Shadows Issue</h1>
+            <h2>Understanding the Problem</h2>
+            <div class="shadow-example">
+                <div class="shadow-box">
+                    <h3>❌ The Problem</h3>
+                    <p>Shadows appear displaced by 1 pixel when objects are at non-integer positions</p>
+                    <p><small>Happens when position's fractional part ≈ 0.5</small></p>
+                </div>
+                <div class="shadow-box">
+                    <h3>💡 Why?</h3>
+                    <p>Regular rendering and shadow map disagree on object position</p>
+                    <p><small>Most noticeable on stationary objects</small></p>
+                </div>
+            </div>
+            <p><strong>Note:</strong> Not very visible during movement, only when player can stare at objects</p>
+        </div>
+
+        <!-- Slide 10: Fixing Phantom Shadows -->
+        <div class="slide">
+            <h1>Solution: Position Rounding</h1>
+            <h2>Smart Rounding Strategy</h2>
+            <div class="code-showcase">
+                <pre style="margin: 0;">
+func _physics_process(delta: float) -> void:
+    if velocity.length_squared() > 1.0:
+        velocity *= 1.0 - drag * delta
+        if move_and_slide():
+            resolve_collisions()
+    else:
+        position = round(position)
+        velocity = Vector2.ZERO
+                </pre>
+            </div>
+            <div class="demo-box">
+                <p><strong>Strategy:</strong> Only round position when objects are stationary!</p>
+                <p>✅ Preserves smooth motion</p>
+                <p>✅ Eliminates phantom shadows on stopped objects</p>
+            </div>
+        </div>
+
+        <!-- Slide 11: Canvas Item Material -->
+        <div class="slide">
+            <h1>Unlit Materials</h1>
+            <h2>Making Objects Glow</h2>
+            <div class="demo-box">
+                <p><strong>For objects that should emit light (not be lit):</strong></p>
+                <ul style="text-align: left; display: inline-block;">
+                    <li>Set CanvasItemMaterial on sprite</li>
+                    <li>Set Light Mode to "Unlit"</li>
+                    <li>Object will maintain full brightness</li>
+                    <li>Perfect for glowing player characters!</li>
+                </ul>
+            </div>
+            <p style="margin-top: 20px;"><em>Unlit materials ignore scene lighting and always display at full brightness</em></p>
+        </div>
+
+        <!-- Slide 12: Lighting Best Practices -->
+        <div class="slide">
+            <h1>Lighting Best Practices</h1>
+            <h2>Tips for Great Results</h2>
+            <div class="light-comparison">
+                <div class="light-card">
+                    <h3>🎨 Layer Management</h3>
+                    <p>Use proper cull masks for shadows</p>
+                </div>
+                <div class="light-card">
+                    <h3>⚡ Performance</h3>
+                    <p>Limit active lights per scene</p>
+                </div>
+                <div class="light-card">
+                    <h3>🎭 Visual Polish</h3>
+                    <p>Combine multiple lights for softness</p>
+                </div>
+            </div>
+            <div class="demo-box">
+                <p><strong>Remember:</strong> Lighting is both technical and artistic - experiment to find what looks best!</p>
+            </div>
+        </div>
+
+        <!-- Slide 13: Common Lighting Issues -->
+        <div class="slide">
+            <h1>Troubleshooting</h1>
+            <h2>Common Issues and Solutions</h2>
+            <ul style="font-size: 1.2em; line-height: 1.8;">
+                <li>❌ <strong>Shadows not appearing?</strong><br>Check Shadow Item Cull Mask settings</li>
+                <li>❌ <strong>Objects too dark?</strong><br>Adjust ambient light in WorldEnvironment</li>
+                <li>❌ <strong>Performance issues?</strong><br>Reduce light range or number of lights</li>
+                <li>❌ <strong>Phantom shadows?</strong><br>Implement position rounding for stationary objects</li>
+                <li>❌ <strong>Light not moving with player?</strong><br>Make sure PointLight2D is child of player node</li>
+            </ul>
+        </div>
+
+        <!-- Slide 14: Advanced Lighting Techniques -->
+        <div class="slide">
+            <h1>Advanced Techniques</h1>
+            <h2>Taking It Further</h2>
+            <div class="demo-box">
+                <p><strong>Explore these advanced concepts:</strong></p>
+                <ul style="text-align: left; display: inline-block;">
+                    <li>🔦 <strong>Directional Lighting</strong> - For sunlight effects</li>
+                    <li>🌈 <strong>Colored Lighting</strong> - Set different colors per light</li>
+                    <li>📐 <strong>Light Textures</strong> - Use textures to shape light</li>
+                    <li>💫 <strong>Blend Modes</strong> - Mix and add lighting effects</li>
+                    <li>🎯 <strong>Light Masking</strong> - Control what objects receive light</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 15: Hands-On Exercise -->
+        <div class="slide">
+            <h1>Hands-On Exercise</h1>
+            <h2>Create Your Own Lighting Scene</h2>
+            <div class="demo-box">
+                <p><strong>Challenge:</strong> Create a dungeon exploration scene</p>
+                <ol style="text-align: left; display: inline-block; font-size: 1.1em;">
+                    <li>Set up a dark dungeon tilemap</li>
+                    <li>Add a glowing player character with attached light</li>
+                    <li>Create flickering torches on the walls using jittering</li>
+                    <li>Add movable objects that cast shadows</li>
+                    <li>Test and adjust for phantom shadows</li>
+                </ol>
+            </div>
+            <p style="margin-top: 20px;"><strong>Time:</strong> 30 minutes</p>
+        </div>
+
+        <!-- Slide 16: Source Material -->
+        <div class="slide">
+            <h1>Learn More</h1>
+            <h2>Tutorial Source</h2>
+            <div class="demo-box">
+                <p><strong>This lecture is based on:</strong></p>
+                <p style="font-size: 1.3em; margin: 20px 0;">
+                    <a href="https://catlikecoding.com/" target="_blank" style="color: #00a8ff; text-decoration: none;">
+                        🔗 Catlike Coding - Godot Tutorials
+                    </a>
+                </p>
+                <p>Tutorial: <strong>Light and Shadow</strong> by Jasper Flick</p>
+                <p style="margin-top: 20px; font-size: 0.9em; font-style: italic;">
+                    Please consider <a href="https://www.patreon.com/catlikecoding" target="_blank" style="color: #00a8ff;">supporting Catlike Coding on Patreon</a> - these tutorials are an incredible free resource!
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 17: Homework -->
+        <div class="slide">
+            <h1>Homework Assignment</h1>
+            <h2>Continue Your Game Project</h2>
+            <div class="demo-box">
+                <p><strong>For Next Class:</strong></p>
+                <ul style="text-align: left; display: inline-block; font-size: 1.2em;">
+                    <li>📝 Continue working on your semester game project</li>
+                    <li>💡 Consider adding lighting to your game</li>
+                    <li>🎮 Implement at least one lighting feature</li>
+                    <li>🔧 Test performance with multiple lights</li>
+                    <li>📸 Take screenshots of your progress</li>
+                </ul>
+            </div>
+            <p style="margin-top: 30px;"><strong>Remember:</strong> Your game project is due at the end of the semester!</p>
+        </div>
+
+        <!-- Slide 18: Key Takeaways -->
+        <div class="slide">
+            <h1>Key Takeaways</h1>
+            <div class="demo-box">
+                <ul style="font-size: 1.3em; line-height: 2; text-align: left; display: inline-block;">
+                    <li>✅ PointLight2D creates dynamic 2D lighting</li>
+                    <li>✅ Jittering adds life to static lights</li>
+                    <li>✅ Player-attached lights create dynamic shadows</li>
+                    <li>✅ Round positions when stationary to fix phantom shadows</li>
+                    <li>✅ Use unlit materials for glowing objects</li>
+                    <li>✅ Lighting transforms visual appeal dramatically</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 19: Next Steps -->
+        <div class="slide">
+            <h1>Coming Up Next</h1>
+            <h2>Future Topics</h2>
+            <div class="light-comparison">
+                <div class="light-card">
+                    <h3>🎯 Detectors</h3>
+                    <p>Pressure plates and triggers</p>
+                </div>
+                <div class="light-card">
+                    <h3>🗺️ Multiple Maps</h3>
+                    <p>Level transitions</p>
+                </div>
+                <div class="light-card">
+                    <h3>📊 Game Statistics</h3>
+                    <p>Tracking player progress</p>
+                </div>
+            </div>
+            <p style="margin-top: 40px; font-size: 1.2em;">Keep building and experimenting!</p>
+        </div>
+
+        <!-- Slide 20: Summary -->
+        <div class="slide">
+            <h1>Session Complete! <span class="emoji">🏆</span></h1>
+            <h2>Skills Unlocked:</h2>
+            <ul>
+                <li>✅ Created 2D lighting systems</li>
+                <li>✅ Implemented jittering light effects</li>
+                <li>✅ Fixed phantom shadow rendering issues</li>
+                <li>✅ Attached lights to player characters</li>
+                <li>✅ Used unlit materials for glowing objects</li>
+            </ul>
+            
+            <div class="demo-box">
+                <p><strong>Next Quest:</strong> Continue building your game project!</p>
+                <p><strong>Homework:</strong> Add lighting features to your semester project</p>
+            </div>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="navigation">
+            <button id="prevBtn">Previous</button>
+            <span class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">20</span>
+            </span>
+            <button id="nextBtn">Next</button>
+        </div>
+    </div>
+
+    <!-- Shared Presentation JavaScript -->
+    <script src="../../js/presentation.js"></script>
+
+    <!-- Lecture-Specific JavaScript -->
+    <script>
+        document.addEventListener('slidechange', (e) => {
+            console.log(`Slide ${e.detail.currentSlide + 1} of ${e.detail.totalSlides}`);
+            
+            // Add any slide-specific interactions here
+            if (e.detail.currentSlide === 5) {
+                console.log('Jittering light code example displayed');
+            }
+        });
+    </script>
+</body>
+</html>
