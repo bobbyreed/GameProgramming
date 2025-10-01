@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session 11: Portfolio Project - CSCI 3213</title>
+    
+    <!-- OCU Branded Presentation Styles with Theme Support -->
+    <link rel="stylesheet" href="../../styles/presentation.css">
+    <link rel="icon" type="image/x-icon" href="/images/favicon.png">
+    
+    <!-- Lecture-Specific Styles -->
+    <style>
+        .brainstorm-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .idea-card {
+            background: var(--card-bg, #f0f4ff);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--ocu-cyan, #00a8ff);
+            transition: all 0.3s;
+        }
+        
+        .idea-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px var(--shadow, rgba(0,0,0,0.1));
+        }
+        
+        .system-box {
+            background: var(--bg-secondary, #fff);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border: 2px solid var(--border-color, #ddd);
+        }
+        
+        .checklist {
+            background: var(--card-bg, #f8f8f8);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .checklist ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .checklist li {
+            padding: 8px 0;
+            font-size: 1.1em;
+        }
+        
+        .checklist li::before {
+            content: "☐ ";
+            font-size: 1.3em;
+            margin-right: 10px;
+        }
+        
+        .planning-table {
+            width: 100%;
+            margin: 20px 0;
+            border-collapse: collapse;
+        }
+        
+        .planning-table th,
+        .planning-table td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid var(--border-color, #ddd);
+        }
+        
+        .planning-table th {
+            background: var(--ocu-true-blue, #003DA5);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div class="timer-display" id="timer-display">
+            <span id="timer-text">Portfolio Project: Modding the Bengston Engine
+                 <button class="home"><a href="../index.html">Home</a></button>
+            </span>
+        </div>
+
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <h1>Portfolio Project <span class="emoji">🎮</span></h1>
+            <h2>Modding the Bengston Engine</h2>
+            <p style="font-size: 1.5em; margin-top: 40px;">CSCI 3213 - Game Programming</p>
+            <p style="font-size: 1.3em;">Spring '26 - Session 11</p>
+            <div class="demo-box" style="margin-top: 40px;">
+                <p><strong>Your First Portfolio Piece!</strong></p>
+                <p>Today we begin the journey of creating something uniquely yours</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Learning Objectives -->
+        <div class="slide">
+            <h1>Today's Quest Objectives</h1>
+            <ul style="font-size: 1.3em; line-height: 1.8;">
+                <li>🎯 Understand what makes a good portfolio project</li>
+                <li>🎯 Learn how to conceptualize game modifications</li>
+                <li>🎯 Identify core systems in the Bengston Engine</li>
+                <li>🎯 Create a concrete plan for your unique game</li>
+                <li>🎯 Take your first technical steps toward implementation</li>
+            </ul>
+            
+            <div class="tip-box" style="margin-top: 30px;">
+                <strong>Big Picture:</strong> By the end of today, you'll have a clear vision and action plan for transforming the Bengston Engine into YOUR game!
+            </div>
+        </div>
+
+        <!-- Slide 3: What is a Portfolio Project? -->
+        <div class="slide">
+            <h1>Your Portfolio: Your Professional Passport</h1>
+            <p style="font-size: 1.2em;">A portfolio project is more than just homework—it's:</p>
+            
+            <div class="brainstorm-grid">
+                <div class="idea-card">
+                    <h3>📊 Evidence</h3>
+                    <p>Proof you can actually build things, not just talk about them</p>
+                </div>
+                <div class="idea-card">
+                    <h3>🎨 Expression</h3>
+                    <p>A showcase of YOUR creativity and problem-solving style</p>
+                </div>
+                <div class="idea-card">
+                    <h3>💼 Differentiator</h3>
+                    <p>What sets you apart from other candidates in job interviews</p>
+                </div>
+                <div class="idea-card">
+                    <h3>🚀 Starting Point</h3>
+                    <p>The foundation for future, more ambitious projects</p>
+                </div>
+            </div>
+            
+            <div class="demo-box">
+                <p><strong>Industry Truth:</strong> Employers look at what you've BUILT, not just your GPA!</p>
+            </div>
+        </div>
+
+        <!-- Slide 4: What is Modding? -->
+        <div class="slide">
+            <h1>Understanding "Modding" <span class="emoji">🔧</span></h1>
+            <p style="font-size: 1.2em;">Modding = Modifying existing game systems to create something new</p>
+            
+            <div class="system-box">
+                <h3>The Bengston Engine gives you:</h3>
+                <ul style="font-size: 1.1em;">
+                    <li>✅ A working game loop (update, render, input handling)</li>
+                    <li>✅ High-DPI canvas rendering system</li>
+                    <li>✅ Frame rate management and display</li>
+                    <li>✅ A movable player entity with keyboard controls</li>
+                    <li>✅ Modular, organized code structure</li>
+                </ul>
+            </div>
+            
+            <div class="system-box">
+                <h3>You will add:</h3>
+                <ul style="font-size: 1.1em;">
+                    <li>🎮 Your unique gameplay mechanics</li>
+                    <li>🎨 Custom visuals and aesthetics</li>
+                    <li>🎯 Goals, challenges, and win/lose conditions</li>
+                    <li>⚡ Special effects and polish</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 5: Brainstorming Exercise -->
+        <div class="slide">
+            <h1>Exercise 1: Idea Brainstorm <span class="emoji">💡</span></h1>
+            <div class="activity-box">
+                <h3>⏱️ 10 Minutes - Individual Work</h3>
+                <p><strong>Task:</strong> Answer these questions in your notebook or on paper:</p>
+            </div>
+            
+            <ol style="font-size: 1.2em; line-height: 1.8;">
+                <li>What type of games do YOU enjoy playing?</li>
+                <li>If you could add ONE gameplay mechanic to a top-down game, what would it be?</li>
+                <li>What theme/setting excites you? (sci-fi, fantasy, modern, abstract?)</li>
+                <li>What would make YOU want to play this game for 5 minutes?</li>
+            </ol>
+            
+            <div class="tip-box">
+                <strong>Remember:</strong> Start simple! The best first portfolio project is one you actually FINISH. You can always make v2.0 later!
+            </div>
+        </div>
+
+        <!-- Slide 6: Example Modifications -->
+        <div class="slide">
+            <h1>Mod Ideas for Inspiration</h1>
+            
+            <div class="brainstorm-grid">
+                <div class="idea-card">
+                    <h3>🌌 Space Explorer</h3>
+                    <p>Navigate asteroid fields, collect resources, avoid black holes</p>
+                </div>
+                <div class="idea-card">
+                    <h3>🧟 Zombie Survival</h3>
+                    <p>Stay alive, manage ammo, find safe zones, increasing difficulty</p>
+                </div>
+                <div class="idea-card">
+                    <h3>🏃 Maze Runner</h3>
+                    <p>Procedural mazes, time limits, power-ups, leaderboards</p>
+                </div>
+                <div class="idea-card">
+                    <h3>🐍 Snake Evolution</h3>
+                    <p>Classic snake + power-ups, obstacles, multiple game modes</p>
+                </div>
+                <div class="idea-card">
+                    <h3>🎯 Target Practice</h3>
+                    <p>Aim and shoot mechanic, moving targets, score multipliers</p>
+                </div>
+                <div class="idea-card">
+                    <h3>🏆 Race Against Time</h3>
+                    <p>Checkpoint system, boost mechanics, obstacle courses</p>
+                </div>
+            </div>
+            
+            <p style="text-align: center; margin-top: 20px;"><strong>These are just starting points—make them YOUR OWN!</strong></p>
+        </div>
+
+        <!-- Slide 7: Core Systems to Modify -->
+        <div class="slide">
+            <h1>The Bengston Engine Core Systems</h1>
+            
+            <div class="system-box">
+                <h3>1. Player System (players/player.js)</h3>
+                <p>Movement, boundaries, controls, visual representation</p>
+                <p><strong>Mod Ideas:</strong> Change speed, add acceleration, different movement patterns, animations</p>
+            </div>
+            
+            <div class="system-box">
+                <h3>2. Rendering System (core/game.render.js)</h3>
+                <p>What appears on screen, how it looks, visual effects</p>
+                <p><strong>Mod Ideas:</strong> Background colors, shapes, images, particles, UI elements</p>
+            </div>
+            
+            <div class="system-box">
+                <h3>3. Update System (core/game.update.js)</h3>
+                <p>Game logic, entity updates, collision detection, game state</p>
+                <p><strong>Mod Ideas:</strong> Add enemies, collectibles, scoring, win/lose conditions</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: More Core Systems -->
+        <div class="slide">
+            <h1>Additional Systems to Consider</h1>
+            
+            <div class="system-box">
+                <h3>4. Input System (core/game.keybindings.js)</h3>
+                <p>How player interacts with the game</p>
+                <p><strong>Mod Ideas:</strong> Add shooting (spacebar), dash (shift), special abilities</p>
+            </div>
+            
+            <div class="system-box">
+                <h3>5. World System (world/)</h3>
+                <p>Level design, boundaries, multiple rooms</p>
+                <p><strong>Mod Ideas:</strong> Obstacles, different levels, procedural generation</p>
+            </div>
+            
+            <div class="system-box">
+                <h3>6. New Entity Types</h3>
+                <p>Objects beyond the player</p>
+                <p><strong>Mod Ideas:</strong> Enemies, projectiles, collectibles, hazards, power-ups</p>
+            </div>
+        </div>
+
+        <!-- Slide 9: Planning Exercise -->
+        <div class="slide">
+            <h1>Exercise 2: Project Planning <span class="emoji">📋</span></h1>
+            <div class="activity-box">
+                <h3>⏱️ 15 Minutes - Create Your Game Design Document</h3>
+            </div>
+            
+            <table class="planning-table">
+                <tr>
+                    <th>Section</th>
+                    <th>What to Write</th>
+                </tr>
+                <tr>
+                    <td><strong>Game Title</strong></td>
+                    <td>Give it a name (even if temporary)</td>
+                </tr>
+                <tr>
+                    <td><strong>Core Concept</strong></td>
+                    <td>1-2 sentences: What is your game?</td>
+                </tr>
+                <tr>
+                    <td><strong>Main Mechanic</strong></td>
+                    <td>What does the player DO?</td>
+                </tr>
+                <tr>
+                    <td><strong>Goal/Win Condition</strong></td>
+                    <td>How does the player succeed?</td>
+                </tr>
+                <tr>
+                    <td><strong>Challenge/Lose Condition</strong></td>
+                    <td>What makes it difficult?</td>
+                </tr>
+                <tr>
+                    <td><strong>Visual Style</strong></td>
+                    <td>Colors, shapes, theme</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 10: System Priority -->
+        <div class="slide">
+            <h1>Exercise 2 Continued: Prioritize!</h1>
+            
+            <p style="font-size: 1.2em;">List the systems you'll modify in order of importance:</p>
+            
+            <div class="checklist">
+                <h3>MVP (Minimum Viable Product) - Phase 1</h3>
+                <ul style="font-size: 1.1em;">
+                    <li>What is the BARE MINIMUM to make your game playable?</li>
+                    <li>Example: "Working player movement + one enemy + basic collision"</li>
+                </ul>
+            </div>
+            
+            <div class="checklist">
+                <h3>Enhanced Features - Phase 2</h3>
+                <ul style="font-size: 1.1em;">
+                    <li>What makes your game more interesting?</li>
+                    <li>Example: "Score system + multiple enemy types + power-ups"</li>
+                </ul>
+            </div>
+            
+            <div class="checklist">
+                <h3>Polish & Extras - Phase 3</h3>
+                <ul style="font-size: 1.1em;">
+                    <li>What makes your game feel professional?</li>
+                    <li>Example: "Particle effects + sound + high score persistence"</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 11: Technical First Steps -->
+        <div class="slide">
+            <h1>Getting Started: Technical Setup</h1>
+            
+            <div class="code-example" style="font-size: 0.9em;">
+                <span class="comment">// 1. Clone or download the Bengston Engine</span>
+                git clone [repository-url]
+                cd bengston-engine
+                
+                <span class="comment">// 2. Install dependencies</span>
+                npm install
+                
+                <span class="comment">// 3. Run the development server</span>
+                npm start
+                
+                <span class="comment">// 4. Open in browser</span>
+                <span class="comment">// Navigate to http://localhost:3000</span>
+            </div>
+            
+            <div class="tip-box">
+                <strong>Pro Tip:</strong> Make sure you can see the basic engine running BEFORE you start modifying anything!
+            </div>
+        </div>
+
+        <!-- Slide 12: First Modifications -->
+        <div class="slide">
+            <h1>Exercise 3: Your First Mod <span class="emoji">🛠️</span></h1>
+            <div class="activity-box">
+                <h3>⏱️ 15 Minutes - Make Three Changes</h3>
+            </div>
+            
+            <div class="system-box">
+                <h3>Change 1: Customize the Player</h3>
+                <p>In <code>players/player.js</code>, modify:</p>
+                <ul>
+                    <li>Player size, color, or shape</li>
+                    <li>Movement speed</li>
+                    <li>Starting position</li>
+                </ul>
+            </div>
+            
+            <div class="system-box">
+                <h3>Change 2: Modify the Viewport</h3>
+                <p>In <code>game.js</code> or <code>core/game.render.js</code>:</p>
+                <ul>
+                    <li>Canvas size</li>
+                    <li>Background color</li>
+                    <li>Add some custom text or shapes</li>
+                </ul>
+            </div>
+            
+            <div class="system-box">
+                <h3>Change 3: Adjust Game Feel</h3>
+                <p>In <code>core/game.loop.js</code>:</p>
+                <ul>
+                    <li>Change target FPS</li>
+                    <li>Toggle FPS display on/off</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 13: Code Location Guide -->
+        <div class="slide">
+            <h1>Quick Reference: Where to Find Things</h1>
+            
+            <div class="code-example" style="font-size: 0.9em; text-align: left;">
+js/
+├── game.js              <span class="comment">// Main game initialization</span>
+├── core/
+│   ├── game.loop.js     <span class="comment">// Game loop & FPS</span>
+│   ├── game.render.js   <span class="comment">// Rendering logic</span>
+│   └── game.update.js   <span class="comment">// Update logic</span>
+├── players/
+│   └── player.js        <span class="comment">// Player entity</span>
+├── utils/
+│   ├── utils.canvas.js  <span class="comment">// Canvas utilities</span>
+│   └── utils.misc.js    <span class="comment">// Helper functions</span>
+└── world/
+    └── [levels]         <span class="comment">// Level definitions</span>
+            </div>
+            
+            <div class="tip-box">
+                <strong>Workflow Tip:</strong> Always test after EACH small change. Don't make 10 changes at once!
+            </div>
+        </div>
+
+        <!-- Slide 14: Common Modifications -->
+        <div class="slide">
+            <h1>Common First Modifications</h1>
+            
+            <div class="system-box">
+                <h3>Easy Wins (Start Here!)</h3>
+                <ul style="font-size: 1.1em;">
+                    <li>🎨 Change colors and visual appearance</li>
+                    <li>📏 Adjust sizes and dimensions</li>
+                    <li>⚡ Modify speeds and timing</li>
+                    <li>🎯 Change starting conditions</li>
+                    <li>📝 Add custom UI text or displays</li>
+                </ul>
+            </div>
+            
+            <div class="system-box">
+                <h3>Intermediate Challenges</h3>
+                <ul style="font-size: 1.1em;">
+                    <li>➕ Add new keybindings for actions</li>
+                    <li>🎮 Create new entity types (based on player)</li>
+                    <li>💥 Implement basic collision detection</li>
+                    <li>🔢 Add score or health systems</li>
+                    <li>🎲 Introduce randomness or procedural elements</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 15: Development Best Practices -->
+        <div class="slide">
+            <h1>Best Practices for Your Project</h1>
+            
+            <div class="checklist">
+                <h3>✅ Do This:</h3>
+                <ul>
+                    <li>Commit to Git frequently with clear messages</li>
+                    <li>Test your game often while developing</li>
+                    <li>Comment your code, especially NEW code</li>
+                    <li>Keep a TODO list or task tracker</li>
+                    <li>Start simple, add complexity gradually</li>
+                    <li>Ask for help when stuck for >30 minutes</li>
+                </ul>
+            </div>
+            
+            <div class="checklist">
+                <h3>❌ Avoid This:</h3>
+                <ul>
+                    <li>Making massive changes without testing</li>
+                    <li>Trying to implement everything at once</li>
+                    <li>Copying code you don't understand</li>
+                    <li>Ignoring errors or console warnings</li>
+                    <li>Waiting until the last minute</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 16: Debugging Tips -->
+        <div class="slide">
+            <h1>Debugging Your Mods <span class="emoji">🐛</span></h1>
+            
+            <div class="code-example">
+                <span class="comment">// Your best debugging friends:</span>
+                
+                <span class="comment">// 1. Console logging</span>
+                console.log(<span class="string">'Player position:'</span>, player.x, player.y);
+                
+                <span class="comment">// 2. Check your browser console (F12)</span>
+                <span class="comment">// All errors will show there!</span>
+                
+                <span class="comment">// 3. Use debugger statement</span>
+                <span class="keyword">function</span> <span class="function">update</span>() {
+                    debugger; <span class="comment">// Pauses execution here</span>
+                    <span class="comment">// Code continues...</span>
+                }
+                
+                <span class="comment">// 4. Verify values</span>
+                console.log(<span class="keyword">typeof</span> myVariable);
+                console.log(myVariable === <span class="keyword">undefined</span>);
+            </div>
+            
+            <div class="tip-box">
+                <strong>Golden Rule:</strong> If something doesn't work, check the console FIRST!
+            </div>
+        </div>
+
+        <!-- Slide 17: Project Timeline -->
+        <div class="slide">
+            <h1>Project Timeline & Milestones</h1>
+            
+            <table class="planning-table">
+                <tr>
+                    <th>Week</th>
+                    <th>Milestone</th>
+                    <th>Deliverable</th>
+                </tr>
+                <tr>
+                    <td><strong>This Week</strong></td>
+                    <td>Project Planning & Setup</td>
+                    <td>Design doc + 3 working modifications</td>
+                </tr>
+                <tr>
+                    <td><strong>Week 2</strong></td>
+                    <td>Core Gameplay</td>
+                    <td>MVP version is playable</td>
+                </tr>
+                <tr>
+                    <td><strong>Week 3</strong></td>
+                    <td>Feature Development</td>
+                    <td>Main features implemented</td>
+                </tr>
+                <tr>
+                    <td><strong>Week 4</strong></td>
+                    <td>Polish & Testing</td>
+                    <td>Bug fixes, visual polish, playtesting</td>
+                </tr>
+                <tr>
+                    <td><strong>Week 5</strong></td>
+                    <td>Final Presentation</td>
+                    <td>Completed game + presentation</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 18: Resources & Help -->
+        <div class="slide">
+            <h1>Resources for Your Journey</h1>
+            
+            <div class="brainstorm-grid">
+                <div class="idea-card">
+                    <h3>📚 Technical Resources</h3>
+                    <ul>
+                        <li>MDN Web Docs (JavaScript)</li>
+                        <li>Canvas API documentation</li>
+                        <li>Stack Overflow</li>
+                        <li>Original Bengston tutorial</li>
+                    </ul>
+                </div>
+                
+                <div class="idea-card">
+                    <h3>🎨 Asset Resources</h3>
+                    <ul>
+                        <li>OpenGameArt.org</li>
+                        <li>Kenney.nl (free sprites)</li>
+                        <li>Coolors.co (color palettes)</li>
+                        <li>Freesound.org (audio)</li>
+                    </ul>
+                </div>
+                
+                <div class="idea-card">
+                    <h3>💡 Inspiration</h3>
+                    <ul>
+                        <li>Itch.io (indie games)</li>
+                        <li>Game Maker's Toolkit (YouTube)</li>
+                        <li>Classic arcade games</li>
+                        <li>Your classmates' projects!</li>
+                    </ul>
+                </div>
+                
+                <div class="idea-card">
+                    <h3>🤝 Getting Help</h3>
+                    <ul>
+                        <li>Office hours (Mon/Wed 2-4 PM)</li>
+                        <li>Class Discord/Slack</li>
+                        <li>Peer code reviews</li>
+                        <li>Email: bobby.reed@okcu.edu</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 19: Success Stories -->
+        <div class="slide">
+            <h1>What Makes a Successful Portfolio Project?</h1>
+            
+            <div class="system-box">
+                <h3>✨ It's FINISHED</h3>
+                <p>A complete simple game beats an incomplete complex one every time</p>
+            </div>
+            
+            <div class="system-box">
+                <h3>🎯 It Has Clear Goals</h3>
+                <p>Players understand what to do within 10 seconds</p>
+            </div>
+            
+            <div class="system-box">
+                <h3>🎮 It's Actually Fun</h3>
+                <p>You want to play it more than once (even if it's simple!)</p>
+            </div>
+            
+            <div class="system-box">
+                <h3>💻 The Code is Clean</h3>
+                <p>Organized, commented, and you can explain what it does</p>
+            </div>
+            
+            <div class="system-box">
+                <h3>🌟 It Reflects YOU</h3>
+                <p>Your personality and interests shine through</p>
+            </div>
+        </div>
+
+        <!-- Slide 20: Today's Homework -->
+        <div class="slide">
+            <h1>Your Assignment for Next Class</h1>
+            
+            <div class="demo-box">
+                <h3>Due: Next Tuesday</h3>
+                
+                <div class="checklist">
+                    <ul style="font-size: 1.2em;">
+                        <li><strong>Complete your Game Design Document</strong> (use the template from Exercise 2)</li>
+                        <li><strong>Set up the Bengston Engine</strong> and verify it runs on your machine</li>
+                        <li><strong>Make 5 meaningful modifications</strong> to the base engine</li>
+                        <li><strong>Document your changes</strong> with code comments</li>
+                        <li><strong>Create a Git repository</strong> and make your first commit</li>
+                        <li><strong>Write a brief README.md</strong> explaining your game concept</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="tip-box">
+                <strong>Bring to next class:</strong> Questions, screenshots of your progress, and specific challenges you've encountered!
+            </div>
+        </div>
+
+        <!-- Slide 21: Wrap-Up -->
+        <div class="slide">
+            <h1>Session Complete! <span class="emoji">🏆</span></h1>
+            <h2>Skills Unlocked:</h2>
+            <ul style="font-size: 1.3em;">
+                <li>✅ Understand portfolio project goals</li>
+                <li>✅ Conceptualized a unique game modification</li>
+                <li>✅ Identified Bengston Engine core systems</li>
+                <li>✅ Created a concrete development plan</li>
+                <li>✅ Made your first modifications to the engine</li>
+            </ul>
+            
+            <div class="demo-box">
+                <p><strong>Next Session:</strong> Deep dive into entity systems and collision detection</p>
+                <p><strong>Remember:</strong> The best portfolio project is one you're excited to build!</p>
+            </div>
+            
+            <p style="text-align: center; margin-top: 40px; font-size: 1.4em;">
+                <strong>Now go create something amazing! 🚀</strong>
+            </p>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="navigation">
+            <button id="prevBtn">Previous</button>
+            <span class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">21</span>
+            </span>
+            <button id="nextBtn">Next</button>
+        </div>
+    </div>
+
+    <!-- Shared Presentation JavaScript -->
+    <script src="../../js/presentation.js"></script>
+
+    <!-- Lecture-Specific JavaScript -->
+    <script>
+        // Timer for exercises
+        let exerciseTimer = null;
+        
+        document.addEventListener('slidechange', (e) => {
+            const slideNumber = e.detail.currentSlide;
+            
+            // Start timer for exercise slides
+            if (slideNumber === 4) { // Exercise 1 - 10 minutes
+                startExerciseTimer(10);
+            } else if (slideNumber === 8) { // Exercise 2 - 15 minutes
+                startExerciseTimer(15);
+            } else if (slideNumber === 11) { // Exercise 3 - 15 minutes
+                startExerciseTimer(15);
+            } else {
+                stopExerciseTimer();
+            }
+        });
+        
+        function startExerciseTimer(minutes) {
+            stopExerciseTimer();
+            let timeLeft = minutes * 60;
+            
+            exerciseTimer = setInterval(() => {
+                timeLeft--;
+                const mins = Math.floor(timeLeft / 60);
+                const secs = timeLeft % 60;
+                console.log(`Exercise time remaining: ${mins}:${secs.toString().padStart(2, '0')}`);
+                
+                if (timeLeft <= 0) {
+                    stopExerciseTimer();
+                    console.log('Exercise time complete!');
+                }
+            }, 1000);
+        }
+        
+        function stopExerciseTimer() {
+            if (exerciseTimer) {
+                clearInterval(exerciseTimer);
+                exerciseTimer = null;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Godot Engine Introduction - CSCI 3213</title>
+    
+    <!-- OCU Branded Presentation Styles with Theme Support -->
+    <link rel="stylesheet" href="../../styles/presentation.css">
+    <link rel="icon" type="image/x-icon" href="/images/favicon.png">
+    
+    <!-- Lecture-Specific Styles -->
+    <style>
+        .godot-demo {
+            background: linear-gradient(135deg, #478cbf 0%, #2e5c8a 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 2px solid #2e5c8a;
+        }
+        
+        .engine-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background: var(--card-bg, #f8f8f8);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid var(--border-color, #ddd);
+        }
+        
+        .node-hierarchy {
+            background: rgba(71, 140, 191, 0.1);
+            padding: 15px;
+            border-left: 4px solid #478cbf;
+            margin: 15px 0;
+        }
+        
+        .step-box {
+            background: var(--tip-bg, #e8f4f8);
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #00a8ff;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div class="timer-display" id="timer-display">
+            <span id="timer-text">Introduction to Godot Engine
+                 <button class="home"><a href="../index.html">Home</a></button>
+            </span>
+        </div>
+
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <h1>Introduction to Godot Engine</h1>
+            <h2>Building Your First 2D Game Project <span class="emoji">🎮</span></h2>
+            <p style="font-size: 1.5em; margin-top: 40px;">CSCI 3213 - Game Programming</p>
+            <p style="font-size: 1.3em;">Spring '26 - Week 13</p>
+            <p style="margin-top: auto; font-style: italic;">Let's create an analog clock from scratch!</p>
+        </div>
+
+        <!-- Slide 2: Learning Objectives -->
+        <div class="slide">
+            <h1>Today's Quest Objectives</h1>
+            <ul style="font-size: 1.4em; line-height: 2;">
+                <li>🎯 Understand what Godot Engine is and why we use it</li>
+                <li>🎯 Navigate the Godot editor interface</li>
+                <li>🎯 Create and structure a project using scenes and nodes</li>
+                <li>🎯 Build visual elements using sprites and polygons</li>
+                <li>🎯 Apply transformations like rotation and positioning</li>
+            </ul>
+            
+            <div class="demo-box" style="margin-top: 30px;">
+                <p><strong>Project:</strong> We'll build a complete analog clock with hour indicators and movable arms!</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: What is Godot? -->
+        <div class="slide">
+            <h1>What is Godot Engine? <span class="emoji">🤖</span></h1>
+            
+            <div class="godot-demo">
+                <h3 style="margin-top: 0;">Open-source game engine for 2D and 3D games</h3>
+                <ul style="font-size: 1.2em; line-height: 1.8;">
+                    <li>✅ Completely free and open source (MIT license)</li>
+                    <li>✅ Lightweight and fast</li>
+                    <li>✅ Scene system based on nodes</li>
+                    <li>✅ Built-in scripting language (GDScript) similar to Python</li>
+                    <li>✅ Cross-platform: Windows, Mac, Linux, Web, Mobile</li>
+                </ul>
+            </div>
+            
+            <div class="tip-box">
+                <strong>Fun Fact:</strong> Godot is named after the play "Waiting for Godot" - pronounced "goh-doh" or "goth dough"
+            </div>
+        </div>
+
+        <!-- Slide 4: Why Godot? -->
+        <div class="slide">
+            <h1>Why Learn Godot?</h1>
+            
+            <div class="engine-features">
+                <div class="feature-card">
+                    <h3>🆓 Free Forever</h3>
+                    <p>No licensing fees, no royalties, no strings attached</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🎓 Beginner Friendly</h3>
+                    <p>Intuitive interface and clear documentation</p>
+                </div>
+                <div class="feature-card">
+                    <h3>⚡ Lightweight</h3>
+                    <p>Small download, runs on modest hardware</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🔧 Flexible</h3>
+                    <p>Perfect for 2D games, also capable in 3D</p>
+                </div>
+            </div>
+            
+            <div class="demo-box" style="margin-top: 30px;">
+                <p><strong>Course Strategy:</strong> We're learning THREE engines (JavaScript, Unity, Godot) to understand different game development philosophies and tools!</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Getting Started -->
+        <div class="slide">
+            <h1>Getting Started with Godot</h1>
+            
+            <div class="step-box">
+                <h3>Step 1: Download Godot</h3>
+                <p>Visit <strong>godotengine.org</strong> → Download the latest Godot 4 version</p>
+                <p><em>Choose "Godot Engine" (standard version, not .NET)</em></p>
+            </div>
+            
+            <div class="step-box">
+                <h3>Step 2: Create a Project</h3>
+                <p>Open Godot → Project Manager → "New Project"</p>
+                <p>Choose a name and location → Select "Forward+" renderer for best compatibility</p>
+            </div>
+            
+            <div class="tip-box">
+                <strong>Pro Tip:</strong> The Project Manager is your hub for managing all Godot projects. You can have multiple projects and switch between them easily!
+            </div>
+        </div>
+
+        <!-- Slide 6: The Godot Editor -->
+        <div class="slide">
+            <h1>Navigating the Godot Editor <span class="emoji">🗺️</span></h1>
+            
+            <ul style="font-size: 1.3em; line-height: 2;">
+                <li><strong>Scene Panel</strong> (top-left): Your node hierarchy</li>
+                <li><strong>FileSystem</strong> (bottom-left): Project files and assets</li>
+                <li><strong>Viewport</strong> (center): Visual editor where you build scenes</li>
+                <li><strong>Inspector</strong> (right): Properties of selected nodes</li>
+                <li><strong>Bottom Panel</strong>: Output, debugger, and other tools</li>
+            </ul>
+            
+            <div class="demo-box">
+                <p><strong>Think of it like:</strong> Scene panel = your object list, Viewport = your canvas, Inspector = your toolbox for each object</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: Understanding Nodes and Scenes -->
+        <div class="slide">
+            <h1>Nodes & Scenes: Godot's Building Blocks</h1>
+            
+            <div class="node-hierarchy">
+                <h3>Everything in Godot is a Node</h3>
+                <ul style="font-size: 1.2em;">
+                    <li><strong>Node:</strong> Basic building block (like a GameObject in Unity)</li>
+                    <li><strong>Scene:</strong> A saved collection of nodes</li>
+                    <li><strong>Hierarchy:</strong> Nodes can be parents/children of other nodes</li>
+                </ul>
+            </div>
+            
+            <div style="background: var(--card-bg, #f8f8f8); padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <h3>Common Node Types:</h3>
+                <ul style="font-size: 1.2em; line-height: 1.8;">
+                    <li><strong>Node2D</strong> - Base for 2D elements with position/rotation/scale</li>
+                    <li><strong>Sprite2D</strong> - Displays images/textures</li>
+                    <li><strong>Polygon2D</strong> - Draws custom shapes</li>
+                    <li><strong>CollisionShape2D</strong> - Defines physics boundaries</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 8: Building Our Clock -->
+        <div class="slide">
+            <h1>Project: Analog Clock <span class="emoji">🕐</span></h1>
+            
+            <h2 style="margin-top: 30px;">What We'll Build:</h2>
+            <ul style="font-size: 1.3em; line-height: 2;">
+                <li>✓ A circular clock face (using Sprite2D with gradient)</li>
+                <li>✓ 12 hour indicator wedges (using Polygon2D)</li>
+                <li>✓ Three clock arms: hour, minute, second (using Polygon2D)</li>
+                <li>✓ Proper parent-child hierarchy for organization</li>
+            </ul>
+            
+            <div class="godot-demo">
+                <p style="font-size: 1.2em;">This project teaches you fundamental Godot concepts: scenes, nodes, transforms, and visual elements!</p>
+            </div>
+        </div>
+
+        <!-- Slide 9: Step 1 - Create the Scene -->
+        <div class="slide">
+            <h1>Step 1: Setting Up the Scene</h1>
+            
+            <div class="step-box">
+                <h3>Create Root Node</h3>
+                <ol style="font-size: 1.2em;">
+                    <li>Click "2D Scene" or add a Node2D</li>
+                    <li>Rename it to "Clock" (F2 or right-click → Rename)</li>
+                    <li>This is your root node - everything else will be children</li>
+                </ol>
+            </div>
+            
+            <div class="node-hierarchy">
+                <strong>Naming Convention:</strong> Use PascalCase for node names<br>
+                Examples: Clock, HourArm, SecondArm (no spaces)
+            </div>
+            
+            <div class="tip-box">
+                <strong>Remember:</strong> The root node represents your entire clock. All parts of the clock will be its children!
+            </div>
+        </div>
+
+        <!-- Slide 10: Step 2 - Create the Face -->
+        <div class="slide">
+            <h1>Step 2: Creating the Clock Face</h1>
+            
+            <div class="step-box">
+                <h3>Add Face Node</h3>
+                <ol style="font-size: 1.2em;">
+                    <li>Select "Clock" node → Add Child Node (Ctrl+A)</li>
+                    <li>Choose <strong>Sprite2D</strong></li>
+                    <li>Rename to "Face"</li>
+                    <li>In Inspector: Texture → New GradientTexture2D</li>
+                    <li>Set width and height to 256</li>
+                </ol>
+            </div>
+            
+            <div class="demo-box">
+                <p><strong>Texture Setup:</strong></p>
+                <ul>
+                    <li>Gradient → New Gradient</li>
+                    <li>Make right key transparent (alpha = 0)</li>
+                    <li>Move left key to 0.98 offset for solid circle</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 11: Step 3 - Hour Indicators -->
+        <div class="slide">
+            <h1>Step 3: Adding Hour Indicators</h1>
+            
+            <div class="step-box">
+                <h3>Create First Indicator</h3>
+                <ol style="font-size: 1.1em;">
+                    <li>Select "Face" → Add Child → <strong>Polygon2D</strong></li>
+                    <li>Rename to "Hour0"</li>
+                    <li>Set Color to black (#000000)</li>
+                    <li>In viewport: Enable "Select Mode" and "Grid Snap"</li>
+                    <li>Place 3 points to form a triangle at top of face</li>
+                </ol>
+            </div>
+            
+            <div class="tip-box">
+                <strong>Duplication Trick:</strong> After creating Hour0, duplicate it (Ctrl+D) and rotate by 30° for each hour indicator. Do this 11 more times!
+            </div>
+        </div>
+
+        <!-- Slide 12: Step 4 - Clock Arms -->
+        <div class="slide">
+            <h1>Step 4: Creating Clock Arms</h1>
+            
+            <div class="step-box">
+                <h3>Build the Arms</h3>
+                <ol style="font-size: 1.1em;">
+                    <li>Select "Clock" → Add Child → Polygon2D → "HourArm"</li>
+                    <li>Draw a short, thick arrow pointing at Hour0</li>
+                    <li>Give it a counterweight by overlapping the pivot</li>
+                    <li>Duplicate for "MinuteArm" - make it longer/narrower/blue</li>
+                    <li>Duplicate for "SecondArm" - make it sharp/thin/red</li>
+                </ol>
+            </div>
+            
+            <div class="node-hierarchy">
+                <strong>Final Hierarchy:</strong><br>
+                Clock<br>
+                &nbsp;&nbsp;→ Face (Sprite2D)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ Hour0, Hour1, ..., Hour11 (Polygon2D)<br>
+                &nbsp;&nbsp;→ HourArm (Polygon2D)<br>
+                &nbsp;&nbsp;→ MinuteArm (Polygon2D)<br>
+                &nbsp;&nbsp;→ SecondArm (Polygon2D)
+            </div>
+        </div>
+
+        <!-- Slide 13: Running Your Scene -->
+        <div class="slide">
+            <h1>Running Your Clock <span class="emoji">▶️</span></h1>
+            
+            <div class="demo-box">
+                <h3>Test Your Creation!</h3>
+                <p style="font-size: 1.2em;">Click the "Run Current Scene" button (play icon with clapboard) at top-right</p>
+                <p>You should see your static clock appear!</p>
+            </div>
+            
+            <div class="step-box">
+                <h3>Save Your Scene</h3>
+                <ul style="font-size: 1.2em;">
+                    <li>Ctrl+S or Scene → Save Scene</li>
+                    <li>Name it "clock.tscn"</li>
+                    <li>The .tscn extension = "text scene" file</li>
+                </ul>
+            </div>
+            
+            <div class="tip-box">
+                <strong>Note:</strong> Right now your clock is static - the arms don't move! That's what we'll fix with programming in the homework!
+            </div>
+        </div>
+
+        <!-- Slide 14: Key Concepts Review -->
+        <div class="slide">
+            <h1>Key Godot Concepts We Learned</h1>
+            
+            <ul style="font-size: 1.3em; line-height: 2;">
+                <li>📦 <strong>Nodes</strong> - Everything is a node (scenes, sprites, shapes)</li>
+                <li>🌳 <strong>Hierarchy</strong> - Parent-child relationships organize your game</li>
+                <li>🎨 <strong>Sprite2D</strong> - For displaying textures and images</li>
+                <li>🔺 <strong>Polygon2D</strong> - For drawing custom vector shapes</li>
+                <li>🔄 <strong>Transforms</strong> - Position, rotation, scale of nodes</li>
+                <li>💾 <strong>Scenes</strong> - Reusable collections of nodes (.tscn files)</li>
+            </ul>
+            
+            <div class="demo-box">
+                <p><strong>Think About:</strong> How is this different from Unity? From plain JavaScript?</p>
+            </div>
+        </div>
+
+        <!-- Slide 15: GDScript Preview -->
+        <div class="slide">
+            <h1>Next Up: GDScript Programming <span class="emoji">💻</span></h1>
+            
+            <div class="godot-demo">
+                <h3>What is GDScript?</h3>
+                <ul style="font-size: 1.2em; line-height: 1.8;">
+                    <li>Python-like scripting language built for Godot</li>
+                    <li>Tight integration with the engine</li>
+                    <li>Simple syntax, great for beginners</li>
+                    <li>Optional static typing for better performance</li>
+                </ul>
+            </div>
+            
+            <div class="code-example" style="font-size: 1.1em;">
+<span class="keyword">func</span> <span class="function">_process</span>(delta):
+    <span class="comment"># This runs every frame!</span>
+    <span class="keyword">var</span> current_time = Time.get_time_dict_from_system()
+    second_arm.rotation = current_time.second * TAU / <span class="number">60.0</span>
+            </div>
+        </div>
+
+        <!-- Slide 16: Homework Introduction -->
+        <div class="slide">
+            <h1>Homework: Animate Your Clock! <span class="emoji">⏰</span></h1>
+            
+            <div class="activity-box">
+                <h3>Your Mission:</h3>
+                <p style="font-size: 1.3em;">Follow the "Programming a Clock" tutorial to make your clock come alive!</p>
+                
+                <h3 style="margin-top: 20px;">You'll Learn To:</h3>
+                <ul style="font-size: 1.2em; line-height: 1.8;">
+                    <li>✓ Attach scripts to nodes</li>
+                    <li>✓ Write GDScript code to control behavior</li>
+                    <li>✓ Access system time</li>
+                    <li>✓ Update node properties (rotation) in real-time</li>
+                    <li>✓ Use _ready() and _process() functions</li>
+                    <li>✓ Add configuration options with exported variables</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 17: Homework Details -->
+        <div class="slide">
+            <h1>Homework Requirements</h1>
+            
+            <div class="step-box">
+                <h3>Part 1: Follow the Tutorial</h3>
+                <p>Complete the "Programming a Clock" tutorial from the Godot documentation linked in the course materials</p>
+            </div>
+            
+            <div class="step-box">
+                <h3>Part 2: Your Clock Should:</h3>
+                <ul style="font-size: 1.2em;">
+                    <li>✓ Display the current system time</li>
+                    <li>✓ Update continuously (smooth animation)</li>
+                    <li>✓ Have all three arms moving correctly</li>
+                    <li>✓ Include configuration options (time scale, start time modes)</li>
+                </ul>
+            </div>
+            
+            <div class="demo-box">
+                <p><strong>Bonus Challenge:</strong> Add a custom configuration like making the clock run backwards or at 2x speed!</p>
+            </div>
+        </div>
+
+        <!-- Slide 18: Resources -->
+        <div class="slide">
+            <h1>Learning Resources <span class="emoji">📚</span></h1>
+            
+            <div style="font-size: 1.2em; line-height: 2;">
+                <h3>Official Resources:</h3>
+                <ul>
+                    <li><a href="https://docs.godotengine.org/en/stable/index.html" class="resource-link">Godot Official Documentation</a></li>
+                    <li><a href="https://catlikecoding.com/godot/tutorials/" class="resource-link">Catlike Coding - Godot Tutorials</a></li>
+                    <li>Course materials folder: "Godot HW 1" tutorial</li>
+                </ul>
+                
+                <h3 style="margin-top: 20px;">Course Materials:</h3>
+                <ul>
+                    <li>JavaScript game engine (Bengston)</li>
+                    <li>Unity Junior Programmer pathway</li>
+                    <li>Godot tutorials (Catlike Coding)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 19: Comparing Engines -->
+        <div class="slide">
+            <h1>Quick Engine Comparison</h1>
+            
+            <div class="engine-features">
+                <div class="feature-card">
+                    <h3>JavaScript</h3>
+                    <p><strong>From Scratch</strong></p>
+                    <p>Full control, understand everything</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Unity</h3>
+                    <p><strong>Industry Standard</strong></p>
+                    <p>Powerful, commercial-ready, C#</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Godot</h3>
+                    <p><strong>Open Source</strong></p>
+                    <p>Lightweight, flexible, free forever</p>
+                </div>
+            </div>
+            
+            <div class="tip-box">
+                <strong>Learning Strategy:</strong> Understanding multiple engines makes you a more versatile game developer!
+            </div>
+        </div>
+
+        <!-- Slide 20: Wrap Up -->
+        <div class="slide">
+            <h1>Skills Unlocked! <span class="emoji">🏆</span></h1>
+            <h2>What You Can Do Now:</h2>
+            <ul style="font-size: 1.3em; line-height: 1.8;">
+                <li>✅ Set up a Godot project</li>
+                <li>✅ Navigate the Godot editor</li>
+                <li>✅ Create and organize nodes in a scene hierarchy</li>
+                <li>✅ Use Sprite2D and Polygon2D to build visuals</li>
+                <li>✅ Apply transforms (position, rotation, scale)</li>
+                <li>✅ Save and run scenes</li>
+            </ul>
+            
+            <div class="demo-box">
+                <p><strong>Next Class:</strong> We'll dive deeper into GDScript and explore more game mechanics!</p>
+                <p><strong>Homework:</strong> Complete the "Programming a Clock" tutorial and make your clock tick!</p>
+            </div>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="navigation">
+            <button id="prevBtn">Previous</button>
+            <span class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">20</span>
+            </span>
+            <button id="nextBtn">Next</button>
+        </div>
+    </div>
+
+    <!-- Shared Presentation JavaScript -->
+    <script src="../../js/presentation.js"></script>
+
+    <script>
+        // Track slide changes for any special behaviors
+        document.addEventListener('slidechange', (e) => {
+            console.log(`Slide ${e.detail.currentSlide + 1} of ${e.detail.totalSlides}`);
+            
+            // Could add slide-specific animations or demos here
+            if (e.detail.currentSlide === 15) {
+                console.log('GDScript preview slide - ready for code discussion!');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 15 - Godot: Packed Scenes & 2D Physics - CSCI 3213</title>
+    
+    <!-- OCU Branded Presentation Styles with Theme Support -->
+    <link rel="stylesheet" href="../../styles/presentation.css">
+    <link rel="icon" type="image/x-icon" href="/images/favicon.png">
+    
+    <!-- Lecture-Specific Styles -->
+    <style>
+        .physics-demo {
+            background: #1a1a2e;
+            color: #0f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            border: 2px solid #16213e;
+        }
+        
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .concept-card {
+            background: var(--card-bg, #f8f8f8);
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid var(--border-color, #ddd);
+        }
+        
+        .resource-link {
+            color: #00a8ff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .resource-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div class="timer-display" id="timer-display">
+            <span id="timer-text">Godot: Packed Scenes & 2D Physics
+                 <button class="home"><a href="../index.html">Home</a></button>
+            </span>
+        </div>
+
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <h1>Godot: Packed Scenes & 2D Physics</h1>
+            <h2>Many Clocks <span class="emoji">⏰</span></h2>
+            <p style="font-size: 1.5em; margin-top: 40px;">CSCI 3213 - Game Programming</p>
+            <p style="font-size: 1.3em;">Spring '26 - Week 15, Lecture 1</p>
+            <p style="margin-top: auto; font-style: italic;">Building reusable game objects with physics!</p>
+        </div>
+
+        <!-- Slide 2: Learning Objectives -->
+        <div class="slide">
+            <h1>Today's Quest Objectives</h1>
+            <ul style="font-size: 1.4em; line-height: 2;">
+                <li>🎯 Understand packed scenes and scene instantiation</li>
+                <li>🎯 Work with RigidBody2D for physics simulation</li>
+                <li>🎯 Implement collision detection and response</li>
+                <li>🎯 Use timers and signals in Godot</li>
+                <li>🎯 Dynamically spawn and manage game objects</li>
+            </ul>
+        </div>
+
+        <!-- Slide 3: What Are Packed Scenes? -->
+        <div class="slide">
+            <h1>Packed Scenes <span class="emoji">📦</span></h1>
+            <p>Packed scenes are <strong>serialized scenes</strong> - reusable templates for game objects!</p>
+
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h3>🏗️ Scene as Template</h3>
+                    <p>Design once, instantiate many times</p>
+                </div>
+                <div class="concept-card">
+                    <h3>🔄 Reusable</h3>
+                    <p>Create multiple instances with different properties</p>
+                </div>
+                <div class="concept-card">
+                    <h3>⚡ Efficient</h3>
+                    <p>Godot optimizes packed scene loading</p>
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <strong>Think of it like:</strong> A blueprint for a building vs. the actual buildings constructed from it!
+            </div>
+        </div>
+
+        <!-- Slide 4: Creating a Main Scene -->
+        <div class="slide">
+            <h1>Main Scene Architecture</h1>
+            <p>Structure your game with a <strong>main controller scene</strong> that manages content scenes.</p>
+
+            <div class="code-example">
+<span class="keyword">extends</span> <span class="classname">Node2D</span>
+
+<span class="comment">## Clock to be spawned.</span>
+<span class="decorator">@export</span> <span class="keyword">var</span> <span class="variable">clock_scene</span>: <span class="classname">PackedScene</span>
+
+<span class="keyword">func</span> <span class="function">_ready</span>() -> <span class="keyword">void</span>:
+    <span class="keyword">var</span> <span class="variable">clock</span> := clock_scene.<span class="function">instantiate</span>()
+    <span class="function">add_child</span>(clock)
+            </div>
+
+            <div class="demo-box">
+                <p><strong>Key Concepts:</strong></p>
+                <ul>
+                    <li><code>@export</code> - Makes variables visible in the Inspector</li>
+                    <li><code>instantiate()</code> - Creates a new instance from the packed scene</li>
+                    <li><code>add_child()</code> - Adds the instance to the scene tree</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 5: Introduction to RigidBody2D -->
+        <div class="slide">
+            <h1>RigidBody2D Physics <span class="emoji">⚙️</span></h1>
+            <p>RigidBody2D nodes simulate realistic physics automatically!</p>
+
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h3>🌍 Gravity</h3>
+                    <p>Responds to global gravity settings</p>
+                </div>
+                <div class="concept-card">
+                    <h3>💥 Collisions</h3>
+                    <p>Automatically handles collisions with other bodies</p>
+                </div>
+                <div class="concept-card">
+                    <h3>🎯 Forces</h3>
+                    <p>Apply forces, torque, and impulses</p>
+                </div>
+                <div class="concept-card">
+                    <h3>📊 Properties</h3>
+                    <p>Mass, friction, bounce, and more</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Physics Properties -->
+        <div class="slide">
+            <h1>Configuring Physics Materials</h1>
+            
+            <div class="demo-box">
+                <h3>PhysicsMaterial Properties:</h3>
+                <ul style="text-align: left; font-size: 1.2em;">
+                    <li><strong>Bounce:</strong> 0.0 - 1.0 (bounciness/restitution)</li>
+                    <li><strong>Friction:</strong> Controls how objects slide</li>
+                    <li><strong>Mass:</strong> Affects force and momentum</li>
+                    <li><strong>Gravity Scale:</strong> Multiplier for gravity</li>
+                </ul>
+            </div>
+
+            <div class="code-example" style="font-size: 1.2em;">
+<span class="comment"># In script: Set mass based on size</span>
+<span class="keyword">func</span> <span class="function">set_uniform_scale</span>(scale_factor: <span class="keyword">float</span>):
+    <span class="variable">collision_shape</span>.scale = <span class="classname">Vector2</span>(scale_factor, scale_factor)
+    <span class="variable">mass</span> = scale_factor * scale_factor <span class="comment"># Area-based mass</span>
+            </div>
+
+            <div class="tip-box">
+                <strong>Pro Tip:</strong> Create a PhysicsMaterial with bounce = 0.25 for bouncy objects like marbles!
+            </div>
+        </div>
+
+        <!-- Slide 7: Dynamic Spawning -->
+        <div class="slide">
+            <h1>Spawning Objects with Timers <span class="emoji">⏱️</span></h1>
+            
+            <div class="code-example" style="font-size: 1.1em;">
+<span class="decorator">@export</span> <span class="keyword">var</span> <span class="variable">spawn_timer</span>: <span class="classname">Timer</span>
+
+<span class="keyword">func</span> <span class="function">_ready</span>() -> <span class="keyword">void</span>:
+    spawn_timer.<span class="variable">timeout</span>.<span class="function">connect</span>(_on_spawn_timer_timeout)
+
+<span class="keyword">func</span> <span class="function">_on_spawn_timer_timeout</span>() -> <span class="keyword">void</span>:
+    <span class="keyword">var</span> <span class="variable">clock</span> := clock_scene.<span class="function">instantiate</span>()
+    <span class="variable">clock</span>.<span class="variable">position</span> = <span class="classname">Vector2</span>(
+        <span class="function">randf_range</span>(radius, window_width - radius),
+        -<span class="number">3.0</span> * radius
+    )
+    <span class="function">add_child</span>(clock)
+            </div>
+
+            <div class="demo-box">
+                <p><strong>This creates:</strong> Objects spawning at random horizontal positions above the screen!</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: Collision Layers & Masks -->
+        <div class="slide">
+            <h1>Collision Layers System</h1>
+            <p>Control <strong>which objects can collide</strong> with each other.</p>
+
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h3>🏷️ Collision Layer</h3>
+                    <p>"What layer am I on?"</p>
+                    <p><small>Defines which layer this object belongs to</small></p>
+                </div>
+                <div class="concept-card">
+                    <h3>👁️ Collision Mask</h3>
+                    <p>"What layers can I see?"</p>
+                    <p><small>Defines which layers this object can collide with</small></p>
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <strong>Example:</strong> Player on Layer 1, Enemies on Layer 2
+                <br>Player mask includes Layer 2 (can hit enemies)
+                <br>Enemy mask includes Layer 1 (can hit player)
+            </div>
+        </div>
+
+        <!-- Slide 9: Signals and Events -->
+        <div class="slide">
+            <h1>Godot Signals <span class="emoji">📡</span></h1>
+            <p>Signals enable <strong>event-driven programming</strong> in Godot!</p>
+
+            <div class="code-example" style="font-size: 1.2em;">
+<span class="comment"># Connect a signal in code</span>
+spawn_timer.<span class="variable">timeout</span>.<span class="function">connect</span>(_on_spawn_timer_timeout)
+get_window().<span class="variable">size_changed</span>.<span class="function">connect</span>(_on_size_changed)
+
+<span class="comment"># Create custom signals</span>
+<span class="keyword">signal</span> <span class="variable">game_over</span>
+<span class="keyword">signal</span> <span class="variable">score_changed</span>(new_score: <span class="keyword">int</span>)
+
+<span class="comment"># Emit a signal</span>
+game_over.<span class="function">emit</span>()
+score_changed.<span class="function">emit</span>(<span class="number">100</span>)
+            </div>
+
+            <div class="demo-box">
+                <p><strong>Common Signals:</strong> timeout, body_entered, body_exited, input_event, pressed</p>
+            </div>
+        </div>
+
+        <!-- Slide 10: StaticBody2D for Boundaries -->
+        <div class="slide">
+            <h1>Creating Boundaries</h1>
+            <p>Use <strong>StaticBody2D</strong> for immovable collision objects!</p>
+
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h3>🧱 StaticBody2D</h3>
+                    <p>Never moves, perfect for walls and floors</p>
+                </div>
+                <div class="concept-card">
+                    <h3>🏃 RigidBody2D</h3>
+                    <p>Moves with physics simulation</p>
+                </div>
+                <div class="concept-card">
+                    <h3>🎮 CharacterBody2D</h3>
+                    <p>For player-controlled movement</p>
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <strong>Use Case:</strong> Create a floor at the bottom of the screen that clocks fall onto. Add collision shapes to define boundaries!
+            </div>
+        </div>
+
+        <!-- Slide 11: Handling Window Resize -->
+        <div class="slide">
+            <h1>Responsive Game Windows</h1>
+            
+            <div class="code-example" style="font-size: 1.1em;">
+<span class="keyword">func</span> <span class="function">_ready</span>() -> <span class="keyword">void</span>:
+    get_window().<span class="variable">size_changed</span>.<span class="function">connect</span>(_on_size_changed)
+    <span class="function">_on_size_changed</span>() <span class="comment"># Initialize</span>
+
+<span class="keyword">func</span> <span class="function">_on_size_changed</span>() -> <span class="keyword">void</span>:
+    <span class="keyword">var</span> <span class="variable">window_size</span> := get_window().size
+    
+    <span class="comment"># Update ground position</span>
+    ground.<span class="variable">position</span>.y = window_size.y + <span class="number">100</span>
+    
+    <span class="comment"># Update boundary width</span>
+    <span class="keyword">var</span> <span class="variable">shape</span> := ground.get_child(<span class="number">0</span>).shape
+    shape.<span class="variable">size</span>.x = window_size.x
+            </div>
+
+            <div class="demo-box">
+                <p><strong>Result:</strong> Game boundaries adapt automatically to window size changes!</p>
+            </div>
+        </div>
+
+        <!-- Slide 12: Activity - Build a Physics Playground -->
+        <div class="slide">
+            <h1>Hands-On Challenge <span class="emoji">💻</span></h1>
+            <div class="activity-box">
+                <h2>Create "Falling Objects" Scene</h2>
+                <p><strong>Your Mission:</strong></p>
+                <ol style="text-align: left; font-size: 1.2em;">
+                    <li>Create a new 2D scene with a Main node</li>
+                    <li>Add a StaticBody2D floor at the bottom</li>
+                    <li>Create a simple object scene (circle or square) with RigidBody2D</li>
+                    <li>Export the object as a PackedScene in Main</li>
+                    <li>Add a Timer that spawns objects every second</li>
+                    <li><strong>Bonus:</strong> Vary the size and bounce properties!</li>
+                </ol>
+            </div>
+            <div class="tip-box">
+                <strong>Time:</strong> 15 minutes | Work solo or in pairs
+            </div>
+        </div>
+
+        <!-- Slide 13: Best Practices -->
+        <div class="slide">
+            <h1>Godot Best Practices <span class="emoji">⭐</span></h1>
+            
+            <div class="demo-box">
+                <h3>Scene Organization:</h3>
+                <ul style="text-align: left; font-size: 1.2em;">
+                    <li>✅ Keep scenes focused and reusable</li>
+                    <li>✅ Use @export for configurable properties</li>
+                    <li>✅ Name nodes descriptively</li>
+                    <li>✅ Use signals for loose coupling</li>
+                </ul>
+            </div>
+
+            <div class="demo-box">
+                <h3>Physics Optimization:</h3>
+                <ul style="text-align: left; font-size: 1.2em;">
+                    <li>⚡ Keep collision shapes simple</li>
+                    <li>⚡ Use collision layers wisely</li>
+                    <li>⚡ Consider using Areas for triggers</li>
+                    <li>⚡ Set inactive objects to sleep mode</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 14: Common Pitfalls -->
+        <div class="slide">
+            <h1>Common Mistakes to Avoid</h1>
+            
+            <div class="warning-box">
+                <h3>❌ Don't:</h3>
+                <ul style="text-align: left; font-size: 1.1em;">
+                    <li>Forget to add_child() after instantiate()</li>
+                    <li>Set position before adding to tree (might not work)</li>
+                    <li>Create too many collision checks</li>
+                    <li>Modify StaticBody2D frequently (expensive!)</li>
+                </ul>
+            </div>
+
+            <div class="demo-box" style="margin-top: 20px;">
+                <h3>✅ Do:</h3>
+                <ul style="text-align: left; font-size: 1.1em;">
+                    <li>Use @onready for node references</li>
+                    <li>Free unused instances with queue_free()</li>
+                    <li>Test physics at different frame rates</li>
+                    <li>Use call_deferred() for physics changes</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 15: Resources -->
+        <div class="slide">
+            <h1>Continue Your Journey</h1>
+            
+            <div class="demo-box">
+                <p><strong>Today's Tutorial:</strong></p>
+                <ul style="text-align: left;">
+                    <li><a href="https://catlikecoding.com/godot/tutorials/" class="resource-link" target="_blank">Catlike Coding - Godot Tutorials</a></li>
+                    <li>Tutorial: "Many Clocks" (Packed Scenes & 2D Physics)</li>
+                </ul>
+            </div>
+
+            <div class="demo-box">
+                <p><strong>Godot Documentation:</strong></p>
+                <ul style="text-align: left;">
+                    <li><a href="https://docs.godotengine.org/en/stable/tutorials/physics/physics_introduction.html" class="resource-link" target="_blank">Physics Introduction</a></li>
+                    <li><a href="https://docs.godotengine.org/en/stable/classes/class_rigidbody2d.html" class="resource-link" target="_blank">RigidBody2D Class Reference</a></li>
+                    <li><a href="https://docs.godotengine.org/en/stable/tutorials/scripting/instancing.html" class="resource-link" target="_blank">Instancing Scenes</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 16: Summary -->
+        <div class="slide">
+            <h1>Quest Complete! <span class="emoji">🏆</span></h1>
+            <h2>Skills Unlocked:</h2>
+            <ul style="font-size: 1.3em;">
+                <li>✅ Creating and using PackedScenes</li>
+                <li>✅ Working with RigidBody2D physics</li>
+                <li>✅ Dynamic object spawning with Timers</li>
+                <li>✅ Handling collisions and signals</li>
+                <li>✅ Creating responsive game boundaries</li>
+            </ul>
+            
+            <div class="demo-box" style="margin-top: 40px;">
+                <p><strong>Next Class:</strong> Advanced collision systems and game state management</p>
+                <p><strong>Homework:</strong> Continue working on your semester game project. Consider adding physics-based gameplay elements!</p>
+            </div>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="navigation">
+            <button id="prevBtn">Previous</button>
+            <span class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">16</span>
+            </span>
+            <button id="nextBtn">Next</button>
+        </div>
+    </div>
+
+    <!-- Shared Presentation JavaScript -->
+    <script src="../../js/presentation.js"></script>
+
+    <!-- Lecture-Specific JavaScript -->
+    <script>
+        document.addEventListener('slidechange', (e) => {
+            console.log(`Slide ${e.detail.currentSlide + 1} of ${e.detail.totalSlides}`);
+            
+            // Activity timer for slide 12
+            if (e.detail.currentSlide === 11) {
+                console.log('Activity time - 15 minutes!');
+            }
+        });
+    </script>
+</body>
+</html>
